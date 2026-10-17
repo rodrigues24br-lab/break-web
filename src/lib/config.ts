@@ -84,7 +84,8 @@ export const firebaseClientConfig: {
 } = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "demo-api-key",
   authDomain:
-    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "demo.firebaseapp.com",
+    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ||
+    "break-99b8e.firebaseapp.com",
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "demo-break-app",
   storageBucket:
     process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||

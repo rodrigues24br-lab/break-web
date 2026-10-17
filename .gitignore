@@ -5,7 +5,7 @@
 /.pnp
 .pnp.*
 .yarn/*
-!.yarn/patches
+!.yarn.patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
@@ -30,7 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env — never commit secrets
+.env
+.env.local
 .env*
 !.env.example
 

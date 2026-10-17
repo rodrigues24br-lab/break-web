@@ -1,11 +1,11 @@
 {
   "meta": {
-    "title": "Break — Take back your focus",
-    "description": "Block apps and sites, set daily limits, and build better habits with Break Pro."
+    "title": "Break — Trade endless scroll for real life",
+    "description": "Retake control before you scroll. Block apps with Screen Time, face a challenge to open them, and stick to daily limits."
   },
   "brand": {
     "name": "Break",
-    "tagline": "Habits that stick."
+    "tagline": "Trade endless scroll for real life."
   },
   "nav": {
     "signup": "Create account",
@@ -45,9 +45,9 @@
     "price": "$49.99",
     "period": "/ year",
     "features": [
-      "Pro access on iOS",
-      "Synced with your account",
-      "Annual renewal"
+      "Block several apps",
+      "Sleep Mode & daily limit",
+      "Live hour & safe browsing"
     ],
     "cta": "Pay with Stripe",
     "loading": "Opening checkout…",
@@ -65,67 +65,103 @@
   },
   "sales": {
     "hero": {
-      "title": "Take back your time from the screen.",
-      "subtitle": "Break helps you block distracting apps and sites, set honest daily limits, and stick with them.",
+      "title": "Trade endless scroll for real life.",
+      "subtitle": "With Break, you retake control before you scroll — a Screen Time barrier between you and the feed.",
       "cta": "Continue"
     },
     "problem": {
       "title": "The problem",
-      "lead": "Screens steal hours you never planned to give.",
+      "lead": "Endless scroll takes hours you never meant to give.",
       "items": [
-        "You open one app “for a minute” and lose 40 to infinite scroll.",
-        "Notifications pull you out of work, study, or a conversation.",
+        "You open an app “for a second” and lose half an hour to the feed.",
+        "Notifications yank you out of work, study, or a conversation.",
         "Late-night scrolling eats sleep before you notice.",
-        "Attention fragments — and the day feels shorter than it was."
+        "Without a barrier, intention loses to the next swipe."
       ]
     },
     "consequences": {
       "title": "If nothing changes",
-      "lead": "The cost is quiet, but real.",
+      "lead": "The cost is quiet — and measurable.",
       "items": [
-        "Less deep work and more half-finished tasks.",
+        "Less deep work; more half-finished days.",
         "Worse sleep when the phone is the last thing you see.",
-        "People in front of you compete with a glowing rectangle.",
+        "People in front of you compete with a glowing feed.",
         "Weeks pass with the same “I’ll fix it tomorrow.”"
       ]
     },
     "solution": {
       "title": "The solution: Break",
-      "lead": "A simple system that blocks what pulls you away — and keeps the limit when willpower fades.",
+      "lead": "Authorize Screen Time, pick apps, Break blocks them. A challenge to open. A short session. Then it locks again. Your home screen shows real usage.",
       "items": [
-        { "title": "App blocking", "text": "Stop the apps that drain your focus when you need it most." },
-        { "title": "Daily limits", "text": "Set a clear ceiling for screen time and stick to it." },
-        { "title": "Challenges", "text": "Short commitments that build better habits without drama." },
-        { "title": "Site blocking", "text": "Cut the websites that turn five minutes into an hour." }
+        {
+          "title": "App blocking",
+          "text": "Protected apps sit behind Apple Screen Time until you earn an opening."
+        },
+        {
+          "title": "Challenge before open",
+          "text": "Sort balls, word search, three breaths, tile match, mahjong, flow, or a Bible verse — then you may open."
+        },
+        {
+          "title": "Short session + reblock",
+          "text": "A limited unlock. When time is up, Break locks the app again."
+        },
+        {
+          "title": "Sleep Mode",
+          "text": "After bedtime, protected apps stay blocked until morning."
+        },
+        {
+          "title": "Daily limit",
+          "text": "A ceiling on openings. Hit it, and Break stops releasing apps for the day."
+        }
       ]
     },
     "pro": {
-      "title": "What Pro unlocks",
-      "lead": "Full Break on iOS, tied to your account.",
+      "title": "Free vs Pro",
+      "lead": "Start free. Go Pro when one app isn’t enough.",
+      "freeTitle": "Free",
+      "freeItems": ["Block 1 app"],
+      "proTitle": "Pro",
+      "proSeal": "Pro",
       "items": [
-        "Pro access on iOS",
-        "App blocking",
-        "Daily limits",
-        "Challenges",
-        "Site blocking",
-        "Synced with your account",
-        "Annual renewal — one payment for the year"
+        "Block several apps",
+        "Sleep Mode",
+        "Daily limit",
+        "Live hour — one free hour at once",
+        "Safe browsing — block adult sites",
+        "All five anti-scroll functions",
+        "Synced to your account · annual renewal"
       ]
     },
     "how": {
       "title": "How it works",
       "steps": [
-        { "n": "1", "title": "Create your account", "text": "Email and password — same email you’ll use in the app." },
-        { "n": "2", "title": "Pay for Pro", "text": "Secure payment on this page. You stay here until it’s done." },
-        { "n": "3", "title": "Download Break", "text": "Get the app on the App Store." },
-        { "n": "4", "title": "Sign in", "text": "Same email. Pro is already unlocked." }
+        {
+          "n": "1",
+          "title": "Create your account",
+          "text": "Email and password — same email you’ll use in the app."
+        },
+        {
+          "n": "2",
+          "title": "Pay for Pro",
+          "text": "Secure payment on this page. You stay here until it’s done."
+        },
+        {
+          "n": "3",
+          "title": "Download Break",
+          "text": "Get the app on the App Store and allow Screen Time."
+        },
+        {
+          "n": "4",
+          "title": "Sign in",
+          "text": "Same email. Pro is already unlocked."
+        }
       ]
     },
     "offer": {
       "title": "Break Pro — annual",
       "price": "$49.99",
       "period": "per year",
-      "includes": "Includes Pro on iOS: blocking, limits, challenges, sites — synced to your account.",
+      "includes": "Several apps, Sleep Mode, daily limit, live hour, safe browsing — synced to your account.",
       "cta": "Continue to account & payment"
     },
     "pay": {
@@ -151,7 +187,7 @@
       "privacy": "Privacy",
       "terms": "Terms",
       "support": "Support",
-      "tagline": "Break — habits that stick."
+      "tagline": "Break — trade endless scroll for real life."
     }
   },
   "legal": {
@@ -161,11 +197,11 @@
     },
     "terms": {
       "title": "Terms",
-      "body": "Break Pro is an annual subscription billed at $49.99 USD unless otherwise stated at checkout. Pro status syncs to the Break iOS app when you sign in with the same email. Refunds follow the store and payment provider policies applicable to your purchase."
+      "body": "Break Pro is an annual subscription billed at $49.99 USD unless otherwise stated at checkout. Pro status syncs to the Break iOS app when you sign in with the same email. Refunds follow the payment provider policies applicable to your purchase."
     },
     "support": {
       "title": "Support",
-      "body": "Need help with your account or Pro status? Email support@break.app with the email you used at checkout. Include your order or session details if you have them."
+      "body": "Need help with your account or Pro status? Email support@break.app with the email you used at checkout."
     }
   }
 }

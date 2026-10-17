@@ -278,7 +278,7 @@ export function SalesCheckout({ initiallyPaid = false }: Props) {
                   : t("payCta")}
             </Button>
           ) : stripePromise && options ? (
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-2">
+            <div className="overflow-hidden rounded-2xl border border-border bg-card p-2 shadow-sm">
               <EmbeddedCheckoutProvider
                 stripe={stripePromise}
                 options={options}

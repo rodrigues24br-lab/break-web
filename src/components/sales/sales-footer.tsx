@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 export async function SalesFooter({ locale }: { locale: string }) {
   const t = await getTranslations("sales.footer");
   return (
-    <footer className="mt-24 border-t border-white/10 px-5 py-10 sm:px-8">
+    <footer className="mt-24 border-t border-border px-5 py-10 sm:px-8">
       <div className="mx-auto flex max-w-3xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="font-[family-name:var(--font-display)] text-lg font-bold tracking-tight">
           Break

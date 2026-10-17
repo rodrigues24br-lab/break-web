@@ -1,11 +1,11 @@
 {
   "meta": {
-    "title": "Break — Recupera tu foco",
-    "description": "Bloquea apps y sitios, define límites diarios y construye mejores hábitos con Break Pro."
+    "title": "Break — Cambia el scroll infinito por la vida real",
+    "description": "Retoma el control antes de rolar. Bloquea apps con Tiempo de Uso, un desafío para abrir y límites diarios."
   },
   "brand": {
     "name": "Break",
-    "tagline": "Hábitos que se sostienen."
+    "tagline": "Cambia el scroll infinito por la vida real."
   },
   "nav": {
     "signup": "Crear cuenta",
@@ -45,9 +45,9 @@
     "price": "$49.99",
     "period": "/ año",
     "features": [
-      "Acceso Pro en iOS",
-      "Sincronizado con tu cuenta",
-      "Renovación anual"
+      "Bloquear varios apps",
+      "Modo Sueño y límite diario",
+      "Hora liberada y navegación segura"
     ],
     "cta": "Pagar con Stripe",
     "loading": "Abriendo checkout…",
@@ -65,67 +65,103 @@
   },
   "sales": {
     "hero": {
-      "title": "Recupera tu tiempo de la pantalla.",
-      "subtitle": "Break te ayuda a bloquear apps y sitios que distraen, poner límites diarios honestos y mantenerlos.",
+      "title": "Cambia el scroll infinito por la vida real.",
+      "subtitle": "En Break, retomas el control antes de rolar la pantalla — una barrera de Tiempo de Uso entre tú y el feed.",
       "cta": "Continuar"
     },
     "problem": {
       "title": "El problema",
-      "lead": "Las pantallas se llevan horas que no planeabas regalar.",
+      "lead": "El scroll infinito se lleva horas que no planeabas regalar.",
       "items": [
-        "Abres una app “un minuto” y pierdes 40 en scroll infinito.",
+        "Abres una app “un segundo” y pierdes media hora en el feed.",
         "Las notificaciones te sacan del trabajo, el estudio o una conversación.",
         "El scroll nocturno come sueño antes de que lo notes.",
-        "La atención se fragmenta — y el día se siente más corto."
+        "Sin una barrera, la intención pierde frente al siguiente swipe."
       ]
     },
     "consequences": {
       "title": "Si no lo cambias",
-      "lead": "El costo es silencioso, pero real.",
+      "lead": "El costo es silencioso — y medible.",
       "items": [
-        "Menos trabajo profundo y más tareas a medias.",
+        "Menos trabajo profundo; más días a medias.",
         "Peor sueño cuando el teléfono es lo último que ves.",
-        "La gente frente a ti compite con un rectángulo brillante.",
+        "La gente frente a ti compite con un feed brillante.",
         "Pasan semanas con el mismo “mañana lo arreglo.”"
       ]
     },
     "solution": {
       "title": "La solución: Break",
-      "lead": "Un sistema simple que bloquea lo que te aleja — y sostiene el límite cuando falta la voluntad.",
+      "lead": "Autorizas Tiempo de Uso, eliges apps, Break las bloquea. Un desafío para abrir. Una sesión corta. Luego vuelve a bloquear. En la home ves el uso real.",
       "items": [
-        { "title": "Bloqueo de apps", "text": "Corta las apps que drenan tu foco cuando más lo necesitas." },
-        { "title": "Límites diarios", "text": "Define un techo claro de pantalla y cúmplelo." },
-        { "title": "Desafíos", "text": "Compromisos cortos que forman hábitos sin drama." },
-        { "title": "Bloqueo de sitios", "text": "Corta los sitios que convierten cinco minutos en una hora." }
+        {
+          "title": "Bloqueo de apps",
+          "text": "Las apps protegidas quedan detrás del escudo de Tiempo de Uso hasta que ganas una apertura."
+        },
+        {
+          "title": "Desafío antes de abrir",
+          "text": "Ordenar bolas, sopa de letras, tres respiraciones, tile match, mahjong, flow o un versículo — después puedes abrir."
+        },
+        {
+          "title": "Sesión corta + rebloqueo",
+          "text": "Liberación limitada. Al terminar el tiempo, Break vuelve a bloquear."
+        },
+        {
+          "title": "Modo Sueño",
+          "text": "Después de la hora de dormir, las apps protegidas quedan bloqueadas hasta la mañana."
+        },
+        {
+          "title": "Límite diario",
+          "text": "Un techo de aperturas. Al alcanzarlo, Break ya no libera apps ese día."
+        }
       ]
     },
     "pro": {
-      "title": "Qué desbloquea Pro",
-      "lead": "Break completo en iOS, ligado a tu cuenta.",
+      "title": "Gratis vs Pro",
+      "lead": "Empieza gratis. Pasa a Pro cuando un app no basta.",
+      "freeTitle": "Gratis",
+      "freeItems": ["Bloquear 1 app"],
+      "proTitle": "Pro",
+      "proSeal": "Pro",
       "items": [
-        "Acceso Pro en iOS",
-        "Bloqueo de apps",
-        "Límites diarios",
-        "Desafíos",
-        "Bloqueo de sitios",
-        "Sincronizado con tu cuenta",
-        "Renovación anual — un pago por el año"
+        "Bloquear varios apps",
+        "Modo Sueño",
+        "Límite diario",
+        "Hora liberada — una hora libre de una vez",
+        "Navegación segura — bloqueo de sitios adultos",
+        "Las cinco funciones anti-scroll",
+        "Sincronizado con tu cuenta · renovación anual"
       ]
     },
     "how": {
       "title": "Cómo funciona",
       "steps": [
-        { "n": "1", "title": "Crea tu cuenta", "text": "Email y contraseña — el mismo email que usarás en la app." },
-        { "n": "2", "title": "Paga Pro", "text": "Pago seguro en esta página. Te quedas aquí hasta terminar." },
-        { "n": "3", "title": "Descarga Break", "text": "Consigue la app en el App Store." },
-        { "n": "4", "title": "Entra", "text": "Mismo email. Pro ya está desbloqueado." }
+        {
+          "n": "1",
+          "title": "Crea tu cuenta",
+          "text": "Email y contraseña — el mismo email que usarás en la app."
+        },
+        {
+          "n": "2",
+          "title": "Paga Pro",
+          "text": "Pago seguro en esta página. Te quedas aquí hasta terminar."
+        },
+        {
+          "n": "3",
+          "title": "Descarga Break",
+          "text": "Consigue la app en el App Store y autoriza Tiempo de Uso."
+        },
+        {
+          "n": "4",
+          "title": "Entra",
+          "text": "Mismo email. Pro ya está desbloqueado."
+        }
       ]
     },
     "offer": {
       "title": "Break Pro — anual",
       "price": "$49.99",
       "period": "al año",
-      "includes": "Incluye Pro en iOS: bloqueos, límites, desafíos, sitios — sincronizado con tu cuenta.",
+      "includes": "Varios apps, Modo Sueño, límite diario, hora liberada, navegación segura — sincronizado con tu cuenta.",
       "cta": "Continuar a cuenta y pago"
     },
     "pay": {
@@ -151,21 +187,21 @@
       "privacy": "Privacidad",
       "terms": "Términos",
       "support": "Soporte",
-      "tagline": "Break — hábitos que se sostienen."
+      "tagline": "Break — cambia el scroll infinito por la vida real."
     }
   },
   "legal": {
     "privacy": {
       "title": "Privacidad",
-      "body": "Break Web recoge el email que usas para crear la cuenta y los metadatos de pago necesarios para Break Pro. No vendemos tus datos personales. El pago lo procesa Stripe. Para dudas, contacta soporte."
+      "body": "Break Web recoge el email que usas para crear la cuenta y los metadatos de pago necesarios para Break Pro. No vendemos tus datos personales. El pago lo procesa Stripe."
     },
     "terms": {
       "title": "Términos",
-      "body": "Break Pro es una suscripción anual de $49.99 USD salvo que se indique otra cosa en el checkout. El estado Pro se sincroniza con la app iOS de Break al iniciar sesión con el mismo email. Los reembolsos siguen las políticas del proveedor de pago aplicables a tu compra."
+      "body": "Break Pro es una suscripción anual de $49.99 USD salvo que se indique otra cosa en el checkout. El estado Pro se sincroniza con la app iOS al iniciar sesión con el mismo email."
     },
     "support": {
       "title": "Soporte",
-      "body": "¿Ayuda con tu cuenta o Pro? Escribe a support@break.app con el email del checkout. Incluye detalles del pedido o sesión si los tienes."
+      "body": "¿Ayuda con tu cuenta o Pro? Escribe a support@break.app con el email del checkout."
     }
   }
 }

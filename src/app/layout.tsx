@@ -16,8 +16,9 @@ const body = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Break — Pro",
-  description: "Create your account and activate Break Pro.",
+  title: "Break — Trade endless scroll for real life",
+  description:
+    "Break puts a barrier between you and endless scrolling with Screen Time blocking, challenges, and daily limits.",
 };
 
 export default function RootLayout({
@@ -26,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${display.variable} ${body.variable} dark h-full`}>
+    <html lang="en" className={`${display.variable} ${body.variable} h-full`}>
       <body className="min-h-full flex flex-col font-[family-name:var(--font-body)]">
         {children}
         <FirstPromoterScript />

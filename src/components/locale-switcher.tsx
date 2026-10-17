@@ -28,7 +28,7 @@ export function LocaleSwitcher() {
   const pathname = usePathname() || `/${locale}`;
 
   return (
-    <div className="flex items-center gap-0.5 rounded-full border border-white/10 bg-white/[0.04] p-1">
+    <div className="flex items-center gap-0.5 rounded-full border border-[rgb(94_115_133/35%)] bg-white p-1 shadow-sm">
       {locales.map((l) => (
         <Link
           key={l.code}
@@ -38,7 +38,7 @@ export function LocaleSwitcher() {
             "inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-semibold tracking-wider transition-colors",
             locale === l.code
               ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:text-foreground"
+              : "text-[#1B3A4B] hover:bg-[#E4EEF8]"
           )}
           aria-current={locale === l.code ? "true" : undefined}
           title={l.label}

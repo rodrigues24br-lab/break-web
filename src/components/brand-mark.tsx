@@ -10,7 +10,7 @@ export function BrandMark({ className, size = "hero" }: BrandMarkProps) {
     <div className={cn("animate-rise", className)}>
       <p
         className={cn(
-          "font-[family-name:var(--font-display)] font-bold tracking-tight text-foreground",
+          "font-[family-name:var(--font-display)] font-bold tracking-tight text-title",
           size === "hero" && "text-6xl sm:text-7xl md:text-8xl",
           size === "nav" && "text-2xl"
         )}

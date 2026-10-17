@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Break — Pro",
-    "description": "Crie sua conta e ative o Break Pro anual."
+    "title": "Break — Recupere seu foco",
+    "description": "Bloqueie apps e sites, defina limites diários e construa hábitos melhores com o Break Pro."
   },
   "brand": {
     "name": "Break",
@@ -11,7 +11,8 @@
     "signup": "Criar conta",
     "login": "Entrar",
     "checkout": "Pro",
-    "logout": "Sair"
+    "logout": "Sair",
+    "continue": "Continuar"
   },
   "home": {
     "headline": "Ative o Pro e continue no app.",
@@ -61,5 +62,110 @@
   },
   "common": {
     "mockBanner": "Modo demo — configure Firebase e Stripe no .env para produção."
+  },
+  "sales": {
+    "hero": {
+      "title": "Recupere seu tempo da tela.",
+      "subtitle": "O Break ajuda a bloquear apps e sites que distraem, definir limites diários honestos e mantê-los.",
+      "cta": "Continuar"
+    },
+    "problem": {
+      "title": "O problema",
+      "lead": "As telas levam horas que você não planejava doar.",
+      "items": [
+        "Você abre um app “por um minuto” e perde 40 no scroll infinito.",
+        "Notificações tiram você do trabalho, estudo ou de uma conversa.",
+        "O scroll noturno come sono antes de você perceber.",
+        "A atenção se fragmenta — e o dia parece mais curto."
+      ]
+    },
+    "consequences": {
+      "title": "Se nada mudar",
+      "lead": "O custo é quieto, mas real.",
+      "items": [
+        "Menos trabalho profundo e mais tarefas pela metade.",
+        "Pior sono quando o celular é a última coisa que você vê.",
+        "As pessoas na sua frente competem com um retângulo brilhante.",
+        "Semanas passam com o mesmo “amanhã eu resolvo.”"
+      ]
+    },
+    "solution": {
+      "title": "A solução: Break",
+      "lead": "Um sistema simples que bloqueia o que te puxa — e segura o limite quando a força de vontade falha.",
+      "items": [
+        { "title": "Bloqueio de apps", "text": "Pare os apps que drenam o foco quando você mais precisa." },
+        { "title": "Limites diários", "text": "Defina um teto claro de tela e cumpra." },
+        { "title": "Desafios", "text": "Compromissos curtos que formam hábitos sem drama." },
+        { "title": "Bloqueio de sites", "text": "Corte os sites que transformam cinco minutos em uma hora." }
+      ]
+    },
+    "pro": {
+      "title": "O que o Pro libera",
+      "lead": "Break completo no iOS, ligado à sua conta.",
+      "items": [
+        "Acesso Pro no iOS",
+        "Bloqueio de apps",
+        "Limites diários",
+        "Desafios",
+        "Bloqueio de sites",
+        "Sincronizado com sua conta",
+        "Renovação anual — um pagamento pelo ano"
+      ]
+    },
+    "how": {
+      "title": "Como funciona",
+      "steps": [
+        { "n": "1", "title": "Crie sua conta", "text": "Email e senha — o mesmo email que você usará no app." },
+        { "n": "2", "title": "Pague o Pro", "text": "Pagamento seguro nesta página. Você fica aqui até concluir." },
+        { "n": "3", "title": "Baixe o Break", "text": "Pegue o app na App Store." },
+        { "n": "4", "title": "Entre", "text": "Mesmo email. O Pro já está liberado." }
+      ]
+    },
+    "offer": {
+      "title": "Break Pro — anual",
+      "price": "$49.99",
+      "period": "por ano",
+      "includes": "Inclui Pro no iOS: bloqueios, limites, desafios, sites — sincronizado com sua conta.",
+      "cta": "Continuar para conta e pagamento"
+    },
+    "pay": {
+      "title": "Conta e pagamento",
+      "subtitle": "Crie sua conta e pague sem sair desta página.",
+      "email": "Email",
+      "password": "Senha",
+      "create": "Criar conta",
+      "orLogin": "Já tem conta? Entre abaixo.",
+      "login": "Entrar",
+      "google": "Continuar com Google",
+      "payTitle": "Pagar $49.99 / ano",
+      "payCta": "Confirmar pagamento",
+      "mockPay": "Simular pagamento (demo)",
+      "loading": "Processando…",
+      "needAccount": "Crie ou entre primeiro.",
+      "paidTitle": "Você é Pro",
+      "paidSubtitle": "Baixe o Break e entre com o mesmo email.",
+      "download": "Baixar na App Store",
+      "error": "Algo deu errado. Tente de novo."
+    },
+    "footer": {
+      "privacy": "Privacidade",
+      "terms": "Termos",
+      "support": "Suporte",
+      "tagline": "Break — hábitos que ficam."
+    }
+  },
+  "legal": {
+    "privacy": {
+      "title": "Privacidade",
+      "body": "O Break Web coleta o email usado para criar a conta e metadados de pagamento necessários ao Break Pro. Não vendemos seus dados pessoais. O pagamento é processado pela Stripe. Dúvidas: suporte."
+    },
+    "terms": {
+      "title": "Termos",
+      "body": "Break Pro é uma assinatura anual de $49.99 USD, salvo indicação contrária no checkout. O status Pro sincroniza com o app iOS ao entrar com o mesmo email. Reembolsos seguem as políticas do provedor de pagamento aplicáveis à sua compra."
+    },
+    "support": {
+      "title": "Suporte",
+      "body": "Ajuda com conta ou Pro? Escreva para support@break.app com o email do checkout. Inclua detalhes do pedido ou sessão se tiver."
+    }
   }
 }

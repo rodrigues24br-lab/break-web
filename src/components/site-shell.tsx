@@ -13,12 +13,12 @@ export async function SiteHeader({ locale }: { locale: string }) {
         <BrandMark size="nav" />
       </Link>
       <div className="flex items-center gap-3">
-        <Link
-          href={`/${locale}/login`}
+        <a
+          href={`/${locale}#pay`}
           className="hidden text-sm font-medium text-muted-foreground transition hover:text-foreground sm:inline"
         >
-          {t("login")}
-        </Link>
+          {t("continue")}
+        </a>
         <LocaleSwitcher />
       </div>
     </header>
@@ -37,7 +37,7 @@ export async function SiteShell({
       <AmbientBg />
       <MockBanner />
       <SiteHeader locale={locale} />
-      <main className="relative z-10 flex flex-1 flex-col px-5 pb-16 pt-6 sm:px-8">
+      <main className="relative z-10 flex flex-1 flex-col px-5 pb-8 pt-2 sm:px-8">
         {children}
       </main>
     </div>

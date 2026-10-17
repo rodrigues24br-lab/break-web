@@ -6,13 +6,17 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const locales = [
-  { code: "es", label: "ES" },
-  { code: "pt", label: "PT" },
+  { code: "en", label: "EN", flag: "🇺🇸" },
+  { code: "es", label: "ES", flag: "🇪🇸" },
+  { code: "pt", label: "PT", flag: "🇧🇷" },
 ] as const;
 
 function swapLocale(pathname: string, next: string) {
   const segments = pathname.split("/");
-  if (segments.length > 1 && (segments[1] === "es" || segments[1] === "pt")) {
+  if (
+    segments.length > 1 &&
+    (segments[1] === "en" || segments[1] === "es" || segments[1] === "pt")
+  ) {
     segments[1] = next;
     return segments.join("/") || `/${next}`;
   }
@@ -24,21 +28,25 @@ export function LocaleSwitcher() {
   const pathname = usePathname() || `/${locale}`;
 
   return (
-    <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1">
+    <div className="flex items-center gap-0.5 rounded-full border border-white/10 bg-white/[0.04] p-1">
       {locales.map((l) => (
         <Link
           key={l.code}
           href={swapLocale(pathname, l.code)}
           prefetch={false}
           className={cn(
-            "rounded-full px-3 py-1.5 text-xs font-semibold tracking-wider transition-colors",
+            "inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-semibold tracking-wider transition-colors",
             locale === l.code
               ? "bg-primary text-primary-foreground"
               : "text-muted-foreground hover:text-foreground"
           )}
           aria-current={locale === l.code ? "true" : undefined}
+          title={l.label}
         >
-          {l.label}
+          <span aria-hidden className="text-sm leading-none">
+            {l.flag}
+          </span>
+          <span>{l.label}</span>
         </Link>
       ))}
     </div>

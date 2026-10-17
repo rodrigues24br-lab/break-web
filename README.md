@@ -31,9 +31,11 @@ npm run dev
 
 Open [http://127.0.0.1:3000](http://127.0.0.1:3000) (dev binds `0.0.0.0:3000`).
 
-**Mock mode** (`NEXT_PUBLIC_MOCK_MODE=true` or missing Firebase client config): auth is simulated in `localStorage` / cookie; checkout grants Pro in-memory without Stripe.
+**Mock mode** (demo banner): only when `NEXT_PUBLIC_MOCK_MODE=true`. Missing Firebase public keys alone do **not** force the demo banner.
 
-**Real mode** (Firebase client vars set and mock not forced): Firebase Auth initializes; Analytics loads in the browser when `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` is set. Stripe still needs its own keys for live payment (otherwise checkout stays simulated).
+**Live checkout**: server uses `STRIPE_SECRET_KEY` (real Stripe) when set; otherwise checkout is simulated. Webhooks need `STRIPE_WEBHOOK_SECRET`.
+
+**Vercel env names** (exact): `FIRSTPROMOTER_ACCOUNT_ID`, `FIRSTPROMOTER_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`.
 
 ## Routes
 
@@ -84,16 +86,20 @@ See `.env.example` (names only). Never commit `.env.local`.
 | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | |
 | `NEXT_PUBLIC_FIREBASE_APP_ID` | |
 | `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` | Optional Analytics |
-| `NEXT_PUBLIC_MOCK_MODE` | `true` forces mock; omit/`false` when Firebase is configured |
-| `STRIPE_*` / `STRIPE_PRICE_ID_*` | Live checkout |
+| `NEXT_PUBLIC_MOCK_MODE` | `true` forces demo banner / mock auth UI |
+| `STRIPE_SECRET_KEY` | Live checkout (Vercel name) |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhooks (Vercel name) |
+| `STRIPE_PRICE_ID` / `STRIPE_PRICE_ID_ANNUAL` | Optional annual Price ID |
 | `FIREBASE_*` (Admin) | Webhook Pro writes |
-| `NEXT_PUBLIC_FIRSTPROMOTER_ACCOUNT_ID` | Affiliates |
+| `FIRSTPROMOTER_ACCOUNT_ID` | Affiliates cid (Vercel name) |
+| `FIRSTPROMOTER_API_KEY` | FirstPromoter API (Vercel name) |
+| `NEXT_PUBLIC_FIRSTPROMOTER_ACCOUNT_ID` | Local cid fallback |
 | `NEXT_PUBLIC_APP_STORE_URL` | Success CTA |
 | `NEXT_PUBLIC_SITE_URL` | Return URLs |
 
 ## FirstPromoter
 
-1. Script loads when `NEXT_PUBLIC_FIRSTPROMOTER_ACCOUNT_ID` is set.
+1. Script loads with cid from `FIRSTPROMOTER_ACCOUNT_ID` (or NEXT_PUBLIC fallback / default).
 2. `?fpr=AFFILIATE_ID` sets a `fpr` cookie (90 days).
 3. Checkout passes that as Stripe `client_reference_id`.
 

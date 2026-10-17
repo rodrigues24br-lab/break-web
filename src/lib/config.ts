@@ -1,7 +1,25 @@
 /**
  * Runtime config with mock-friendly fallbacks so the UI can boot without secrets.
- * Real Firebase / Stripe / FirstPromoter values are required for production flows.
+ *
+ * Vercel production (breakapplimit) currently sets these exact names:
+ *   FIRSTPROMOTER_ACCOUNT_ID
+ *   FIRSTPROMOTER_API_KEY
+ *   STRIPE_WEBHOOK_SECRET
+ *   STRIPE_SECRET_KEY
+ *
+ * Mock/demo UI is NOT tied to Firebase public keys. Demo banner is off unless
+ * NEXT_PUBLIC_MOCK_MODE=true. Checkout still uses real Stripe when
+ * STRIPE_SECRET_KEY is present (server-only).
  */
+
+function hasLiveServerSecrets() {
+  return Boolean(
+    process.env.STRIPE_SECRET_KEY &&
+      process.env.STRIPE_WEBHOOK_SECRET &&
+      (process.env.FIRSTPROMOTER_ACCOUNT_ID ||
+        process.env.NEXT_PUBLIC_FIRSTPROMOTER_ACCOUNT_ID)
+  );
+}
 
 function hasFirebaseClientConfig() {
   return Boolean(
@@ -12,9 +30,19 @@ function hasFirebaseClientConfig() {
   );
 }
 
-/** Explicit mock, or incomplete Firebase client config → mock auth/checkout. */
-export const isMockMode =
-  process.env.NEXT_PUBLIC_MOCK_MODE === "true" || !hasFirebaseClientConfig();
+/**
+ * Client + server mock gate for UI / client auth simulation.
+ * - Explicit `NEXT_PUBLIC_MOCK_MODE=true` → mock on
+ * - Otherwise mock off (so Vercel demo banner stays hidden when the four
+ *   server secrets are set and MOCK_MODE is unset)
+ *
+ * Note: STRIPE_* / FIRSTPROMOTER_* are server-only and are not visible in the
+ * browser bundle — do not gate the client banner on them.
+ */
+export const isMockMode = process.env.NEXT_PUBLIC_MOCK_MODE === "true";
+
+/** Server-side: live Stripe + FirstPromoter secrets present (Vercel names). */
+export const hasProductionSecrets = hasLiveServerSecrets();
 
 export const appConfig = {
   name: "Break",
@@ -30,10 +58,19 @@ export const appConfig = {
     process.env.NEXT_PUBLIC_APP_STORE_URL ||
     "https://apps.apple.com/app/break",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "http://127.0.0.1:3000",
+  /**
+   * FirstPromoter company id (cid). Prefer Vercel name FIRSTPROMOTER_ACCOUNT_ID;
+   * fall back to NEXT_PUBLIC_* for local.
+   */
   firstPromoterAccountId:
-    process.env.NEXT_PUBLIC_FIRSTPROMOTER_ACCOUNT_ID || "p7zpnc3j",
+    process.env.FIRSTPROMOTER_ACCOUNT_ID ||
+    process.env.NEXT_PUBLIC_FIRSTPROMOTER_ACCOUNT_ID ||
+    "p7zpnc3j",
+  /** Server-only FirstPromoter API key (Vercel name). */
+  firstPromoterApiKey: process.env.FIRSTPROMOTER_API_KEY || "",
   mockMode: isMockMode,
   firebaseReady: hasFirebaseClientConfig(),
+  productionSecretsReady: hasProductionSecrets,
 };
 
 export const firebaseClientConfig: {

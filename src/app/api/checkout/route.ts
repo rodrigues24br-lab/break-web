@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAnnualCheckoutSession } from "@/lib/stripe";
-import { appConfig } from "@/lib/config";
 import { FPR_COOKIE, parseAffiliateRef } from "@/lib/firstpromoter";
 import { grantProStatus } from "@/lib/firebase/admin";
+import { getRequestOrigin } from "@/lib/request-origin";
 
 export const runtime = "nodejs";
 
@@ -30,9 +30,7 @@ export async function POST(request: NextRequest) {
       parseAffiliateRef(request.cookies.get(FPR_COOKIE)?.value) ||
       parseAffiliateRef(request.headers.get("x-fpr-ref"));
 
-    const origin =
-      request.headers.get("origin") ||
-      appConfig.siteUrl.replace(/\/$/, "");
+    const origin = getRequestOrigin(request);
 
     const successUrl = `${origin}/${locale}/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${origin}/${locale}/checkout`;

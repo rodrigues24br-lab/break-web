@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { appConfig } from "@/lib/config";
 import {
   loginWithEmail,
   registerWithEmail,
@@ -17,32 +18,34 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const t = useTranslations(mode);
   const locale = useLocale();
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    // In mock mode, allow native POST to /api/auth/session (progressive enhancement).
+    // Only intercept when we need the Firebase client SDK.
+    if (appConfig.mockMode) {
+      return;
+    }
+
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    const form = e.currentTarget;
-    const data = new FormData(form);
-    const nextEmail = String(data.get("email") || email).trim();
-    const nextPassword = String(data.get("password") || password);
+    const data = new FormData(e.currentTarget);
+    const email = String(data.get("email") || "").trim();
+    const password = String(data.get("password") || "");
 
     try {
       if (mode === "signup") {
-        await registerWithEmail(nextEmail, nextPassword);
+        await registerWithEmail(email, password);
       } else {
-        await loginWithEmail(nextEmail, nextPassword);
+        await loginWithEmail(email, password);
       }
       router.push(`/${locale}/checkout`);
       router.refresh();
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : t("error");
+      const message = err instanceof Error ? err.message : t("error");
       setError(message || t("error"));
       setLoading(false);
     }
@@ -50,10 +53,13 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
   return (
     <form
+      method="post"
+      action="/api/auth/session"
       onSubmit={onSubmit}
       className="mx-auto flex w-full max-w-md flex-col gap-5"
-      noValidate={false}
     >
+      <input type="hidden" name="locale" value={locale} />
+      <input type="hidden" name="mode" value={mode} />
       <div className="space-y-2">
         <Label htmlFor="email">{t("email")}</Label>
         <Input
@@ -62,8 +68,6 @@ export function AuthForm({ mode }: { mode: Mode }) {
           type="email"
           autoComplete="email"
           required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
         />
       </div>
       <div className="space-y-2">
@@ -75,8 +79,6 @@ export function AuthForm({ mode }: { mode: Mode }) {
           autoComplete={mode === "signup" ? "new-password" : "current-password"}
           required
           minLength={6}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
         />
       </div>
       {error ? (

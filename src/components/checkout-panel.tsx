@@ -18,20 +18,37 @@ function getCookie(name: string) {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
-export function CheckoutPanel() {
+type InitialUser = { uid: string; email: string } | null;
+
+export function CheckoutPanel({
+  initialUser = null,
+}: {
+  initialUser?: InitialUser;
+}) {
   const t = useTranslations("checkout");
   const locale = useLocale();
-  const [user, setUser] = useState<User | MockUser | null>(null);
-  const [ready, setReady] = useState(() => appConfig.mockMode);
+  const [user, setUser] = useState<User | MockUser | null>(() => {
+    if (initialUser) {
+      return {
+        uid: initialUser.uid,
+        email: initialUser.email,
+        getIdToken: async () => `mock-token:${initialUser.uid}`,
+      };
+    }
+    return appConfig.mockMode ? getCurrentMockOrNull() : null;
+  });
+  const [ready, setReady] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (appConfig.mockMode) {
-      setUser(getCurrentMockOrNull());
+      const current = getCurrentMockOrNull();
+      if (current) setUser(current);
       setReady(true);
       return;
     }
+    setReady(false);
     const unsub = subscribeToAuth((u) => {
       setUser(u);
       setReady(true);
@@ -122,15 +139,37 @@ export function CheckoutPanel() {
         </p>
       ) : null}
 
-      <Button
-        type="button"
-        size="xl"
-        className="w-full animate-soft-pulse"
-        disabled={loading}
-        onClick={startCheckout}
-      >
-        {loading ? t("loading") : t("cta")}
-      </Button>
+      {/* Native link fallback for mock pay if JS click handlers fail */}
+      {appConfig.mockMode ? (
+        <form method="post" action="/api/checkout/mock" className="w-full">
+          <input type="hidden" name="uid" value={user.uid} />
+          <input type="hidden" name="email" value={user.email || ""} />
+          <input type="hidden" name="locale" value={locale} />
+          <Button
+            type="submit"
+            size="xl"
+            className="w-full animate-soft-pulse"
+            disabled={loading}
+            onClick={(e) => {
+              // Prefer fetch-based checkout when JS works
+              e.preventDefault();
+              void startCheckout();
+            }}
+          >
+            {loading ? t("loading") : t("cta")}
+          </Button>
+        </form>
+      ) : (
+        <Button
+          type="button"
+          size="xl"
+          className="w-full animate-soft-pulse"
+          disabled={loading}
+          onClick={startCheckout}
+        >
+          {loading ? t("loading") : t("cta")}
+        </Button>
+      )}
     </div>
   );
 }

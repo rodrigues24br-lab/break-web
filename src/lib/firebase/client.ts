@@ -11,6 +11,7 @@ import {
   type User,
 } from "firebase/auth";
 import { firebaseClientConfig, appConfig } from "@/lib/config";
+import { MOCK_SESSION_COOKIE } from "@/lib/mock-session";
 
 let app: FirebaseApp | undefined;
 let auth: Auth | undefined;
@@ -37,8 +38,39 @@ export type MockUser = {
 
 const MOCK_STORAGE_KEY = "break_mock_user";
 
+function readCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+function decodeSessionCookie(): MockUser | null {
+  const raw = readCookie(MOCK_SESSION_COOKIE);
+  if (!raw) return null;
+  try {
+    const json = atob(raw.replace(/-/g, "+").replace(/_/g, "/"));
+    const parsed = JSON.parse(json) as { uid: string; email: string };
+    if (!parsed?.uid || !parsed?.email) return null;
+    return {
+      uid: parsed.uid,
+      email: parsed.email,
+      getIdToken: async () => `mock-token:${parsed.uid}`,
+    };
+  } catch {
+    return null;
+  }
+}
+
 function readMockUser(): MockUser | null {
   if (typeof window === "undefined") return null;
+  const fromCookie = decodeSessionCookie();
+  if (fromCookie) {
+    localStorage.setItem(
+      MOCK_STORAGE_KEY,
+      JSON.stringify({ uid: fromCookie.uid, email: fromCookie.email })
+    );
+    return fromCookie;
+  }
   const raw = localStorage.getItem(MOCK_STORAGE_KEY);
   if (!raw) return null;
   try {
@@ -54,16 +86,18 @@ function readMockUser(): MockUser | null {
 }
 
 function writeMockUser(email: string): MockUser {
+  const normalized = email.toLowerCase().trim();
+  const uid = `mock_${btoa(normalized).replace(/=+/g, "").slice(0, 16)}`;
   const user: MockUser = {
-    uid: `mock_${btoa(email).replace(/=+/g, "").slice(0, 16)}`,
-    email,
-    getIdToken: async () => `mock-token:mock`,
+    uid,
+    email: normalized,
+    getIdToken: async () => `mock-token:${uid}`,
   };
   localStorage.setItem(
     MOCK_STORAGE_KEY,
-    JSON.stringify({ uid: user.uid, email })
+    JSON.stringify({ uid: user.uid, email: user.email })
   );
-  user.getIdToken = async () => `mock-token:${user.uid}`;
+  document.cookie = `${MOCK_SESSION_COOKIE}=${btoa(JSON.stringify({ uid, email: normalized })).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "")}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
   return user;
 }
 
@@ -72,7 +106,7 @@ export async function registerWithEmail(email: string, password: string) {
     if (password.length < 6) {
       throw new Error("Password should be at least 6 characters");
     }
-    return writeMockUser(email.toLowerCase().trim());
+    return writeMockUser(email);
   }
   const cred = await createUserWithEmailAndPassword(
     getClientAuth(),
@@ -87,7 +121,7 @@ export async function loginWithEmail(email: string, password: string) {
     if (password.length < 6) {
       throw new Error("Password should be at least 6 characters");
     }
-    return writeMockUser(email.toLowerCase().trim());
+    return writeMockUser(email);
   }
   const cred = await signInWithEmailAndPassword(
     getClientAuth(),
@@ -100,6 +134,7 @@ export async function loginWithEmail(email: string, password: string) {
 export async function logout() {
   if (appConfig.mockMode) {
     localStorage.removeItem(MOCK_STORAGE_KEY);
+    document.cookie = `${MOCK_SESSION_COOKIE}=; path=/; max-age=0`;
     return;
   }
   await signOut(getClientAuth());

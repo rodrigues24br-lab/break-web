@@ -22,22 +22,28 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setLoading(true);
+
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const nextEmail = String(data.get("email") || email).trim();
+    const nextPassword = String(data.get("password") || password);
+
     try {
       if (mode === "signup") {
-        await registerWithEmail(email, password);
+        await registerWithEmail(nextEmail, nextPassword);
       } else {
-        await loginWithEmail(email, password);
+        await loginWithEmail(nextEmail, nextPassword);
       }
       router.push(`/${locale}/checkout`);
+      router.refresh();
     } catch (err) {
       const message =
         err instanceof Error ? err.message : t("error");
       setError(message || t("error"));
-    } finally {
       setLoading(false);
     }
   }
@@ -45,12 +51,14 @@ export function AuthForm({ mode }: { mode: Mode }) {
   return (
     <form
       onSubmit={onSubmit}
-      className="animate-rise-delay mx-auto flex w-full max-w-md flex-col gap-5"
+      className="mx-auto flex w-full max-w-md flex-col gap-5"
+      noValidate={false}
     >
       <div className="space-y-2">
         <Label htmlFor="email">{t("email")}</Label>
         <Input
           id="email"
+          name="email"
           type="email"
           autoComplete="email"
           required
@@ -62,6 +70,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         <Label htmlFor="password">{t("password")}</Label>
         <Input
           id="password"
+          name="password"
           type="password"
           autoComplete={mode === "signup" ? "new-password" : "current-password"}
           required

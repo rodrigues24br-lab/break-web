@@ -22,7 +22,7 @@ export function CheckoutPanel() {
   const t = useTranslations("checkout");
   const locale = useLocale();
   const [user, setUser] = useState<User | MockUser | null>(null);
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(() => appConfig.mockMode);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,11 +45,12 @@ export function CheckoutPanel() {
     setError(null);
     try {
       const idToken = await user.getIdToken();
+      const fpr = getCookie("fpr");
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(getCookie("fpr") ? { "x-fpr-ref": getCookie("fpr")! } : {}),
+          ...(fpr ? { "x-fpr-ref": fpr } : {}),
         },
         body: JSON.stringify({
           email: user.email,
@@ -69,7 +70,7 @@ export function CheckoutPanel() {
     }
   }
 
-  const features = t.raw("features") as string[];
+  const features = (t.raw("features") as string[]) || [];
 
   if (!ready) {
     return (
@@ -79,7 +80,7 @@ export function CheckoutPanel() {
 
   if (!user) {
     return (
-      <div className="animate-rise-delay mx-auto flex w-full max-w-md flex-col gap-4 text-center">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-4 text-center">
         <p className="text-muted-foreground">{t("needAuth")}</p>
         <Link
           href={`/${locale}/login`}
@@ -92,7 +93,7 @@ export function CheckoutPanel() {
   }
 
   return (
-    <div className="animate-rise-delay mx-auto flex w-full max-w-md flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-md flex-col gap-8">
       <div className="space-y-1 text-center">
         <p className="font-[family-name:var(--font-display)] text-5xl font-bold tracking-tight text-primary sm:text-6xl">
           {t("price")}

@@ -138,14 +138,17 @@
 
 .animate-rise {
   animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-fill-mode: backwards;
 }
 
 .animate-rise-delay {
   animation: rise 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+  animation-fill-mode: backwards;
 }
 
 .animate-fade {
   animation: fade 0.5s ease both;
+  animation-fill-mode: backwards;
 }
 
 .animate-drift {

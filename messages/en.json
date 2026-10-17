@@ -10,7 +10,7 @@
   "nav": {
     "signup": "Create account",
     "login": "Log in",
-    "checkout": "Pro",
+    "checkout": "Plans",
     "logout": "Log out",
     "continue": "Continue"
   },
@@ -31,7 +31,7 @@
   },
   "login": {
     "title": "Log in",
-    "subtitle": "Continue to Pro checkout.",
+    "subtitle": "Continue to choose your Pro plan.",
     "email": "Email",
     "password": "Password",
     "submit": "Log in",
@@ -119,7 +119,9 @@
       "title": "Free vs Pro",
       "lead": "Start free. Go Pro when one app isn’t enough.",
       "freeTitle": "Free",
-      "freeItems": ["Block 1 app"],
+      "freeItems": [
+        "Block 1 app"
+      ],
       "proTitle": "Pro",
       "proSeal": "Pro",
       "items": [
@@ -129,7 +131,7 @@
         "Live hour — one free hour at once",
         "Safe browsing — block adult sites",
         "All five anti-scroll functions",
-        "Synced to your account · annual renewal"
+        "Synced to your account · monthly or annual"
       ]
     },
     "how": {
@@ -138,12 +140,12 @@
         {
           "n": "1",
           "title": "Create your account",
-          "text": "Email and password — same email you’ll use in the app."
+          "text": "Email and password, Apple, or Google — same email you’ll use in the app."
         },
         {
           "n": "2",
-          "title": "Pay for Pro",
-          "text": "Secure payment on this page. You stay here until it’s done."
+          "title": "Choose a plan",
+          "text": "Monthly or annual Pro. Secure payment on the next page."
         },
         {
           "n": "3",
@@ -158,36 +160,31 @@
       ]
     },
     "offer": {
-      "title": "Break Pro — annual",
+      "title": "Break Pro",
       "price": "$49.99",
-      "period": "per year",
+      "period": "per year · or $5.99/mo",
       "includes": "Several apps, Sleep Mode, daily limit, live hour, safe browsing — synced to your account.",
-      "cta": "Continue to account & payment"
-    },
-    "pay": {
-      "title": "Account and payment",
-      "subtitle": "Create your account and pay without leaving this page.",
-      "email": "Email",
-      "password": "Password",
-      "create": "Create account",
-      "orLogin": "Already have an account? Sign in below.",
-      "login": "Sign in",
-      "google": "Continue with Google",
-      "payTitle": "Pay $49.99 / year",
-      "payCta": "Confirm payment",
-      "mockPay": "Simulate payment (demo)",
-      "loading": "Working…",
-      "needAccount": "Create or sign in first.",
-      "paidTitle": "You're Pro",
-      "paidSubtitle": "Download Break and sign in with the same email.",
-      "download": "Download on the App Store",
-      "error": "Something went wrong. Try again."
+      "cta": "Create account"
     },
     "footer": {
       "privacy": "Privacy",
       "terms": "Terms",
       "support": "Support",
       "tagline": "Break — trade endless scroll for real life."
+    },
+    "account": {
+      "title": "Create your account",
+      "subtitle": "Then choose Monthly or Annual Pro on the next page.",
+      "email": "Email",
+      "password": "Password",
+      "create": "Create account",
+      "login": "Sign in",
+      "or": "or",
+      "apple": "Continue with Apple",
+      "google": "Continue with Google",
+      "loading": "Working…",
+      "redirecting": "Taking you to plans…",
+      "error": "Something went wrong. Try again."
     }
   },
   "legal": {
@@ -197,11 +194,46 @@
     },
     "terms": {
       "title": "Terms",
-      "body": "Break Pro is an annual subscription billed at $49.99 USD unless otherwise stated at checkout. Pro status syncs to the Break iOS app when you sign in with the same email. Refunds follow the payment provider policies applicable to your purchase."
+      "body": "Break Pro is a subscription billed monthly at $5.99 USD or annually at $49.99 USD unless otherwise stated at checkout. Pro status syncs to the Break iOS app when you sign in with the same email. Refunds follow the payment provider policies applicable to your purchase."
     },
     "support": {
       "title": "Support",
       "body": "Need help with your account or Pro status? Email support@break.app with the email you used at checkout."
     }
+  },
+  "auth": {
+    "or": "or",
+    "apple": "Continue with Apple",
+    "google": "Continue with Google"
+  },
+  "plans": {
+    "title": "Choose your plan",
+    "subtitle": "Break Pro unlocks several apps, Sleep Mode, daily limit, live hour, and safe browsing.",
+    "checkingAuth": "Checking your account…",
+    "monthly": {
+      "label": "Monthly",
+      "price": "$5.99",
+      "period": "/ month",
+      "blurb": "Flexible. Cancel anytime."
+    },
+    "annual": {
+      "label": "Annual",
+      "price": "$49.99",
+      "period": "/ year",
+      "badge": "Best value",
+      "blurb": "Save vs monthly — about $4.17/mo."
+    },
+    "includes": [
+      "Block several apps",
+      "Sleep Mode & daily limit",
+      "Live hour & safe browsing",
+      "All five anti-scroll functions",
+      "Synced to your Break account"
+    ],
+    "cta": "Continue to payment",
+    "mockPay": "Simulate payment (demo)",
+    "loading": "Opening checkout…",
+    "error": "Something went wrong. Try again.",
+    "needStripeKey": "Set NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY to show Stripe Embedded Checkout."
   }
 }

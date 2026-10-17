@@ -11,10 +11,11 @@ export async function POST(request: NextRequest) {
   const form = await request.formData();
   const email = String(form.get("email") || "").trim().toLowerCase();
   const uid = String(form.get("uid") || "").trim();
-  const locale = form.get("locale") === "pt" ? "pt" : "es";
+  const loc = String(form.get("locale") || "en");
+  const locale = loc === "pt" || loc === "es" || loc === "en" ? loc : "en";
 
   if (!email || !uid) {
-    return NextResponse.redirect(new URL(`/${locale}/checkout`, origin), 303);
+    return NextResponse.redirect(new URL(`/${locale}/plans`, origin), 303);
   }
 
   if (appConfig.mockMode) {

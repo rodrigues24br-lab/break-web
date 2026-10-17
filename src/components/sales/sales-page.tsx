@@ -1,14 +1,13 @@
 import { getTranslations } from "next-intl/server";
 import { BrandMark } from "@/components/brand-mark";
-import { SalesCheckout } from "@/components/sales/sales-checkout";
+import { SalesAuth } from "@/components/sales/sales-auth";
 import { SalesFooter } from "@/components/sales/sales-footer";
 
 type Props = {
   locale: string;
-  initiallyPaid?: boolean;
 };
 
-export async function SalesPage({ locale, initiallyPaid }: Props) {
+export async function SalesPage({ locale }: Props) {
   const t = await getTranslations("sales");
 
   const problemItems = t.raw("problem.items") as string[];
@@ -38,7 +37,7 @@ export async function SalesPage({ locale, initiallyPaid }: Props) {
         </p>
         <div className="animate-rise-delay">
           <a
-            href="#pay"
+            href="#account"
             className="inline-flex h-16 items-center justify-center rounded-2xl bg-primary px-10 text-lg font-semibold tracking-wide text-primary-foreground shadow-[0_8px_28px_-10px_var(--glow)] transition hover:brightness-110 animate-soft-pulse"
           >
             {t("hero.cta")}
@@ -188,25 +187,25 @@ export async function SalesPage({ locale, initiallyPaid }: Props) {
           {t("offer.includes")}
         </p>
         <a
-          href="#pay"
+          href="#account"
           className="inline-flex h-16 items-center justify-center rounded-2xl bg-primary px-10 text-lg font-semibold text-primary-foreground shadow-[0_8px_28px_-10px_var(--glow)] transition hover:brightness-110"
         >
           {t("offer.cta")}
         </a>
       </section>
 
-      {/* 8. Account + payment */}
+      {/* 8. Account only — payment lives on /plans */}
       <section
-        id="pay"
+        id="account"
         className="scroll-mt-24 space-y-6 border-t border-border py-16"
       >
         <div className="space-y-2 text-center">
           <h2 className="font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-title sm:text-4xl">
-            {t("pay.title")}
+            {t("account.title")}
           </h2>
-          <p className="text-muted-foreground">{t("pay.subtitle")}</p>
+          <p className="text-muted-foreground">{t("account.subtitle")}</p>
         </div>
-        <SalesCheckout initiallyPaid={initiallyPaid} />
+        <SalesAuth />
       </section>
 
       <SalesFooter locale={locale} />

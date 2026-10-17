@@ -28,9 +28,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} h-full`}>
-      <body className="min-h-full flex flex-col font-[family-name:var(--font-body)]">
-        {children}
+      <head>
         <FirstPromoterScript />
+      </head>
+      <body className="min-h-full flex flex-col bg-background text-foreground font-[family-name:var(--font-body)]">
+        {children}
       </body>
     </html>
   );

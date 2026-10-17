@@ -30,13 +30,17 @@ export async function POST(request: NextRequest) {
     };
     email = body.email?.trim() || "";
     password = body.password || "";
-    locale = body.locale === "pt" ? "pt" : "es";
+    locale =
+      body.locale === "pt" || body.locale === "es" || body.locale === "en"
+        ? body.locale
+        : "en";
     mode = body.mode === "login" ? "login" : "signup";
   } else {
     const form = await request.formData();
     email = String(form.get("email") || "").trim();
     password = String(form.get("password") || "");
-    locale = form.get("locale") === "pt" ? "pt" : "es";
+    const loc = String(form.get("locale") || "en");
+    locale = loc === "pt" || loc === "es" || loc === "en" ? loc : "en";
     mode = form.get("mode") === "login" ? "login" : "signup";
   }
 
@@ -68,7 +72,7 @@ export async function POST(request: NextRequest) {
   }
 
   const session = buildMockSession(email);
-  const redirectTo = new URL(`/${locale}/checkout`, origin);
+  const redirectTo = new URL(`/${locale}/plans`, origin);
   const response = NextResponse.redirect(redirectTo, 303);
   response.cookies.set(MOCK_SESSION_COOKIE, encodeMockSession(session), {
     httpOnly: false,

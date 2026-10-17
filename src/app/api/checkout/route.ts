@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAnnualCheckoutSession } from "@/lib/stripe";
+import { createPlanCheckoutSession } from "@/lib/stripe";
+import { type PlanInterval } from "@/lib/config";
 import { FPR_COOKIE, parseAffiliateRef } from "@/lib/firstpromoter";
 import { grantProStatus } from "@/lib/firebase/admin";
 import { getRequestOrigin } from "@/lib/request-origin";
@@ -12,12 +13,17 @@ export async function POST(request: NextRequest) {
       email?: string;
       uid?: string;
       locale?: string;
+      plan?: string;
       idToken?: string;
     };
 
     const email = body.email?.trim().toLowerCase();
     const uid = body.uid?.trim();
-    const locale = body.locale === "pt" ? "pt" : "es";
+    const locale =
+      body.locale === "pt" || body.locale === "es" || body.locale === "en"
+        ? body.locale
+        : "en";
+    const plan: PlanInterval = body.plan === "month" ? "month" : "year";
 
     if (!email || !uid) {
       return NextResponse.json(
@@ -32,19 +38,19 @@ export async function POST(request: NextRequest) {
 
     const origin = getRequestOrigin(request);
 
-    const successUrl = `${origin}/${locale}/success?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${origin}/${locale}/checkout`;
+    const successUrl = `${origin}/${locale}/success?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`;
+    const cancelUrl = `${origin}/${locale}/plans`;
 
-    const session = await createAnnualCheckoutSession({
+    const session = await createPlanCheckoutSession({
       email,
       uid,
       locale,
+      plan,
       clientReferenceId: affiliateRef,
       successUrl,
       cancelUrl,
     });
 
-    // Mock path: grant Pro immediately so confirmation works without Stripe.
     if (session.mock) {
       await grantProStatus({ uid, email });
     }
@@ -52,6 +58,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       url: session.url,
       mock: session.mock,
+      plan,
       client_reference_id: affiliateRef,
     });
   } catch (error) {

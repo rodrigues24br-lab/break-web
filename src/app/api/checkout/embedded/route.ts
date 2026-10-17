@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAnnualCheckoutSession, getStripe } from "@/lib/stripe";
-import { appConfig } from "@/lib/config";
+import {
+  createPlanCheckoutSession,
+  getStripe,
+  lineItemsForPlan,
+} from "@/lib/stripe";
+import { type PlanInterval } from "@/lib/config";
 import { FPR_COOKIE, parseAffiliateRef } from "@/lib/firstpromoter";
 import { grantProStatus } from "@/lib/firebase/admin";
 import { getRequestOrigin } from "@/lib/request-origin";
 
 export const runtime = "nodejs";
+
+function parsePlan(value: unknown): PlanInterval {
+  return value === "month" ? "month" : "year";
+}
 
 /**
  * Creates an embedded Stripe Checkout session (ui_mode: embedded)
@@ -17,6 +25,7 @@ export async function POST(request: NextRequest) {
       email?: string;
       uid?: string;
       locale?: string;
+      plan?: string;
     };
 
     const email = body.email?.trim().toLowerCase();
@@ -25,6 +34,7 @@ export async function POST(request: NextRequest) {
       body.locale === "pt" || body.locale === "es" || body.locale === "en"
         ? body.locale
         : "en";
+    const plan = parsePlan(body.plan);
 
     if (!email || !uid) {
       return NextResponse.json(
@@ -38,78 +48,69 @@ export async function POST(request: NextRequest) {
       parseAffiliateRef(request.headers.get("x-fpr-ref"));
 
     const origin = getRequestOrigin(request);
-    const returnUrl = `${origin}/${locale}?paid=1&session_id={CHECKOUT_SESSION_ID}`;
+    const returnUrl = `${origin}/${locale}/success?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`;
 
     const stripe = getStripe();
     if (!stripe) {
-      // Mock: grant Pro immediately; client shows success UI
       await grantProStatus({ uid, email });
       return NextResponse.json({
         mock: true,
+        plan,
         clientSecret: null,
-        returnUrl: `${origin}/${locale}?paid=1&mock=1&uid=${encodeURIComponent(uid)}&email=${encodeURIComponent(email)}`,
+        returnUrl: `${origin}/${locale}/success?paid=1&mock=1&plan=${plan}&uid=${encodeURIComponent(uid)}&email=${encodeURIComponent(email)}`,
       });
     }
 
-    const priceId = process.env.STRIPE_PRICE_ID;
     const session = await stripe.checkout.sessions.create({
       ui_mode: "embedded",
       mode: "subscription",
       customer_email: email,
       client_reference_id: affiliateRef || undefined,
       return_url: returnUrl,
-      metadata: { uid, email, locale },
+      metadata: { uid, email, locale, plan },
       subscription_data: {
-        metadata: { uid, email },
+        metadata: { uid, email, plan },
       },
-      line_items: priceId
-        ? [{ price: priceId, quantity: 1 }]
-        : [
-            {
-              quantity: 1,
-              price_data: {
-                currency: appConfig.currency,
-                unit_amount: appConfig.priceAnnualCents,
-                recurring: { interval: "year" },
-                product_data: {
-                  name: "Break Pro (Annual)",
-                  description: "Annual Break Pro subscription",
-                },
-              },
-            },
-          ],
+      line_items: lineItemsForPlan(plan),
     });
 
     return NextResponse.json({
       mock: false,
+      plan,
       clientSecret: session.client_secret,
       sessionId: session.id,
       client_reference_id: affiliateRef,
     });
   } catch (error) {
     console.error("[checkout/embedded]", error);
-    // Fallback: try classic session URL if embedded fails
     try {
       const body = (await request.clone().json().catch(() => ({}))) as {
         email?: string;
         uid?: string;
         locale?: string;
+        plan?: string;
       };
       if (body.email && body.uid) {
         const origin = getRequestOrigin(request);
-        const locale = body.locale === "pt" || body.locale === "es" ? body.locale : "en";
-        const session = await createAnnualCheckoutSession({
+        const locale =
+          body.locale === "pt" || body.locale === "es" || body.locale === "en"
+            ? body.locale
+            : "en";
+        const plan = parsePlan(body.plan);
+        const session = await createPlanCheckoutSession({
           email: body.email,
           uid: body.uid,
           locale,
+          plan,
           clientReferenceId: parseAffiliateRef(
             request.cookies.get(FPR_COOKIE)?.value
           ),
-          successUrl: `${origin}/${locale}?paid=1&session_id={CHECKOUT_SESSION_ID}`,
-          cancelUrl: `${origin}/${locale}#pay`,
+          successUrl: `${origin}/${locale}/success?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`,
+          cancelUrl: `${origin}/${locale}/plans`,
         });
         return NextResponse.json({
           mock: session.mock,
+          plan,
           url: session.url,
           clientSecret: null,
         });

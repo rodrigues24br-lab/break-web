@@ -14,7 +14,7 @@ export async function SiteHeader({ locale }: { locale: string }) {
       </Link>
       <div className="flex items-center gap-3">
         <a
-          href={`/${locale}#pay`}
+          href={`/${locale}#account`}
           className="hidden text-sm font-medium text-muted-foreground transition hover:text-foreground sm:inline"
         >
           {t("continue")}

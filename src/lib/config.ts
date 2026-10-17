@@ -3,29 +3,66 @@
  * Real Firebase / Stripe / FirstPromoter values are required for production flows.
  */
 
+function hasFirebaseClientConfig() {
+  return Boolean(
+    process.env.NEXT_PUBLIC_FIREBASE_API_KEY &&
+      process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN &&
+      process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID &&
+      process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+  );
+}
+
+/** Explicit mock, or incomplete Firebase client config → mock auth/checkout. */
+export const isMockMode =
+  process.env.NEXT_PUBLIC_MOCK_MODE === "true" || !hasFirebaseClientConfig();
+
 export const appConfig = {
   name: "Break",
+  /** Annual Pro — existing web price */
   priceAnnualUsd: 49.99,
   priceAnnualCents: 4999,
+  /**
+   * Monthly Pro — $5.99/mo (~$71.88/yr). Annual saves vs paying monthly.
+   * Override Stripe Price IDs via STRIPE_PRICE_ID_MONTHLY / STRIPE_PRICE_ID_ANNUAL
+   * (or legacy STRIPE_PRICE_ID for annual).
+   */
+  priceMonthlyUsd: 5.99,
+  priceMonthlyCents: 599,
   currency: "usd",
   appStoreUrl:
     process.env.NEXT_PUBLIC_APP_STORE_URL ||
     "https://apps.apple.com/app/break",
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "http://127.0.0.1:4317",
-  firstPromoterAccountId: process.env.NEXT_PUBLIC_FIRSTPROMOTER_ACCOUNT_ID || "",
-  mockMode: process.env.NEXT_PUBLIC_MOCK_MODE === "true" || !process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "http://127.0.0.1:3000",
+  firstPromoterAccountId:
+    process.env.NEXT_PUBLIC_FIRSTPROMOTER_ACCOUNT_ID || "p7zpnc3j",
+  mockMode: isMockMode,
+  firebaseReady: hasFirebaseClientConfig(),
 };
 
-export const firebaseClientConfig = {
+export type PlanInterval = "month" | "year";
+
+export const firebaseClientConfig: {
+  apiKey: string;
+  authDomain: string;
+  projectId: string;
+  storageBucket: string;
+  messagingSenderId: string;
+  appId: string;
+  measurementId?: string;
+} = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "demo-api-key",
   authDomain:
     process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "demo.firebaseapp.com",
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "demo-break-app",
   storageBucket:
-    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "demo-break-app.appspot.com",
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
+    "demo-break-app.appspot.com",
   messagingSenderId:
     process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "000000000000",
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:000000000000:web:demo",
+  ...(process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+    ? { measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }
+    : {}),
 };
 
 /**

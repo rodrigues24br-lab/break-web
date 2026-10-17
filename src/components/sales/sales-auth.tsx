@@ -1,0 +1,196 @@
+"use client";
+
+import { FormEvent, useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { AppleLogo } from "@/components/icons/apple-logo";
+import { GoogleLogo } from "@/components/icons/google-logo";
+import {
+  loginWithApple,
+  loginWithEmail,
+  loginWithGoogle,
+  registerWithEmail,
+  subscribeToAuth,
+  type MockUser,
+} from "@/lib/firebase/client";
+import type { User } from "firebase/auth";
+
+export function SalesAuth() {
+  const t = useTranslations("sales.account");
+  const locale = useLocale();
+  const router = useRouter();
+  const [user, setUser] = useState<User | MockUser | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [mode, setMode] = useState<"signup" | "login">("signup");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsub = subscribeToAuth((u) => setUser(u));
+    return unsub;
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      router.replace(`/${locale}/plans`);
+    }
+  }, [user, locale, router]);
+
+  async function handleAuth(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      if (mode === "signup") {
+        await registerWithEmail(email, password);
+      } else {
+        await loginWithEmail(email, password);
+      }
+      router.push(`/${locale}/plans`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("error"));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleGoogle() {
+    setError(null);
+    setLoading(true);
+    try {
+      await loginWithGoogle();
+      router.push(`/${locale}/plans`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("error"));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleApple() {
+    setError(null);
+    setLoading(true);
+    try {
+      await loginWithApple();
+      router.push(`/${locale}/plans`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("error"));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (user) {
+    return (
+      <p className="text-center text-sm text-muted-foreground">{t("redirecting")}</p>
+    );
+  }
+
+  return (
+    <div className="mx-auto flex w-full max-w-lg flex-col gap-6">
+      <form onSubmit={handleAuth} className="flex flex-col gap-4">
+        <div className="flex gap-2 text-sm">
+          <button
+            type="button"
+            className={
+              mode === "signup"
+                ? "font-semibold text-primary"
+                : "text-muted-foreground"
+            }
+            onClick={() => setMode("signup")}
+          >
+            {t("create")}
+          </button>
+          <span className="text-muted-foreground">·</span>
+          <button
+            type="button"
+            className={
+              mode === "login"
+                ? "font-semibold text-primary"
+                : "text-muted-foreground"
+            }
+            onClick={() => setMode("login")}
+          >
+            {t("login")}
+          </button>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="sales-email">{t("email")}</Label>
+          <Input
+            id="sales-email"
+            name="email"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="sales-password">{t("password")}</Label>
+          <Input
+            id="sales-password"
+            name="password"
+            type="password"
+            required
+            minLength={6}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete={
+              mode === "signup" ? "new-password" : "current-password"
+            }
+          />
+        </div>
+        {error ? (
+          <p className="text-sm text-destructive" role="alert">
+            {error}
+          </p>
+        ) : null}
+        <Button type="submit" size="xl" className="w-full" disabled={loading}>
+          {loading
+            ? t("loading")
+            : mode === "signup"
+              ? t("create")
+              : t("login")}
+        </Button>
+      </form>
+
+      <div className="relative flex items-center gap-3">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          {t("or")}
+        </span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          className="w-full gap-3"
+          disabled={loading}
+          onClick={handleApple}
+        >
+          <AppleLogo className="size-5 text-[#1C2430]" />
+          {t("apple")}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          className="w-full gap-3"
+          disabled={loading}
+          onClick={handleGoogle}
+        >
+          <GoogleLogo className="size-5" />
+          {t("google")}
+        </Button>
+      </div>
+    </div>
+  );
+}

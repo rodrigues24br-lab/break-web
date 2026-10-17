@@ -131,7 +131,7 @@
         "Live hour — one free hour at once",
         "Safe browsing — block adult sites",
         "All five anti-scroll functions",
-        "Synced to your account · monthly or annual"
+        "Synced to your account · annual renewal"
       ]
     },
     "how": {
@@ -144,8 +144,8 @@
         },
         {
           "n": "2",
-          "title": "Choose a plan",
-          "text": "Monthly or annual Pro. Secure payment on the next page."
+          "title": "Get Pro",
+          "text": "Annual Pro at $49.99. Secure payment on the next page."
         },
         {
           "n": "3",
@@ -162,7 +162,7 @@
     "offer": {
       "title": "Break Pro",
       "price": "$49.99",
-      "period": "per year · or $5.99/mo",
+      "period": "per year",
       "includes": "Several apps, Sleep Mode, daily limit, live hour, safe browsing — synced to your account.",
       "cta": "Create account"
     },
@@ -174,7 +174,7 @@
     },
     "account": {
       "title": "Create your account",
-      "subtitle": "Then choose Monthly or Annual Pro on the next page.",
+      "subtitle": "Then unlock Break Pro (annual) on the next page.",
       "email": "Email",
       "password": "Password",
       "create": "Create account",
@@ -194,7 +194,7 @@
     },
     "terms": {
       "title": "Terms",
-      "body": "Break Pro is a subscription billed monthly at $5.99 USD or annually at $49.99 USD unless otherwise stated at checkout. Pro status syncs to the Break iOS app when you sign in with the same email. Refunds follow the payment provider policies applicable to your purchase."
+      "body": "Break Pro is an annual subscription billed at $49.99 USD unless otherwise stated at checkout. Pro status syncs to the Break iOS app when you sign in with the same email. Refunds follow the payment provider policies applicable to your purchase."
     },
     "support": {
       "title": "Support",
@@ -207,21 +207,15 @@
     "google": "Continue with Google"
   },
   "plans": {
-    "title": "Choose your plan",
-    "subtitle": "Break Pro unlocks several apps, Sleep Mode, daily limit, live hour, and safe browsing.",
+    "title": "Break Pro — annual",
+    "subtitle": "Several apps, Sleep Mode, daily limit, live hour, and safe browsing.",
     "checkingAuth": "Checking your account…",
-    "monthly": {
-      "label": "Monthly",
-      "price": "$5.99",
-      "period": "/ month",
-      "blurb": "Flexible. Cancel anytime."
-    },
     "annual": {
       "label": "Annual",
       "price": "$49.99",
-      "period": "/ year",
-      "badge": "Best value",
-      "blurb": "Save vs monthly — about $4.17/mo."
+      "period": "per year",
+      "badge": "Pro",
+      "blurb": "One payment. All year. Synced to your Break account."
     },
     "includes": [
       "Block several apps",

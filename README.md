@@ -1,6 +1,6 @@
 # Break Web
 
-Sales landing + account + Pro plans for **Break** (iOS). Create an account (email, Google, or Apple), choose **Monthly ($5.99)** or **Annual ($49.99)**, pay with Stripe, then download on the App Store.
+Sales landing + account + Pro checkout for **Break** (iOS). Create an account (email, Google, or Apple), pay **Annual Pro ($49.99)**, then download on the App Store.
 
 Locales: English (`/en`), Spanish (`/es`), Portuguese (`/pt`).
 
@@ -14,15 +14,11 @@ Locales: English (`/en`), Spanish (`/es`), Portuguese (`/pt`).
 
 ## Pricing
 
-| Plan | Price | Notes |
-|------|-------|--------|
-| Monthly | **$5.99 / month** | Flexible; cancel anytime |
-| Annual | **$49.99 / year** | Best value (~$4.17/mo vs monthly) |
+| Plan | Price |
+|------|-------|
+| Annual | **$49.99 / year** |
 
-Stripe Price IDs (optional — otherwise Checkout uses `price_data`):
-
-- `STRIPE_PRICE_ID_MONTHLY`
-- `STRIPE_PRICE_ID_ANNUAL` (or legacy `STRIPE_PRICE_ID`)
+Optional Stripe Price ID: `STRIPE_PRICE_ID_ANNUAL` (or legacy `STRIPE_PRICE_ID`). If empty, Checkout uses inline `$49.99/year` `price_data`.
 
 ## Run locally
 
@@ -46,10 +42,10 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000) (dev binds `0.0.0.0:3000`).
 | `/` | Redirects to locale (default `en`) |
 | `/[locale]` | Sales landing + account section (`#account`) |
 | `/[locale]/signup`, `/login` | Standalone auth (then → plans) |
-| `/[locale]/plans` | **Auth required** — Monthly / Annual Pro checkout |
+| `/[locale]/plans` | **Auth required** — Annual Pro checkout ($49.99) |
 | `/[locale]/checkout` | Redirects to `/plans` |
 | `/[locale]/success` | Confirmation + App Store CTA |
-| `POST /api/checkout/embedded` | Embedded Stripe session (`plan`: `month` \| `year`) |
+| `POST /api/checkout/embedded` | Embedded Stripe session (annual) |
 | `POST /api/checkout` | Redirect Checkout session |
 | `POST /api/webhook` | Stripe → Firestore Pro |
 | `POST /api/auth/session` | Mock/demo form POST auth |

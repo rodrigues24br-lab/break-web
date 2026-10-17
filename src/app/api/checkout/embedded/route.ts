@@ -1,23 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  createPlanCheckoutSession,
+  createAnnualCheckoutSession,
   getStripe,
-  lineItemsForPlan,
+  lineItemsAnnual,
 } from "@/lib/stripe";
-import { type PlanInterval } from "@/lib/config";
 import { FPR_COOKIE, parseAffiliateRef } from "@/lib/firstpromoter";
 import { grantProStatus } from "@/lib/firebase/admin";
 import { getRequestOrigin } from "@/lib/request-origin";
 
 export const runtime = "nodejs";
 
-function parsePlan(value: unknown): PlanInterval {
-  return value === "month" ? "month" : "year";
-}
-
 /**
  * Creates an embedded Stripe Checkout session (ui_mode: embedded)
- * or a mock client secret path when Stripe is not configured.
+ * or a mock path when Stripe is not configured. Annual only.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -25,7 +20,6 @@ export async function POST(request: NextRequest) {
       email?: string;
       uid?: string;
       locale?: string;
-      plan?: string;
     };
 
     const email = body.email?.trim().toLowerCase();
@@ -34,7 +28,6 @@ export async function POST(request: NextRequest) {
       body.locale === "pt" || body.locale === "es" || body.locale === "en"
         ? body.locale
         : "en";
-    const plan = parsePlan(body.plan);
 
     if (!email || !uid) {
       return NextResponse.json(
@@ -48,16 +41,16 @@ export async function POST(request: NextRequest) {
       parseAffiliateRef(request.headers.get("x-fpr-ref"));
 
     const origin = getRequestOrigin(request);
-    const returnUrl = `${origin}/${locale}/success?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`;
+    const returnUrl = `${origin}/${locale}/success?session_id={CHECKOUT_SESSION_ID}&plan=year`;
 
     const stripe = getStripe();
     if (!stripe) {
       await grantProStatus({ uid, email });
       return NextResponse.json({
         mock: true,
-        plan,
+        plan: "year",
         clientSecret: null,
-        returnUrl: `${origin}/${locale}/success?paid=1&mock=1&plan=${plan}&uid=${encodeURIComponent(uid)}&email=${encodeURIComponent(email)}`,
+        returnUrl: `${origin}/${locale}/success?paid=1&mock=1&plan=year&uid=${encodeURIComponent(uid)}&email=${encodeURIComponent(email)}`,
       });
     }
 
@@ -67,16 +60,16 @@ export async function POST(request: NextRequest) {
       customer_email: email,
       client_reference_id: affiliateRef || undefined,
       return_url: returnUrl,
-      metadata: { uid, email, locale, plan },
+      metadata: { uid, email, locale, plan: "year" },
       subscription_data: {
-        metadata: { uid, email, plan },
+        metadata: { uid, email, plan: "year" },
       },
-      line_items: lineItemsForPlan(plan),
+      line_items: lineItemsAnnual(),
     });
 
     return NextResponse.json({
       mock: false,
-      plan,
+      plan: "year",
       clientSecret: session.client_secret,
       sessionId: session.id,
       client_reference_id: affiliateRef,
@@ -88,7 +81,6 @@ export async function POST(request: NextRequest) {
         email?: string;
         uid?: string;
         locale?: string;
-        plan?: string;
       };
       if (body.email && body.uid) {
         const origin = getRequestOrigin(request);
@@ -96,21 +88,19 @@ export async function POST(request: NextRequest) {
           body.locale === "pt" || body.locale === "es" || body.locale === "en"
             ? body.locale
             : "en";
-        const plan = parsePlan(body.plan);
-        const session = await createPlanCheckoutSession({
+        const session = await createAnnualCheckoutSession({
           email: body.email,
           uid: body.uid,
           locale,
-          plan,
           clientReferenceId: parseAffiliateRef(
             request.cookies.get(FPR_COOKIE)?.value
           ),
-          successUrl: `${origin}/${locale}/success?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`,
+          successUrl: `${origin}/${locale}/success?session_id={CHECKOUT_SESSION_ID}&plan=year`,
           cancelUrl: `${origin}/${locale}/plans`,
         });
         return NextResponse.json({
           mock: session.mock,
-          plan,
+          plan: "year",
           url: session.url,
           clientSecret: null,
         });

@@ -10,7 +10,7 @@ import {
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
-import { appConfig, type PlanInterval } from "@/lib/config";
+import { appConfig } from "@/lib/config";
 import {
   getCurrentMockOrNull,
   subscribeToAuth,
@@ -32,7 +32,6 @@ export function PlansPage() {
     appConfig.mockMode ? getCurrentMockOrNull() : null
   );
   const [authReady, setAuthReady] = useState(appConfig.mockMode);
-  const [selected, setSelected] = useState<PlanInterval>("year");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -79,7 +78,7 @@ export function PlansPage() {
           email: user.email,
           uid: user.uid,
           locale,
-          plan: selected,
+          plan: "year",
         }),
       });
       const data = (await res.json()) as {
@@ -93,7 +92,7 @@ export function PlansPage() {
 
       if (data.mock) {
         window.location.href =
-          data.returnUrl || `/${locale}/success?mock=1&plan=${selected}`;
+          data.returnUrl || `/${locale}/success?mock=1&plan=year`;
         return;
       }
       if (data.clientSecret) {
@@ -110,7 +109,7 @@ export function PlansPage() {
     } finally {
       setLoading(false);
     }
-  }, [user, locale, selected, router, t]);
+  }, [user, locale, router, t]);
 
   const options = useMemo(
     () => (clientSecret ? { clientSecret } : undefined),
@@ -126,7 +125,7 @@ export function PlansPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-10 py-10">
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-10 py-10">
       <div className="space-y-3 text-center">
         <div className="flex justify-center">
           <BrandMark size="nav" />
@@ -138,59 +137,18 @@ export function PlansPage() {
         <p className="text-sm text-muted-foreground">{user.email}</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <button
-          type="button"
-          onClick={() => {
-            setSelected("month");
-            setClientSecret(null);
-          }}
-          className={`rounded-2xl border bg-card p-6 text-left shadow-sm transition ${
-            selected === "month"
-              ? "border-primary ring-2 ring-primary/30"
-              : "border-border hover:border-primary/40"
-          }`}
-        >
-          <p className="text-sm font-medium text-muted-foreground">
-            {t("monthly.label")}
-          </p>
-          <p className="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold text-title">
-            {t("monthly.price")}
-            <span className="ml-1 text-base font-medium text-muted-foreground">
-              {t("monthly.period")}
-            </span>
-          </p>
-          <p className="mt-3 text-sm text-muted-foreground">
-            {t("monthly.blurb")}
-          </p>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setSelected("year");
-            setClientSecret(null);
-          }}
-          className={`relative rounded-2xl border-2 bg-card p-6 text-left shadow-sm transition ${
-            selected === "year"
-              ? "border-pro ring-2 ring-pro/25"
-              : "border-pro/40 hover:border-pro"
-          }`}
-        >
-          <span className="absolute -top-3 right-4 rounded-full bg-pro px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-white">
-            {t("annual.badge")}
+      <div className="relative rounded-2xl border-2 border-pro/40 bg-card p-6 shadow-sm sm:p-8">
+        <span className="absolute -top-3 right-4 rounded-full bg-pro px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-white">
+          {t("annual.badge")}
+        </span>
+        <p className="text-sm font-medium text-pro">{t("annual.label")}</p>
+        <p className="mt-2 font-[family-name:var(--font-display)] text-4xl font-bold text-title sm:text-5xl">
+          {t("annual.price")}
+          <span className="ml-2 text-lg font-medium text-muted-foreground">
+            {t("annual.period")}
           </span>
-          <p className="text-sm font-medium text-pro">{t("annual.label")}</p>
-          <p className="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold text-title">
-            {t("annual.price")}
-            <span className="ml-1 text-base font-medium text-muted-foreground">
-              {t("annual.period")}
-            </span>
-          </p>
-          <p className="mt-3 text-sm text-muted-foreground">
-            {t("annual.blurb")}
-          </p>
-        </button>
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">{t("annual.blurb")}</p>
       </div>
 
       <ul className="space-y-2 text-sm text-foreground sm:text-base">

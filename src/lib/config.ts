@@ -18,16 +18,13 @@ export const isMockMode =
 
 export const appConfig = {
   name: "Break",
-  /** Annual Pro — existing web price */
+  /** Annual Pro — web price */
   priceAnnualUsd: 49.99,
   priceAnnualCents: 4999,
   /**
-   * Monthly Pro — $5.99/mo (~$71.88/yr). Annual saves vs paying monthly.
-   * Override Stripe Price IDs via STRIPE_PRICE_ID_MONTHLY / STRIPE_PRICE_ID_ANNUAL
-   * (or legacy STRIPE_PRICE_ID for annual).
+   * Override Stripe Price ID via STRIPE_PRICE_ID_ANNUAL (or legacy STRIPE_PRICE_ID).
+   * If empty, Checkout uses inline $49.99/year price_data.
    */
-  priceMonthlyUsd: 5.99,
-  priceMonthlyCents: 599,
   currency: "usd",
   appStoreUrl:
     process.env.NEXT_PUBLIC_APP_STORE_URL ||
@@ -38,8 +35,6 @@ export const appConfig = {
   mockMode: isMockMode,
   firebaseReady: hasFirebaseClientConfig(),
 };
-
-export type PlanInterval = "month" | "year";
 
 export const firebaseClientConfig: {
   apiKey: string;

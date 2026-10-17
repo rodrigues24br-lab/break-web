@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createPlanCheckoutSession } from "@/lib/stripe";
-import { type PlanInterval } from "@/lib/config";
+import { createAnnualCheckoutSession } from "@/lib/stripe";
 import { FPR_COOKIE, parseAffiliateRef } from "@/lib/firstpromoter";
 import { grantProStatus } from "@/lib/firebase/admin";
 import { getRequestOrigin } from "@/lib/request-origin";
@@ -13,7 +12,6 @@ export async function POST(request: NextRequest) {
       email?: string;
       uid?: string;
       locale?: string;
-      plan?: string;
       idToken?: string;
     };
 
@@ -23,7 +21,6 @@ export async function POST(request: NextRequest) {
       body.locale === "pt" || body.locale === "es" || body.locale === "en"
         ? body.locale
         : "en";
-    const plan: PlanInterval = body.plan === "month" ? "month" : "year";
 
     if (!email || !uid) {
       return NextResponse.json(
@@ -38,17 +35,13 @@ export async function POST(request: NextRequest) {
 
     const origin = getRequestOrigin(request);
 
-    const successUrl = `${origin}/${locale}/success?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`;
-    const cancelUrl = `${origin}/${locale}/plans`;
-
-    const session = await createPlanCheckoutSession({
+    const session = await createAnnualCheckoutSession({
       email,
       uid,
       locale,
-      plan,
       clientReferenceId: affiliateRef,
-      successUrl,
-      cancelUrl,
+      successUrl: `${origin}/${locale}/success?session_id={CHECKOUT_SESSION_ID}&plan=year`,
+      cancelUrl: `${origin}/${locale}/plans`,
     });
 
     if (session.mock) {
@@ -58,7 +51,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       url: session.url,
       mock: session.mock,
-      plan,
+      plan: "year",
       client_reference_id: affiliateRef,
     });
   } catch (error) {

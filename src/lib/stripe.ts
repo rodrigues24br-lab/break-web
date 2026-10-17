@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { appConfig, type PlanInterval } from "@/lib/config";
+import { appConfig } from "@/lib/config";
 
 let stripe: Stripe | null = null;
 
@@ -20,16 +20,12 @@ export type CheckoutSessionParams = {
   email: string;
   uid: string;
   locale: string;
-  plan?: PlanInterval;
   clientReferenceId?: string | null;
   successUrl: string;
   cancelUrl: string;
 };
 
-function resolvePriceId(plan: PlanInterval): string | undefined {
-  if (plan === "month") {
-    return process.env.STRIPE_PRICE_ID_MONTHLY || undefined;
-  }
+function resolveAnnualPriceId(): string | undefined {
   return (
     process.env.STRIPE_PRICE_ID_ANNUAL ||
     process.env.STRIPE_PRICE_ID ||
@@ -37,28 +33,10 @@ function resolvePriceId(plan: PlanInterval): string | undefined {
   );
 }
 
-function lineItemsForPlan(
-  plan: PlanInterval
-): Stripe.Checkout.SessionCreateParams.LineItem[] {
-  const priceId = resolvePriceId(plan);
+export function lineItemsAnnual(): Stripe.Checkout.SessionCreateParams.LineItem[] {
+  const priceId = resolveAnnualPriceId();
   if (priceId) {
     return [{ price: priceId, quantity: 1 }];
-  }
-  if (plan === "month") {
-    return [
-      {
-        quantity: 1,
-        price_data: {
-          currency: appConfig.currency,
-          unit_amount: appConfig.priceMonthlyCents,
-          recurring: { interval: "month" },
-          product_data: {
-            name: "Break Pro (Monthly)",
-            description: "Monthly Break Pro subscription",
-          },
-        },
-      },
-    ];
   }
   return [
     {
@@ -76,20 +54,19 @@ function lineItemsForPlan(
   ];
 }
 
-export async function createPlanCheckoutSession(
+export async function createAnnualCheckoutSession(
   params: CheckoutSessionParams
 ) {
-  const plan: PlanInterval = params.plan === "month" ? "month" : "year";
   const client = getStripe();
   if (!client) {
     return {
       mock: true as const,
-      plan,
-      url: `${params.successUrl}${params.successUrl.includes("?") ? "&" : "?"}mock=1&plan=${plan}&uid=${encodeURIComponent(params.uid)}&email=${encodeURIComponent(params.email)}`,
+      plan: "year" as const,
+      url: `${params.successUrl}${params.successUrl.includes("?") ? "&" : "?"}mock=1&plan=year&uid=${encodeURIComponent(params.uid)}&email=${encodeURIComponent(params.email)}`,
     };
   }
 
-  const sessionParams: Stripe.Checkout.SessionCreateParams = {
+  const session = await client.checkout.sessions.create({
     mode: "subscription",
     customer_email: params.email,
     success_url: params.successUrl,
@@ -99,32 +76,26 @@ export async function createPlanCheckoutSession(
       uid: params.uid,
       email: params.email,
       locale: params.locale,
-      plan,
+      plan: "year",
     },
     subscription_data: {
       metadata: {
         uid: params.uid,
         email: params.email,
-        plan,
+        plan: "year",
       },
     },
-    line_items: lineItemsForPlan(plan),
-  };
+    line_items: lineItemsAnnual(),
+  });
 
-  const session = await client.checkout.sessions.create(sessionParams);
   return {
     mock: false as const,
-    plan,
+    plan: "year" as const,
     url: session.url!,
     sessionId: session.id,
   };
 }
 
-/** @deprecated Use createPlanCheckoutSession */
-export async function createAnnualCheckoutSession(
-  params: CheckoutSessionParams
-) {
-  return createPlanCheckoutSession({ ...params, plan: "year" });
-}
-
-export { lineItemsForPlan, resolvePriceId };
+/** @deprecated alias */
+export const createPlanCheckoutSession = createAnnualCheckoutSession;
+export const lineItemsForPlan = () => lineItemsAnnual();

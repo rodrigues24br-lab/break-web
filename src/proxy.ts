@@ -10,12 +10,10 @@ import {
 
 const intlMiddleware = createMiddleware(routing);
 
-export default function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const response = intlMiddleware(request);
 
-  const fpr = parseAffiliateRef(
-    request.nextUrl.searchParams.get(FPR_QUERY)
-  );
+  const fpr = parseAffiliateRef(request.nextUrl.searchParams.get(FPR_QUERY));
   if (fpr) {
     response.cookies.set(FPR_COOKIE, fpr, {
       maxAge: FPR_COOKIE_MAX_AGE,

@@ -184,7 +184,9 @@
       "google": "Continuar con Google",
       "loading": "Procesando…",
       "redirecting": "Llevándote a los planes…",
-      "error": "Algo falló. Inténtalo de nuevo."
+      "error": "Algo falló. Inténtalo de nuevo.",
+      "haveAccount": "¿Ya tienes cuenta?",
+      "needAccount": "¿Necesitas una cuenta?"
     }
   },
   "legal": {

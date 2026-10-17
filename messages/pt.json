@@ -184,7 +184,9 @@
       "google": "Continuar com o Google",
       "loading": "Processando…",
       "redirecting": "Levando você aos planos…",
-      "error": "Algo deu errado. Tente de novo."
+      "error": "Algo deu errado. Tente de novo.",
+      "haveAccount": "Já tem conta?",
+      "needAccount": "Precisa de uma conta?"
     }
   },
   "legal": {

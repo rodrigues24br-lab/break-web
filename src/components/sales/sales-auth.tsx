@@ -86,38 +86,15 @@ export function SalesAuth() {
 
   if (user) {
     return (
-      <p className="text-center text-sm text-muted-foreground">{t("redirecting")}</p>
+      <p className="text-center text-sm text-muted-foreground">
+        {t("redirecting")}
+      </p>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-lg flex-col gap-6">
-      <form onSubmit={handleAuth} className="flex flex-col gap-4">
-        <div className="flex gap-2 text-sm">
-          <button
-            type="button"
-            className={
-              mode === "signup"
-                ? "font-semibold text-primary"
-                : "text-muted-foreground"
-            }
-            onClick={() => setMode("signup")}
-          >
-            {t("create")}
-          </button>
-          <span className="text-muted-foreground">·</span>
-          <button
-            type="button"
-            className={
-              mode === "login"
-                ? "font-semibold text-primary"
-                : "text-muted-foreground"
-            }
-            onClick={() => setMode("login")}
-          >
-            {t("login")}
-          </button>
-        </div>
+    <div className="mx-auto flex w-full max-w-lg flex-col gap-8">
+      <form onSubmit={handleAuth} className="flex flex-col gap-5">
         <div className="space-y-2">
           <Label htmlFor="sales-email">{t("email")}</Label>
           <Input
@@ -145,18 +122,53 @@ export function SalesAuth() {
             }
           />
         </div>
+
         {error ? (
           <p className="text-sm text-destructive" role="alert">
             {error}
           </p>
         ) : null}
-        <Button type="submit" size="xl" className="w-full" disabled={loading}>
-          {loading
-            ? t("loading")
-            : mode === "signup"
-              ? t("create")
-              : t("login")}
-        </Button>
+
+        <div className="flex flex-col gap-3 pt-1">
+          <Button type="submit" size="xl" className="w-full" disabled={loading}>
+            {loading
+              ? t("loading")
+              : mode === "signup"
+                ? t("create")
+                : t("login")}
+          </Button>
+          <p className="text-center text-sm text-muted-foreground">
+            {mode === "signup" ? (
+              <>
+                {t("haveAccount")}{" "}
+                <button
+                  type="button"
+                  className="font-medium text-title underline-offset-4 hover:underline"
+                  onClick={() => {
+                    setMode("login");
+                    setError(null);
+                  }}
+                >
+                  {t("login")}
+                </button>
+              </>
+            ) : (
+              <>
+                {t("needAccount")}{" "}
+                <button
+                  type="button"
+                  className="font-medium text-title underline-offset-4 hover:underline"
+                  onClick={() => {
+                    setMode("signup");
+                    setError(null);
+                  }}
+                >
+                  {t("create")}
+                </button>
+              </>
+            )}
+          </p>
+        </div>
       </form>
 
       <div className="relative flex items-center gap-3">

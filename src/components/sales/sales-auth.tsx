@@ -25,9 +25,14 @@ export function SalesAuth() {
   const [user, setUser] = useState<User | MockUser | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function revealPassword() {
+    setShowPassword(true);
+  }
 
   useEffect(() => {
     const unsub = subscribeToAuth((u) => setUser(u));
@@ -42,6 +47,10 @@ export function SalesAuth() {
 
   async function handleAuth(e: FormEvent) {
     e.preventDefault();
+    if (!showPassword) {
+      revealPassword();
+      return;
+    }
     setError(null);
     setLoading(true);
     try {
@@ -103,25 +112,31 @@ export function SalesAuth() {
             type="email"
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onFocus={revealPassword}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (e.target.value.length > 0) revealPassword();
+            }}
             autoComplete="email"
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="sales-password">{t("password")}</Label>
-          <Input
-            id="sales-password"
-            name="password"
-            type="password"
-            required
-            minLength={6}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete={
-              mode === "signup" ? "new-password" : "current-password"
-            }
-          />
-        </div>
+        {showPassword ? (
+          <div className="space-y-2">
+            <Label htmlFor="sales-password">{t("password")}</Label>
+            <Input
+              id="sales-password"
+              name="password"
+              type="password"
+              required
+              minLength={6}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete={
+                mode === "signup" ? "new-password" : "current-password"
+              }
+            />
+          </div>
+        ) : null}
 
         {error ? (
           <p className="text-sm text-destructive" role="alert">

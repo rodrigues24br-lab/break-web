@@ -1,0 +1,65 @@
+{
+  "meta": {
+    "title": "Break — Pro",
+    "description": "Crie sua conta e ative o Break Pro anual."
+  },
+  "brand": {
+    "name": "Break",
+    "tagline": "Hábitos que ficam."
+  },
+  "nav": {
+    "signup": "Criar conta",
+    "login": "Entrar",
+    "checkout": "Pro",
+    "logout": "Sair"
+  },
+  "home": {
+    "headline": "Ative o Pro e continue no app.",
+    "cta": "Criar conta",
+    "hasAccount": "Já tenho conta"
+  },
+  "signup": {
+    "title": "Crie sua conta",
+    "subtitle": "Use o mesmo email do app Break.",
+    "email": "Email",
+    "password": "Senha",
+    "submit": "Continuar",
+    "toLogin": "Já tem conta? Entrar",
+    "loading": "Criando…",
+    "error": "Não foi possível criar a conta."
+  },
+  "login": {
+    "title": "Entrar",
+    "subtitle": "Continue para o checkout do Pro.",
+    "email": "Email",
+    "password": "Senha",
+    "submit": "Entrar",
+    "toSignup": "Sem conta? Criar uma",
+    "loading": "Entrando…",
+    "error": "Email ou senha incorretos."
+  },
+  "checkout": {
+    "title": "Break Pro",
+    "subtitle": "Assinatura anual. Um pagamento. O ano todo.",
+    "price": "$49.99",
+    "period": "/ ano",
+    "features": [
+      "Acesso Pro no iOS",
+      "Sincronizado com sua conta",
+      "Renovação anual"
+    ],
+    "cta": "Pagar com Stripe",
+    "loading": "Abrindo checkout…",
+    "needAuth": "Faça login para continuar.",
+    "mockNote": "Modo local: o pagamento é simulado sem Stripe."
+  },
+  "success": {
+    "title": "Você é Pro",
+    "subtitle": "Sua conta está marcada como Pro. Baixe o Break na App Store e entre com o mesmo email.",
+    "download": "Baixar na App Store",
+    "back": "Voltar ao início"
+  },
+  "common": {
+    "mockBanner": "Modo demo — configure Firebase e Stripe no .env para produção."
+  }
+}

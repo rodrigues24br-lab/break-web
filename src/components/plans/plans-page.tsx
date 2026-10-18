@@ -1,13 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import {
-  EmbeddedCheckout,
-  EmbeddedCheckoutProvider,
-} from "@stripe/react-stripe-js";
-import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
 import { appConfig } from "@/lib/config";
@@ -34,9 +29,6 @@ export function PlansPage() {
   const [authReady, setAuthReady] = useState(appConfig.mockMode);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [stripePromise, setStripePromise] =
-    useState<Promise<Stripe | null> | null>(null);
 
   useEffect(() => {
     const unsub = subscribeToAuth((u) => {
@@ -44,11 +36,6 @@ export function PlansPage() {
       setAuthReady(true);
     });
     return unsub;
-  }, []);
-
-  useEffect(() => {
-    const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-    if (key) setStripePromise(loadStripe(key));
   }, []);
 
   useEffect(() => {
@@ -65,7 +52,6 @@ export function PlansPage() {
     }
     setError(null);
     setLoading(true);
-    setClientSecret(null);
     try {
       const fpr = getCookie("fpr");
       const res = await fetch("/api/checkout/embedded", {
@@ -83,22 +69,11 @@ export function PlansPage() {
       });
       const data = (await res.json()) as {
         mock?: boolean;
-        clientSecret?: string | null;
-        returnUrl?: string;
         url?: string;
         error?: string;
       };
       if (!res.ok) throw new Error(data.error || t("error"));
 
-      if (data.mock) {
-        window.location.href =
-          data.returnUrl || `/${locale}/success?mock=1&plan=year`;
-        return;
-      }
-      if (data.clientSecret) {
-        setClientSecret(data.clientSecret);
-        return;
-      }
       if (data.url) {
         window.location.href = data.url;
         return;
@@ -106,15 +81,9 @@ export function PlansPage() {
       throw new Error(t("error"));
     } catch (err) {
       setError(err instanceof Error ? err.message : t("error"));
-    } finally {
       setLoading(false);
     }
   }, [user, locale, router, t]);
-
-  const options = useMemo(
-    () => (clientSecret ? { clientSecret } : undefined),
-    [clientSecret]
-  );
 
   if (!authReady || !user) {
     return (
@@ -168,31 +137,19 @@ export function PlansPage() {
         </p>
       ) : null}
 
-      {!clientSecret ? (
-        <Button
-          type="button"
-          size="xl"
-          className="w-full animate-soft-pulse"
-          disabled={loading}
-          onClick={startCheckout}
-        >
-          {loading
-            ? t("loading")
-            : appConfig.mockMode
-              ? t("mockPay")
-              : t("cta")}
-        </Button>
-      ) : stripePromise && options ? (
-        <div className="overflow-hidden rounded-2xl border border-border bg-card p-2 shadow-sm">
-          <EmbeddedCheckoutProvider stripe={stripePromise} options={options}>
-            <EmbeddedCheckout />
-          </EmbeddedCheckoutProvider>
-        </div>
-      ) : (
-        <p className="text-center text-sm text-muted-foreground">
-          {t("needStripeKey")}
-        </p>
-      )}
+      <Button
+        type="button"
+        size="xl"
+        className="w-full animate-soft-pulse"
+        disabled={loading}
+        onClick={startCheckout}
+      >
+        {loading
+          ? t("loading")
+          : appConfig.mockMode
+            ? t("mockPay")
+            : t("cta")}
+      </Button>
     </div>
   );
 }

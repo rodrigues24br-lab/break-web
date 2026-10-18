@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  createAnnualCheckoutSession,
-  getStripe,
-  lineItemsAnnual,
-} from "@/lib/stripe";
+import { createAnnualCheckoutSession } from "@/lib/stripe";
 import { FPR_COOKIE, parseAffiliateRef } from "@/lib/firstpromoter";
 import { grantProStatus } from "@/lib/firebase/admin";
 import { getRequestOrigin } from "@/lib/request-origin";
@@ -11,8 +7,9 @@ import { getRequestOrigin } from "@/lib/request-origin";
 export const runtime = "nodejs";
 
 /**
- * Creates an embedded Stripe Checkout session (ui_mode: embedded)
- * or a mock path when Stripe is not configured. Annual only.
+ * Creates a hosted Stripe Checkout session (default ui_mode).
+ * Path kept for existing clients; returns session.url for redirect.
+ * Annual only — price_1UQFdLBMIFugty3a7b54OLdG via lineItemsAnnual.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -41,75 +38,31 @@ export async function POST(request: NextRequest) {
       parseAffiliateRef(request.headers.get("x-fpr-ref"));
 
     const origin = getRequestOrigin(request);
-    const returnUrl = `${origin}/${locale}/success?session_id={CHECKOUT_SESSION_ID}&plan=year`;
 
-    const stripe = getStripe();
-    if (!stripe) {
-      await grantProStatus({ uid, email });
-      return NextResponse.json({
-        mock: true,
-        plan: "year",
-        clientSecret: null,
-        returnUrl: `${origin}/${locale}/success?paid=1&mock=1&plan=year&uid=${encodeURIComponent(uid)}&email=${encodeURIComponent(email)}`,
-      });
-    }
-
-    const session = await stripe.checkout.sessions.create({
-      ui_mode: "embedded",
-      mode: "subscription",
-      customer_email: email,
-      client_reference_id: affiliateRef || undefined,
-      return_url: returnUrl,
-      metadata: { uid, email, locale, plan: "year" },
-      subscription_data: {
-        metadata: { uid, email, plan: "year" },
-      },
-      line_items: lineItemsAnnual(),
+    const session = await createAnnualCheckoutSession({
+      email,
+      uid,
+      locale,
+      clientReferenceId: affiliateRef,
+      successUrl: `${origin}/${locale}/success?session_id={CHECKOUT_SESSION_ID}&plan=year`,
+      cancelUrl: `${origin}/${locale}/plans`,
     });
 
+    if (session.mock) {
+      await grantProStatus({ uid, email });
+    }
+
     return NextResponse.json({
-      mock: false,
+      mock: session.mock,
       plan: "year",
-      clientSecret: session.client_secret,
-      sessionId: session.id,
+      url: session.url,
+      sessionId: "sessionId" in session ? session.sessionId : undefined,
       client_reference_id: affiliateRef,
     });
   } catch (error) {
     console.error("[checkout/embedded]", error);
-    try {
-      const body = (await request.clone().json().catch(() => ({}))) as {
-        email?: string;
-        uid?: string;
-        locale?: string;
-      };
-      if (body.email && body.uid) {
-        const origin = getRequestOrigin(request);
-        const locale =
-          body.locale === "pt" || body.locale === "es" || body.locale === "en"
-            ? body.locale
-            : "en";
-        const session = await createAnnualCheckoutSession({
-          email: body.email,
-          uid: body.uid,
-          locale,
-          clientReferenceId: parseAffiliateRef(
-            request.cookies.get(FPR_COOKIE)?.value
-          ),
-          successUrl: `${origin}/${locale}/success?session_id={CHECKOUT_SESSION_ID}&plan=year`,
-          cancelUrl: `${origin}/${locale}/plans`,
-        });
-        return NextResponse.json({
-          mock: session.mock,
-          plan: "year",
-          url: session.url,
-          clientSecret: null,
-        });
-      }
-    } catch {
-      /* ignore */
-    }
     return NextResponse.json(
-      { error: "Failed to create embedded checkout" },
+      { error: "Failed to create checkout session" },
       { status: 500 }
     );
   }

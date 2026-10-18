@@ -8,7 +8,7 @@ Locales: English (`/en`), Spanish (`/es`), Portuguese (`/pt`).
 
 - Next.js (App Router) + TypeScript + Tailwind + shadcn/ui
 - Firebase Auth (email/password, Google, Apple) + Analytics + Firestore Pro status
-- Stripe Checkout (embedded) + webhook
+- Stripe Checkout (hosted) + webhook
 - FirstPromoter affiliate tracking
 - next-intl (EN / ES / PT)
 

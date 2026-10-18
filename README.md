@@ -50,6 +50,7 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000) (dev binds `0.0.0.0:3000`).
 | `POST /api/checkout/embedded` | Hosted Stripe Checkout session (annual); returns `url` |
 | `POST /api/checkout` | Redirect Checkout session |
 | `POST /api/webhook` | Stripe → Firestore Pro |
+| `POST /api/firstpromoter-webhook` | FirstPromoter `referral.created` / `referral.converted` |
 | `POST /api/auth/session` | Mock/demo form POST auth |
 
 Unauthenticated visits to `/plans` redirect to `/[locale]#account`.
@@ -102,6 +103,7 @@ See `.env.example` (names only). Never commit `.env.local`.
 1. Script loads with cid from `FIRSTPROMOTER_ACCOUNT_ID` (or NEXT_PUBLIC fallback / default).
 2. `?fpr=AFFILIATE_ID` sets a `fpr` cookie (90 days).
 3. Checkout passes that as Stripe `client_reference_id`.
+4. Webhook: `POST /api/firstpromoter-webhook` — set subscription custom header `X-API-KEY` to `FIRSTPROMOTER_API_KEY`. Handles `referral.created` / `referral.converted` by confirming the lead via `GET /api/v1/leads/show`.
 
 ## Scripts
 

@@ -56,11 +56,13 @@
   },
   "success": {
     "approved": "Pagamento aprovado",
-    "title": "Você é Pro",
-    "subtitle": "Sua assinatura Break Pro está ativa. Baixe o app e entre com o mesmo email.",
-    "emailLabel": "Email da conta",
-    "emailHint": "Use este email para entrar no iOS.",
-    "download": "Baixar na App Store",
+    "proSeal": "PRO",
+    "title": "Parabéns, você é Pro.",
+    "subtitle": "Sua assinatura Break Pro está ativa.",
+    "emailLabel": "E-mail da conta",
+    "emailHint": "Use este e-mail para entrar no iOS.",
+    "download": "Download on the App Store",
+    "downloadHint": "Baixe o app e entre com o mesmo e-mail da conta.",
     "back": "Voltar ao início"
   },
   "common": {

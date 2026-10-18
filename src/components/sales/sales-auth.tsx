@@ -39,11 +39,9 @@ export function SalesAuth() {
     return unsub;
   }, []);
 
-  useEffect(() => {
-    if (user) {
-      router.replace(`/${locale}/plans`);
-    }
-  }, [user, locale, router]);
+  // Do NOT auto-redirect locale home → /plans on existing sessions.
+  // Plans is only reached after explicit Create/Sign-in (below) or a
+  // Continue click — anonymous (and returning) visitors stay on sales.
 
   async function handleAuth(e: FormEvent) {
     e.preventDefault();
@@ -95,9 +93,19 @@ export function SalesAuth() {
 
   if (user) {
     return (
-      <p className="text-center text-sm text-muted-foreground">
-        {t("redirecting")}
-      </p>
+      <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-4 text-center">
+        {user.email ? (
+          <p className="text-sm text-muted-foreground">{user.email}</p>
+        ) : null}
+        <Button
+          type="button"
+          size="xl"
+          className="w-full"
+          onClick={() => router.push(`/${locale}/plans`)}
+        >
+          {t("continuePlans")}
+        </Button>
+      </div>
     );
   }
 

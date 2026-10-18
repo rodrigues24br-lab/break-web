@@ -51,6 +51,7 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000) (dev binds `0.0.0.0:3000`).
 | `POST /api/checkout` | Redirect Checkout session |
 | `POST /api/webhook` | Stripe → Firestore Pro |
 | `POST /api/firstpromoter-webhook` | FirstPromoter `referral.created` / `referral.converted` |
+| `GET /api/pricing` | Localized display price (geo + Frankfurter FX; USD fallback) |
 | `POST /api/auth/session` | Mock/demo form POST auth |
 
 Unauthenticated visits to `/plans` redirect to `/[locale]#account`.

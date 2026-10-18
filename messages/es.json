@@ -168,6 +168,7 @@
       "title": "Break Pro",
       "price": "$49.99",
       "period": "al año",
+      "monthlyApprox": "≈ {price}/mes",
       "includes": "Varios apps, Modo Sueño, límite diario, hora liberada, navegación segura — sincronizado con tu cuenta.",
       "cta": "Crear cuenta"
     },
@@ -222,6 +223,7 @@
       "label": "Anual",
       "price": "$49.99",
       "period": "al año",
+      "monthlyApprox": "≈ {price}/mes",
       "badge": "Pro",
       "blurb": "Un pago. Todo el año. Sincronizado con tu cuenta Break."
     },

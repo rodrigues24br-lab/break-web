@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { BrandMark } from "@/components/brand-mark";
+import { DynamicPrice } from "@/components/dynamic-price";
 import { SalesAuth } from "@/components/sales/sales-auth";
 import { SalesFooter } from "@/components/sales/sales-footer";
 
@@ -178,10 +179,17 @@ export async function SalesPage({ locale }: Props) {
           {t("offer.title")}
         </h2>
         <p className="font-[family-name:var(--font-display)] text-5xl font-bold text-primary sm:text-6xl">
-          {t("offer.price")}
+          <DynamicPrice fallback={t("offer.price")} />
           <span className="ml-2 text-lg font-medium text-muted-foreground">
             {t("offer.period")}
           </span>
+        </p>
+        <p className="text-base text-muted-foreground">
+          <DynamicPrice
+            mode="monthly"
+            fallback={t("offer.monthlyApprox", { price: "$4.17" })}
+            monthlyTemplate={t("offer.monthlyApprox")}
+          />
         </p>
         <p className="mx-auto max-w-md text-muted-foreground">
           {t("offer.includes")}

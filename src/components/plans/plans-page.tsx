@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { BrandMark } from "@/components/brand-mark";
+import { DynamicPrice } from "@/components/dynamic-price";
 import { Button } from "@/components/ui/button";
 import { appConfig } from "@/lib/config";
 import {
@@ -112,10 +113,17 @@ export function PlansPage() {
         </span>
         <p className="text-sm font-medium text-pro">{t("annual.label")}</p>
         <p className="mt-2 font-[family-name:var(--font-display)] text-4xl font-bold text-title sm:text-5xl">
-          {t("annual.price")}
+          <DynamicPrice fallback={t("annual.price")} />
           <span className="ml-2 text-lg font-medium text-muted-foreground">
             {t("annual.period")}
           </span>
+        </p>
+        <p className="mt-2 text-base text-muted-foreground">
+          <DynamicPrice
+            mode="monthly"
+            fallback={t("annual.monthlyApprox", { price: "$4.17" })}
+            monthlyTemplate={t("annual.monthlyApprox")}
+          />
         </p>
         <p className="mt-3 text-sm text-muted-foreground">{t("annual.blurb")}</p>
       </div>

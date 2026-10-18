@@ -18,7 +18,7 @@ Locales: English (`/en`), Spanish (`/es`), Portuguese (`/pt`).
 |------|-------|
 | Annual | **$49.99 / year** |
 
-Optional Stripe Price ID: `STRIPE_PRICE_ID_ANNUAL` (or legacy `STRIPE_PRICE_ID`). If empty, Checkout uses inline `$49.99/year` `price_data`.
+Stripe Price ID: `STRIPE_PRICE_ID_ANNUAL` (or legacy `STRIPE_PRICE_ID`), default `price_1UQFdLBMIFugty3a7b54OLdG`.
 
 ## Run locally
 
@@ -89,7 +89,7 @@ See `.env.example` (names only). Never commit `.env.local`.
 | `NEXT_PUBLIC_MOCK_MODE` | `true` forces demo banner / mock auth UI |
 | `STRIPE_SECRET_KEY` | Live checkout (Vercel name) |
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhooks (Vercel name) |
-| `STRIPE_PRICE_ID` / `STRIPE_PRICE_ID_ANNUAL` | Optional annual Price ID |
+| `STRIPE_PRICE_ID` / `STRIPE_PRICE_ID_ANNUAL` | Annual Price ID (default `price_1UQFdLBMIFugty3a7b54OLdG`) |
 | `FIREBASE_*` (Admin) | Webhook Pro writes |
 | `FIRSTPROMOTER_ACCOUNT_ID` | Affiliates cid (Vercel name) |
 | `FIRSTPROMOTER_API_KEY` | FirstPromoter API (Vercel name) |

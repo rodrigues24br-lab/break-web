@@ -1,5 +1,4 @@
 import Stripe from "stripe";
-import { appConfig } from "@/lib/config";
 
 let stripe: Stripe | null = null;
 
@@ -25,33 +24,19 @@ export type CheckoutSessionParams = {
   cancelUrl: string;
 };
 
-function resolveAnnualPriceId(): string | undefined {
+/** Break Pro annual Price ID (Stripe Dashboard). */
+export const BREAK_PRO_ANNUAL_PRICE_ID = "price_1UQFdLBMIFugty3a7b54OLdG";
+
+function resolveAnnualPriceId(): string {
   return (
     process.env.STRIPE_PRICE_ID_ANNUAL ||
     process.env.STRIPE_PRICE_ID ||
-    undefined
+    BREAK_PRO_ANNUAL_PRICE_ID
   );
 }
 
 export function lineItemsAnnual(): Stripe.Checkout.SessionCreateParams.LineItem[] {
-  const priceId = resolveAnnualPriceId();
-  if (priceId) {
-    return [{ price: priceId, quantity: 1 }];
-  }
-  return [
-    {
-      quantity: 1,
-      price_data: {
-        currency: appConfig.currency,
-        unit_amount: appConfig.priceAnnualCents,
-        recurring: { interval: "year" },
-        product_data: {
-          name: "Break Pro (Annual)",
-          description: "Annual Break Pro subscription",
-        },
-      },
-    },
-  ];
+  return [{ price: resolveAnnualPriceId(), quantity: 1 }];
 }
 
 export async function createAnnualCheckoutSession(

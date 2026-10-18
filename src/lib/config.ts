@@ -50,8 +50,8 @@ export const appConfig = {
   priceAnnualUsd: 49.99,
   priceAnnualCents: 4999,
   /**
-   * Override Stripe Price ID via STRIPE_PRICE_ID_ANNUAL (or legacy STRIPE_PRICE_ID).
-   * If empty, Checkout uses inline $49.99/year price_data.
+   * Annual Stripe Price ID: STRIPE_PRICE_ID_ANNUAL (or legacy STRIPE_PRICE_ID).
+   * Defaults to price_1UQFdLBMIFugty3a7b54OLdG (Break Pro annual).
    */
   currency: "usd",
   appStoreUrl:

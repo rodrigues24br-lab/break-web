@@ -1,6 +1,18 @@
 import Stripe from "stripe";
+import { appConfig } from "@/lib/config";
 
 let stripe: Stripe | null = null;
+
+/** Hosted Checkout success_url → breakapplimit.com/success (or local SITE_URL). */
+export function buildCheckoutSuccessUrl(email: string): string {
+  const base = appConfig.checkoutSuccessBaseUrl.replace(/\/$/, "");
+  const params = new URLSearchParams({
+    plan: "year",
+    email: email.trim().toLowerCase(),
+  });
+  // Stripe replaces the literal template token (must not be URL-encoded).
+  return `${base}?session_id={CHECKOUT_SESSION_ID}&${params.toString()}`;
+}
 
 export function getStripe(): Stripe | null {
   const key = process.env.STRIPE_SECRET_KEY;

@@ -55,9 +55,12 @@
     "mockNote": "Modo local: el pago se simula sin Stripe."
   },
   "success": {
+    "approved": "Pago aprobado",
     "title": "Ya eres Pro",
-    "subtitle": "Tu cuenta está marcada como Pro. Descarga Break en el App Store e inicia sesión con el mismo email.",
-    "download": "Descargar en App Store",
+    "subtitle": "Tu suscripción Break Pro está activa. Descarga la app e inicia sesión con el mismo email.",
+    "emailLabel": "Email de la cuenta",
+    "emailHint": "Usa este email para iniciar sesión en iOS.",
+    "download": "Descargar en la App Store",
     "back": "Volver al inicio"
   },
   "common": {

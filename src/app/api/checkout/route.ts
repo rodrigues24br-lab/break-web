@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAnnualCheckoutSession } from "@/lib/stripe";
+import {
+  buildCheckoutSuccessUrl,
+  createAnnualCheckoutSession,
+} from "@/lib/stripe";
 import { FPR_COOKIE, parseAffiliateRef } from "@/lib/firstpromoter";
 import { grantProStatus } from "@/lib/firebase/admin";
 import { getRequestOrigin } from "@/lib/request-origin";
@@ -40,7 +43,7 @@ export async function POST(request: NextRequest) {
       uid,
       locale,
       clientReferenceId: affiliateRef,
-      successUrl: `${origin}/${locale}/success?session_id={CHECKOUT_SESSION_ID}&plan=year`,
+      successUrl: buildCheckoutSuccessUrl(email),
       cancelUrl: `${origin}/${locale}/plans`,
     });
 

@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
 
   const url = new URL(`/${locale}/success`, origin);
   url.searchParams.set("mock", "1");
+  url.searchParams.set("plan", "year");
   url.searchParams.set("uid", uid);
   url.searchParams.set("email", email);
   return NextResponse.redirect(url, 303);

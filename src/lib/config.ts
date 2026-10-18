@@ -56,8 +56,19 @@ export const appConfig = {
   currency: "usd",
   appStoreUrl:
     process.env.NEXT_PUBLIC_APP_STORE_URL ||
-    "https://apps.apple.com/app/break",
+    "https://apps.apple.com/us/app/break-app-limit/id6811685502",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "http://127.0.0.1:3000",
+  /**
+   * Post-checkout landing. Production defaults to breakapplimit.com/success;
+   * local SITE_URL used only for localhost / 127.0.0.1.
+   */
+  checkoutSuccessBaseUrl: (() => {
+    const site = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
+    if (/localhost|127\.0\.0\.1/.test(site)) {
+      return `${site}/success`;
+    }
+    return "https://breakapplimit.com/success";
+  })(),
   /**
    * FirstPromoter company id (cid). Prefer Vercel name FIRSTPROMOTER_ACCOUNT_ID;
    * fall back to NEXT_PUBLIC_* for local.

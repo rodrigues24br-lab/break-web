@@ -47,7 +47,7 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000) (dev binds `0.0.0.0:3000`).
 | `/[locale]/plans` | **Auth required** — Annual Pro checkout ($49.99) |
 | `/[locale]/checkout` | Redirects to `/plans` |
 | `/[locale]/success` | Confirmation + App Store CTA |
-| `POST /api/checkout/embedded` | Embedded Stripe session (annual) |
+| `POST /api/checkout/embedded` | Hosted Stripe Checkout session (annual); returns `url` |
 | `POST /api/checkout` | Redirect Checkout session |
 | `POST /api/webhook` | Stripe → Firestore Pro |
 | `POST /api/auth/session` | Mock/demo form POST auth |

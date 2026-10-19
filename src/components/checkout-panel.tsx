@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Check, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 import { useLocale } from "@/components/locale-provider";
 import { appConfig } from "@/lib/config";
 import {
@@ -118,55 +118,29 @@ export function CheckoutPanel({
 
   return (
     <div className="w-full mt-6">
-      <div className="text-center">
-        <h1 className="text-[32px] leading-tight font-bold tracking-tight text-heading">
-          {c.title}
-        </h1>
-        <p className="mt-1 text-[16px] text-heading/70">{c.subtitle}</p>
-      </div>
-
       <form
         onSubmit={handleSubmit}
-        className="mt-6 rounded-3xl border border-border bg-white p-5 shadow-[0_18px_40px_-24px_rgba(28,36,48,0.35)]"
+        className="rounded-3xl border border-border bg-white/85 backdrop-blur-sm p-6 shadow-[0_18px_40px_-24px_rgba(28,36,48,0.35)]"
       >
-        <section
-          aria-label={c.plan}
-          className="rounded-2xl bg-[#F4F1EA]/70 p-4"
-        >
-          <div className="flex items-baseline justify-between gap-3">
-            <p className="text-[16px] font-semibold text-heading">{c.plan}</p>
-            <p className="text-[16px] font-bold text-heading tabular-nums">
-              {c.price}
+        <div className="text-center">
+          <h1 className="text-[28px] leading-tight font-bold tracking-tight text-heading sm:text-[32px]">
+            {c.title}
+          </h1>
+          {user.email ? (
+            <p className="mt-4 text-[15px] text-heading/70">
+              {c.email}
+              <span className="mt-1 block text-[17px] font-semibold text-heading break-all">
+                {user.email}
+              </span>
             </p>
-          </div>
-          <ul className="mt-2.5 flex flex-col gap-1">
-            {c.includes.map((line) => (
-              <li
-                key={line}
-                className="flex items-start gap-1.5 text-[13px] leading-snug text-heading/75"
-              >
-                <Check
-                  className="mt-0.5 size-3.5 shrink-0 text-[#2563EB]"
-                  aria-hidden="true"
-                />
-                {line}
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {user.email && (
-          <p className="mt-4 text-center text-[13px] text-heading/70">
-            {c.email}:{" "}
-            <span className="font-medium text-heading">{user.email}</span>
-          </p>
-        )}
+          ) : null}
+        </div>
 
         <button
           type="submit"
           disabled={submitting}
           aria-busy={submitting}
-          className="mt-5 h-12 w-full rounded-2xl bg-[#2563EB] text-[16px] font-semibold text-white shadow-[0_10px_24px_-12px_rgba(37,99,235,0.8)] transition-colors hover:bg-[#1d4fd8] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-7 h-12 w-full rounded-2xl bg-[#2563EB] text-[16px] font-semibold text-white shadow-[0_10px_24px_-12px_rgba(37,99,235,0.8)] transition-colors hover:bg-[#1d4fd8] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {submitting ? c.processing : c.pay}
         </button>

@@ -2,26 +2,36 @@
 
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { AmbientBg } from "@/components/ambient-bg";
 import BreakIcon from "@/components/break-icon";
 import LanguageSwitcher from "@/components/language-switcher";
 import { useLocale } from "@/components/locale-provider";
+import { cn } from "@/lib/utils";
 
 export default function AuthShell({
   children,
   showBack = true,
+  ambient = false,
 }: {
   children: React.ReactNode;
   showBack?: boolean;
+  ambient?: boolean;
 }) {
   const { t, locale } = useLocale();
 
   return (
-    <div className="min-h-dvh bg-background text-foreground flex flex-col">
-      <header className="flex items-center justify-end px-4 pt-4">
+    <div
+      className={cn(
+        "min-h-dvh text-foreground flex flex-col",
+        ambient ? "relative bg-transparent" : "bg-background"
+      )}
+    >
+      {ambient ? <AmbientBg /> : null}
+      <header className="relative z-10 flex items-center justify-end px-4 pt-4">
         <LanguageSwitcher />
       </header>
 
-      <main className="flex-1 w-full max-w-sm mx-auto px-5 pt-4 pb-10 md:pt-12 flex flex-col items-center">
+      <main className="relative z-10 flex-1 w-full max-w-sm mx-auto px-5 pt-4 pb-10 md:pt-12 flex flex-col items-center">
         <BreakIcon
           size={64}
           alt="Break"

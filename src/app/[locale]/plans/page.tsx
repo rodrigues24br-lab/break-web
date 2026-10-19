@@ -8,7 +8,7 @@ export default async function PlansPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   return (
-    <AuthShell showBack={false}>
+    <AuthShell showBack={false} ambient>
       <CheckoutPanel />
     </AuthShell>
   );

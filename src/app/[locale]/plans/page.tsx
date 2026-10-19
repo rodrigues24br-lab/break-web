@@ -1,10 +1,15 @@
 import { setRequestLocale } from "next-intl/server";
-import { PlansPage } from "@/components/plans/plans-page";
+import AuthShell from "@/components/auth-shell";
+import CheckoutPanel from "@/components/checkout-panel";
 
 type Props = { params: Promise<{ locale: string }> };
 
-export default async function PlansRoute({ params }: Props) {
+export default async function PlansPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <PlansPage />;
+  return (
+    <AuthShell showBack={false}>
+      <CheckoutPanel />
+    </AuthShell>
+  );
 }

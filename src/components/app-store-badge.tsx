@@ -1,54 +1,40 @@
-import { cn } from "@/lib/utils";
+"use client";
+
+import { appConfig } from "@/lib/config";
+
+export const APP_STORE_URL =
+  "https://apps.apple.com/us/app/break-app-limit/id6811685502";
 
 type Props = {
-  href: string;
-  className?: string;
+  href?: string;
   label?: string;
+  className?: string;
 };
 
-/**
- * Official-style black Apple App Store badge (SVG).
- * Links to the App Store product page.
- */
-export function AppStoreBadge({
-  href,
-  className,
-  label = "Download on the App Store",
-}: Props) {
+export function AppStoreBadge({ href, label, className }: Props = {}) {
+  const url = href || appConfig.appStoreUrl || APP_STORE_URL;
   return (
     <a
-      href={href}
+      href={url}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={label}
-      className={cn(
-        "inline-block shrink-0 transition opacity-95 hover:opacity-100",
-        className
-      )}
+      aria-label={label || "Download on the App Store"}
+      className={
+        className ||
+        "inline-flex items-center gap-2 h-12 pl-3 pr-4 rounded-[10px] bg-black text-white border border-[#a6a6a6] shadow-sm transition-transform active:scale-[0.97] hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      }
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 120 40"
-        width={148}
-        height={49}
-        role="img"
-        aria-hidden="true"
-      >
-        <title>{label}</title>
-        <rect width="120" height="40" rx="8" fill="#000" />
-        <path
-          fill="#fff"
-          d="M24.77 20.3c0-2.27 1.86-3.37 1.94-3.42-1.06-1.55-2.71-1.76-3.29-1.78-1.39-.14-2.72.83-3.43.83-.71 0-1.81-.81-2.98-.79-1.53.02-2.95.9-3.73 2.28-1.61 2.79-.41 6.91 1.14 9.18.76 1.11 1.66 2.35 2.84 2.31 1.15-.05 1.58-.73 2.97-.73 1.38 0 1.77.73 2.98.71 1.24-.02 2.01-1.12 2.76-2.24.87-1.26 1.22-2.49 1.24-2.55-.03-.01-2.37-.91-2.4-3.6zm-2.25-6.64c.62-.76 1.05-1.81.93-2.86-.9.04-1.99.61-2.63 1.36-.57.67-1.08 1.75-.94 2.78 1 .08 2.02-.5 2.64-1.28z"
-        />
-        <g fill="#fff" fontFamily="Helvetica, Arial, sans-serif">
-          <text x="36.5" y="15.2" fontSize="5.6" letterSpacing="0.02em">
-            Download on the
-          </text>
-          <text x="36.2" y="28.5" fontSize="11.2" fontWeight="600" letterSpacing="-0.02em">
-            App Store
-          </text>
-        </g>
+      <svg viewBox="0 0 24 24" className="size-7 fill-current" aria-hidden="true">
+        <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701" />
       </svg>
+      <span className="flex flex-col leading-none text-left">
+        <span className="text-[10px] font-medium tracking-wide">Download on the</span>
+        <span className="text-[21px] font-semibold tracking-tight -mt-0.5">
+          App Store
+        </span>
+      </span>
     </a>
   );
 }
+
+export default AppStoreBadge;

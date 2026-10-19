@@ -1,24 +1,23 @@
-import type { Metadata } from "next";
-import { Manrope, Syne } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import { FirstPromoterScript } from "@/components/firstpromoter-script";
 import "./globals.css";
 
-const display = Syne({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: ["600", "700", "800"],
-});
-
-const body = Manrope({
-  variable: "--font-body",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Break — Trade endless scroll for real life",
+  title: "Break — Seu tempo, de volta pra você",
   description:
-    "Break puts a barrier between you and endless scrolling with Screen Time blocking, challenges, and daily limits.",
+    "Break bloqueia os apps que roubam sua atenção, protege seu sono e te devolve o controle do dia. US$49,99 por ano.",
+  icons: {
+    icon: "/images/break-logo-keystone.jpg",
+    apple: "/images/break-logo-keystone.jpg",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#f4f1ea",
+  colorScheme: "light",
 };
 
 export default function RootLayout({
@@ -27,11 +26,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} h-full`}>
+    <html lang="en" className={`${inter.variable} h-full`}>
       <head>
         <FirstPromoterScript />
       </head>
-      <body className="min-h-full flex flex-col bg-background text-foreground font-[family-name:var(--font-body)]">
+      <body className="min-h-full flex flex-col font-sans antialiased bg-background text-foreground">
         {children}
       </body>
     </html>

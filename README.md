@@ -31,11 +31,33 @@ npm run dev
 
 Open [http://127.0.0.1:3000](http://127.0.0.1:3000) (dev binds `0.0.0.0:3000`).
 
-**Mock mode** (demo banner): only when `NEXT_PUBLIC_MOCK_MODE=true`. Missing Firebase public keys alone do **not** force the demo banner.
+**Mock mode** (demo banner + simulated checkout): only when `NEXT_PUBLIC_MOCK_MODE=true`. Otherwise Auth is Firebase and Checkout requires `STRIPE_SECRET_KEY`.
 
-**Live checkout**: server uses `STRIPE_SECRET_KEY` (real Stripe) when set; otherwise checkout is simulated. Webhooks need `STRIPE_WEBHOOK_SECRET`.
+### Product flow (live)
 
-**Vercel env names** (exact): `FIRSTPROMOTER_ACCOUNT_ID`, `FIRSTPROMOTER_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`.
+1. Signup/login (email, Apple, Google) → Firebase Auth `break-99b8e` → `/[locale]/plans`
+2. Pay CTA → hosted Stripe Checkout (`STRIPE_SECRET_KEY` + annual price `price_1UQFdLBMIFugty3a7b54OLdG`) with FirstPromoter `client_reference_id`
+3. Success → `https://breakapplimit.com/success?session_id={CHECKOUT_SESSION_ID}&email=…`
+4. Success page → App Store download
+
+### Vercel env checklist (exact names)
+
+| Required for live | Variable |
+|-------------------|----------|
+| Auth | `NEXT_PUBLIC_FIREBASE_API_KEY` |
+| Auth | `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` = `break-99b8e.firebaseapp.com` |
+| Auth | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` = `break-99b8e` |
+| Auth | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` |
+| Auth | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` |
+| Auth | `NEXT_PUBLIC_FIREBASE_APP_ID` |
+| Optional Analytics | `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` |
+| Checkout | `STRIPE_SECRET_KEY` |
+| Checkout price | `STRIPE_PRICE_ID_ANNUAL` (or default `price_1UQFdLBMIFugty3a7b54OLdG`) |
+| Webhook Pro grant | `STRIPE_WEBHOOK_SECRET` + Firebase Admin (`FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`) |
+| Affiliates | `FIRSTPROMOTER_ACCOUNT_ID`, `FIRSTPROMOTER_API_KEY` |
+| Optional | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (hosted Checkout does not need it) |
+| Optional | `NEXT_PUBLIC_SITE_URL` = `https://breakapplimit.com` |
+| Keep unset/false | `NEXT_PUBLIC_MOCK_MODE` |
 
 ## Routes
 
@@ -81,23 +103,18 @@ See `.env.example` (names only). Never commit `.env.local`.
 
 | Variable | Notes |
 |----------|-------|
-| `NEXT_PUBLIC_FIREBASE_API_KEY` | Client Firebase |
-| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | |
-| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | |
-| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | |
-| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | |
-| `NEXT_PUBLIC_FIREBASE_APP_ID` | |
-| `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` | Optional Analytics |
-| `NEXT_PUBLIC_MOCK_MODE` | `true` forces demo banner / mock auth UI |
-| `STRIPE_SECRET_KEY` | Live checkout (Vercel name) |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhooks (Vercel name) |
-| `STRIPE_PRICE_ID` / `STRIPE_PRICE_ID_ANNUAL` | Annual Price ID (default `price_1UQFdLBMIFugty3a7b54OLdG`) |
-| `FIREBASE_*` (Admin) | Webhook Pro writes |
+| `NEXT_PUBLIC_FIREBASE_*` | Web client; defaults target `break-99b8e` |
+| `NEXT_PUBLIC_MOCK_MODE` | `true` only for demo; keep unset in production |
+| `STRIPE_SECRET_KEY` | **Required** live Checkout (Vercel name) |
+| `STRIPE_WEBHOOK_SECRET` | Stripe → Firestore Pro (Vercel name) |
+| `STRIPE_PRICE_ID` / `STRIPE_PRICE_ID_ANNUAL` | Default `price_1UQFdLBMIFugty3a7b54OLdG` |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Optional (hosted Checkout) |
+| `FIREBASE_PROJECT_ID` / `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY` | Admin Pro grants |
 | `FIRSTPROMOTER_ACCOUNT_ID` | Affiliates cid (Vercel name) |
 | `FIRSTPROMOTER_API_KEY` | FirstPromoter API (Vercel name) |
 | `NEXT_PUBLIC_FIRSTPROMOTER_ACCOUNT_ID` | Local cid fallback |
 | `NEXT_PUBLIC_APP_STORE_URL` | Success CTA |
-| `NEXT_PUBLIC_SITE_URL` | Return URLs |
+| `NEXT_PUBLIC_SITE_URL` | Prefer `https://breakapplimit.com` on Vercel |
 
 ## FirstPromoter
 

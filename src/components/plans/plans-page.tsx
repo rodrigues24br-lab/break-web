@@ -75,6 +75,11 @@ export function PlansPage() {
       };
       if (!res.ok) throw new Error(data.error || t("error"));
 
+      // Live product: never follow a mock checkout URL unless mock mode is on.
+      if (data.mock && !appConfig.mockMode) {
+        throw new Error(data.error || t("error"));
+      }
+
       if (data.url) {
         window.location.href = data.url;
         return;

@@ -84,6 +84,7 @@ export const appConfig = {
   productionSecretsReady: hasProductionSecrets,
 };
 
+/** Firebase web project break-99b8e — public client config (domain-restricted). */
 export const firebaseClientConfig: {
   apiKey: string;
   authDomain: string;
@@ -93,20 +94,24 @@ export const firebaseClientConfig: {
   appId: string;
   measurementId?: string;
 } = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "demo-api-key",
+  apiKey:
+    process.env.NEXT_PUBLIC_FIREBASE_API_KEY ||
+    "AIzaSyC2XKYhnSRpSpHlQB-KbkRnUbyFqtq8Yw4",
   authDomain:
     process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ||
     "break-99b8e.firebaseapp.com",
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "demo-break-app",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "break-99b8e",
   storageBucket:
     process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
-    "demo-break-app.appspot.com",
+    "break-99b8e.firebasestorage.app",
   messagingSenderId:
-    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "000000000000",
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:000000000000:web:demo",
+    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "723058574787",
+  appId:
+    process.env.NEXT_PUBLIC_FIREBASE_APP_ID ||
+    "1:723058574787:web:8b4007d7a46c33dc42e976",
   ...(process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
     ? { measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }
-    : {}),
+    : { measurementId: "G-865KC28F75" }),
 };
 
 /**

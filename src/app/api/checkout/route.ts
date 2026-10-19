@@ -5,6 +5,7 @@ import {
 } from "@/lib/stripe";
 import { FPR_COOKIE, parseAffiliateRef } from "@/lib/firstpromoter";
 import { grantProStatus } from "@/lib/firebase/admin";
+import { appConfig } from "@/lib/config";
 import { getRequestOrigin } from "@/lib/request-origin";
 
 export const runtime = "nodejs";
@@ -48,6 +49,12 @@ export async function POST(request: NextRequest) {
     });
 
     if (session.mock) {
+      if (!appConfig.mockMode) {
+        return NextResponse.json(
+          { error: "Stripe is not configured" },
+          { status: 503 }
+        );
+      }
       await grantProStatus({ uid, email });
     }
 
@@ -59,9 +66,8 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("[checkout]", error);
-    return NextResponse.json(
-      { error: "Failed to create checkout session" },
-      { status: 500 }
-    );
+    const message =
+      error instanceof Error ? error.message : "Failed to create checkout session";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

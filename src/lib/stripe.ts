@@ -56,11 +56,17 @@ export async function createAnnualCheckoutSession(
 ) {
   const client = getStripe();
   if (!client) {
-    return {
-      mock: true as const,
-      plan: "year" as const,
-      url: `${params.successUrl}${params.successUrl.includes("?") ? "&" : "?"}mock=1&plan=year&uid=${encodeURIComponent(params.uid)}&email=${encodeURIComponent(params.email)}`,
-    };
+    // Simulated checkout only when explicitly in mock mode — never on live.
+    if (process.env.NEXT_PUBLIC_MOCK_MODE === "true") {
+      return {
+        mock: true as const,
+        plan: "year" as const,
+        url: `${params.successUrl}${params.successUrl.includes("?") ? "&" : "?"}mock=1&plan=year&uid=${encodeURIComponent(params.uid)}&email=${encodeURIComponent(params.email)}`,
+      };
+    }
+    throw new Error(
+      "Stripe is not configured (set STRIPE_SECRET_KEY on the server)"
+    );
   }
 
   const session = await client.checkout.sessions.create({
@@ -85,10 +91,14 @@ export async function createAnnualCheckoutSession(
     line_items: lineItemsAnnual(),
   });
 
+  if (!session.url) {
+    throw new Error("Stripe Checkout session missing url");
+  }
+
   return {
     mock: false as const,
     plan: "year" as const,
-    url: session.url!,
+    url: session.url,
     sessionId: session.id,
   };
 }

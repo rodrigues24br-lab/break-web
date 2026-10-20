@@ -19,6 +19,9 @@ export async function SalesFooter({ locale }: { locale: string }) {
           <Link href={`/${locale}/support`} className="hover:text-foreground">
             {t("support")}
           </Link>
+          <Link href={`/${locale}/affiliate-program`} className="hover:text-foreground">
+            {t("affiliate")}
+          </Link>
         </nav>
       </div>
       <p className="mx-auto mt-6 max-w-3xl text-xs text-muted-foreground/80">

@@ -1,10 +1,10 @@
 "use client"
 
-import { LOCALES } from "@/lib/i18n"
+import { LOCALES, type Locale } from "@/lib/i18n"
 import { useLocale } from "@/components/locale-provider"
 import { cn } from "@/lib/utils"
 
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({ locales = LOCALES }: { locales?: readonly Locale[] }) {
   const { locale, setLocale, t } = useLocale()
 
   return (
@@ -13,7 +13,7 @@ export default function LanguageSwitcher() {
       aria-label={t.nav.language}
       className="flex items-center rounded-full border border-border bg-card/60 p-0.5 text-[11px] font-medium"
     >
-      {LOCALES.map((code) => (
+      {locales.map((code) => (
         <button
           key={code}
           type="button"

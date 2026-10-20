@@ -35,7 +35,14 @@ export function resolveLocale({
 }
 
 const pt = {
-  nav: { features: "Features", pricing: "Pricing", manifesto: "Manifesto", cta: "Começar", language: "Idioma" },
+  nav: {
+    features: "Features",
+    pricing: "Pricing",
+    manifesto: "Manifesto",
+    affiliate: "Programa de Afiliados",
+    cta: "Começar",
+    language: "Idioma",
+  },
   hero: {
     badge: "Bloqueio de tela para iPhone",
     title: "Seu tempo, de volta pra você.",
@@ -367,7 +374,14 @@ const pt = {
 export type Dictionary = typeof pt
 
 const es: Dictionary = {
-  nav: { features: "Features", pricing: "Pricing", manifesto: "Manifesto", cta: "Empezar", language: "Idioma" },
+  nav: {
+    features: "Features",
+    pricing: "Pricing",
+    manifesto: "Manifesto",
+    affiliate: "Programa de Afiliados",
+    cta: "Empezar",
+    language: "Idioma",
+  },
   hero: {
     badge: "Bloqueo de pantalla para iPhone",
     title: "Tu tiempo, de vuelta para ti.",
@@ -697,7 +711,14 @@ const es: Dictionary = {
 }
 
 const en: Dictionary = {
-  nav: { features: "Features", pricing: "Pricing", manifesto: "Manifesto", cta: "Get started", language: "Language" },
+  nav: {
+    features: "Features",
+    pricing: "Pricing",
+    manifesto: "Manifesto",
+    affiliate: "Affiliate Program",
+    cta: "Get started",
+    language: "Language",
+  },
   hero: {
     badge: "Screen blocking for iPhone",
     title: "Your time, back to you.",

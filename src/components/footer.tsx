@@ -11,6 +11,7 @@ export default function Footer() {
     { href: "#features", label: t.nav.features },
     { href: "#pricing", label: t.nav.pricing },
     { href: "#manifesto", label: t.nav.manifesto },
+    { href: `/${locale}/affiliate-program`, label: t.nav.affiliate },
     { href: "#faq", label: "FAQ" },
     { href: `/${locale}/terms`, label: t.pricing.links.terms },
     { href: `/${locale}/privacy`, label: t.pricing.links.privacy },

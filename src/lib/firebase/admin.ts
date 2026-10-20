@@ -175,6 +175,10 @@ function parseServiceAccountKey(
     }
   }
 
+  // Before any JSON.parse: turn literal \n sequences into real newlines.
+  // (Vercel / pasted JSON often stores private_key escapes this way.)
+  jsonText = jsonText.replace(/\\n/g, "\n");
+
   const tryParse = (text: string): ServiceAccountCert | null => {
     try {
       const parsed = JSON.parse(text) as Record<string, unknown>;
@@ -184,11 +188,11 @@ function parseServiceAccountKey(
     }
   };
 
-  // 1) As-is
+  // 1) After \n → newline conversion
   let certFields = tryParse(jsonText);
   if (certFields) return certFields;
 
-  // 2) Repair literal newlines inside private_key PEM
+  // 2) Repair literal newlines inside private_key PEM (invalid JSON strings)
   const repaired = repairPrivateKeyLiteralNewlines(jsonText);
   if (repaired !== jsonText) {
     certFields = tryParse(repaired);
@@ -213,7 +217,6 @@ function parseServiceAccountKey(
 }
 
 let cachedCert: ServiceAccountCert | null | undefined;
-let cachedCertSource: string | null = null;
 
 function resolveServiceAccountCert(): ServiceAccountCert | null {
   if (cachedCert !== undefined) return cachedCert;
@@ -225,7 +228,6 @@ function resolveServiceAccountCert(): ServiceAccountCert | null {
     const fromJson = parseServiceAccountKey(bundled, envName);
     if (fromJson) {
       cachedCert = fromJson;
-      cachedCertSource = envName;
       console.info(`[firebase-admin] Using credentials from env ${envName}`);
       return fromJson;
     }
@@ -244,7 +246,6 @@ function resolveServiceAccountCert(): ServiceAccountCert | null {
       clientEmail,
       privateKey: normalizePrivateKey(privateKeyRaw),
     };
-    cachedCertSource = "FIREBASE_PROJECT_ID+CLIENT_EMAIL+PRIVATE_KEY";
     console.info(
       "[firebase-admin] Using credentials from discrete FIREBASE_PROJECT_ID / CLIENT_EMAIL / PRIVATE_KEY"
     );
@@ -252,7 +253,6 @@ function resolveServiceAccountCert(): ServiceAccountCert | null {
   }
 
   cachedCert = null;
-  cachedCertSource = null;
   return null;
 }
 

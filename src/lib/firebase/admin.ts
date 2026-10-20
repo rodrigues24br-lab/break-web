@@ -45,7 +45,27 @@ type ServiceAccountCert = {
 
 let firestore: AdminFirestore | null = null;
 let initAttempted = false;
+let activeProjectId: string | null = null;
 const mockStore: Map<string, Record<string, unknown>> = new Map();
+
+function expectedClientProjectId(): string {
+  return (
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID?.trim() ||
+    process.env.FIREBASE_PROJECT_ID?.trim() ||
+    "break-99b8e"
+  );
+}
+
+function isProductionRuntime(): boolean {
+  return (
+    process.env.VERCEL_ENV === "production" ||
+    process.env.NODE_ENV === "production"
+  );
+}
+
+export function getAdminProjectId(): string | null {
+  return activeProjectId ?? resolveServiceAccountCert()?.projectId ?? null;
+}
 
 const ADMIN_ENV_HINT =
   "FIREBASE_SERVICE_ACCOUNT_KEY (JSON; private_key may use real newlines) or FIREBASE_PROJECT_ID + FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY";
@@ -267,40 +287,63 @@ export function isFirebaseAdminConfigured() {
 export async function getAdminFirestore(): Promise<AdminFirestore | null> {
   if (firestore) return firestore;
   if (initAttempted) return firestore;
-  initAttempted = true;
 
   const certFields = resolveServiceAccountCert();
   if (!certFields) {
     console.warn(
       `[firebase-admin] Missing credentials — set ${ADMIN_ENV_HINT}. Admin unavailable.`
     );
+    initAttempted = true;
     return null;
   }
 
-  const { getApps, initializeApp, cert, getFirestore } = await import(
-    "firebase-admin/app"
-  ).then(async (appMod) => {
-    const fsMod = await import("firebase-admin/firestore");
-    return {
-      getApps: appMod.getApps,
-      initializeApp: appMod.initializeApp,
-      cert: appMod.cert,
-      getFirestore: fsMod.getFirestore,
-    };
-  });
-
-  if (!getApps().length) {
-    initializeApp({
-      credential: cert({
-        projectId: certFields.projectId,
-        clientEmail: certFields.clientEmail,
-        privateKey: certFields.privateKey,
-      }),
-    });
+  const expected = expectedClientProjectId();
+  if (certFields.projectId !== expected) {
+    console.warn(
+      `[firebase-admin] Service account projectId=${certFields.projectId} differs from client expected=${expected} — writes may land in a different Firebase project than the Console you are viewing`
+    );
   }
 
-  firestore = getFirestore() as unknown as AdminFirestore;
-  return firestore;
+  try {
+    const { getApps, initializeApp, cert, getFirestore } = await import(
+      "firebase-admin/app"
+    ).then(async (appMod) => {
+      const fsMod = await import("firebase-admin/firestore");
+      return {
+        getApps: appMod.getApps,
+        initializeApp: appMod.initializeApp,
+        cert: appMod.cert,
+        getFirestore: fsMod.getFirestore,
+      };
+    });
+
+    if (!getApps().length) {
+      initializeApp({
+        credential: cert({
+          projectId: certFields.projectId,
+          clientEmail: certFields.clientEmail,
+          privateKey: certFields.privateKey,
+        }),
+        projectId: certFields.projectId,
+      });
+    }
+
+    activeProjectId = certFields.projectId;
+    firestore = getFirestore() as unknown as AdminFirestore;
+    initAttempted = true;
+    console.info("[firebase-admin] Firestore ready", {
+      projectId: activeProjectId,
+      expectedClientProjectId: expected,
+    });
+    return firestore;
+  } catch (err) {
+    // Allow retry on next request instead of permanently sticking on null.
+    initAttempted = false;
+    firestore = null;
+    activeProjectId = null;
+    console.error("[firebase-admin] Failed to initialize Admin SDK", err);
+    throw err;
+  }
 }
 
 export type ProGrantInput = {
@@ -356,6 +399,12 @@ export async function resolveUserForCheckout(params: {
     const data = snap.exists ? snap.data() : undefined;
     const resolvedEmail =
       (typeof data?.email === "string" && data.email) || email || "";
+    console.info("[firebase-admin] resolveUserForCheckout metadata.uid", {
+      path: `${firestoreProFields.collection}/${metadataUid}`,
+      projectId: getAdminProjectId(),
+      docExists: snap.exists,
+      // Grant will create/merge even when doc does not exist yet.
+    });
     return {
       uid: metadataUid,
       email: resolvedEmail.toLowerCase().trim(),
@@ -381,12 +430,14 @@ export async function resolveUserForCheckout(params: {
 
 /**
  * Marks a user as Pro in Firestore.
- * Document: users/{uid}
+ * Document: users/{uid}  (canonical — iOS reads isPro here on login)
  * Core fields: isPro=true, plan="pro", subscriptionStatus="active"
  */
 export async function grantProStatus(input: ProGrantInput) {
   const subscriptionId = input.stripeSubscriptionId ?? null;
   const currentPeriodEnd = input.currentPeriodEnd ?? null;
+  const collection = firestoreProFields.collection;
+  const docPath = `${collection}/${input.uid}`;
 
   const payload = {
     email: input.email.toLowerCase().trim(),
@@ -405,33 +456,78 @@ export async function grantProStatus(input: ProGrantInput) {
 
   const db = await getAdminFirestore();
   if (!db) {
-    if (input.allowMock || process.env.NEXT_PUBLIC_MOCK_MODE === "true") {
+    // Production must never pretend a grant succeeded via in-memory mock.
+    const allowInMemoryMock =
+      !isProductionRuntime() &&
+      input.allowMock === true &&
+      process.env.NEXT_PUBLIC_MOCK_MODE === "true";
+
+    if (allowInMemoryMock) {
       mockStore.set(input.uid, payload);
-      console.info("[mock-firestore] Pro granted", { uid: input.uid, ...payload });
-      return { mock: true as const, ...payload };
+      console.warn("[mock-firestore] Pro granted (IN-MEMORY ONLY — not Firestore)", {
+        mock: true,
+        path: docPath,
+        projectId: null,
+        uid: input.uid,
+        email: payload.email,
+        subscriptionId,
+      });
+      return { mock: true as const, path: docPath, projectId: null, ...payload };
     }
+
     console.error(
-      "[firebase-admin] Cannot grant Pro — Firebase Admin credentials missing",
-      { uid: input.uid, email: input.email }
+      "[firebase-admin] Cannot grant Pro — Firebase Admin unavailable (no Firestore write)",
+      { mock: false, path: docPath, uid: input.uid, email: input.email }
     );
     throw new Error(
       `Firebase Admin unavailable — set ${ADMIN_ENV_HINT}`
     );
   }
 
-  await db
-    .collection(firestoreProFields.collection)
-    .doc(input.uid)
-    .set(payload, { merge: true });
+  const projectId = getAdminProjectId();
+  const docRef = db.collection(collection).doc(input.uid);
+
+  await docRef.set(payload, { merge: true });
+
+  // Verify the write landed (catches wrong project / permission / silent failures).
+  const verify = await docRef.get();
+  const verified = verify.exists ? verify.data() : undefined;
+  if (!verify.exists || verified?.isPro !== true || verified?.plan !== "pro") {
+    console.error("[firebase-admin] Pro grant write verification FAILED", {
+      mock: false,
+      path: docPath,
+      projectId,
+      exists: verify.exists,
+      readBack: verified
+        ? {
+            isPro: verified.isPro,
+            plan: verified.plan,
+            subscriptionId: verified.subscriptionId,
+          }
+        : null,
+    });
+    throw new Error(
+      `Firestore write verification failed for ${docPath} in project ${projectId}`
+    );
+  }
 
   console.info("[firebase-admin] Pro granted", {
+    mock: false,
+    path: docPath,
+    projectId,
     uid: input.uid,
     email: payload.email,
     subscriptionId,
     currentPeriodEnd,
+    verifiedIsPro: verified?.isPro === true,
   });
 
-  return { mock: false as const, ...payload };
+  return {
+    mock: false as const,
+    path: docPath,
+    projectId,
+    ...payload,
+  };
 }
 
 export function getMockProStore() {

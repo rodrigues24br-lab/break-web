@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe";
 import {
+  getAdminProjectId,
   grantProStatus,
   isFirebaseAdminConfigured,
   resolveUserForCheckout,
@@ -44,7 +45,8 @@ async function handleCheckoutCompleted(
     customer_details?: { email?: string | null } | null;
     client_reference_id?: string | null;
   },
-  stripe: Stripe | null
+  stripe: Stripe | null,
+  options?: { allowMock?: boolean }
 ) {
   // Never treat FirstPromoter tid (client_reference_id) as a Firebase uid.
   const metadataUid = session.metadata?.uid?.trim() || null;
@@ -63,6 +65,14 @@ async function handleCheckoutCompleted(
       }
     );
   }
+
+  console.info("[webhook] resolving user for checkout", {
+    sessionId: session.id,
+    metadataUid,
+    email,
+    client_reference_id: session.client_reference_id,
+    adminProjectId: getAdminProjectId(),
+  });
 
   const user = await resolveUserForCheckout({
     metadataUid,
@@ -108,23 +118,42 @@ async function handleCheckoutCompleted(
     ? await currentPeriodEndFromSubscription(stripe, stripeSubscriptionId)
     : null;
 
-  await grantProStatus({
+  const grant = await grantProStatus({
     uid: user.uid,
     email: user.email,
     stripeCustomerId,
     stripeSubscriptionId,
     stripeCheckoutSessionId: session.id,
     currentPeriodEnd,
-    allowMock: !isFirebaseAdminConfigured() && process.env.NEXT_PUBLIC_MOCK_MODE === "true",
+    // Signed Stripe webhooks never allow mock. Local unsigned mock may.
+    allowMock: options?.allowMock === true,
   });
 
-  console.info("[webhook] Pro grant ok", {
+  if (grant.mock) {
+    console.error("[webhook] Pro grant was IN-MEMORY MOCK — not written to Firestore", {
+      sessionId: session.id,
+      path: grant.path,
+      uid: user.uid,
+      mock: true,
+    });
+    // Local mock path may ACK with mock:true; signed path must not reach here.
+    if (!options?.allowMock) {
+      throw new Error("Pro grant used in-memory mock; refusing to ACK as success");
+    }
+    return { mock: true as const, grant, user };
+  }
+
+  console.info("[webhook] Pro grant ok (Firestore)", {
     sessionId: session.id,
+    path: grant.path,
+    projectId: grant.projectId ?? getAdminProjectId(),
     uid: user.uid,
     source: user.source,
     subscriptionId: stripeSubscriptionId,
     currentPeriodEnd,
+    mock: false,
   });
+  return { mock: false as const, grant, user };
 }
 
 export async function POST(request: NextRequest) {
@@ -150,11 +179,27 @@ export async function POST(request: NextRequest) {
       };
 
       if (body.type === "checkout.session.completed" && body.data?.object) {
+        // Unsigned / no Stripe secrets: only for local mock. Never silent success.
+        if (process.env.NEXT_PUBLIC_MOCK_MODE !== "true") {
+          return NextResponse.json(
+            { error: "Stripe webhook not configured" },
+            { status: 503 }
+          );
+        }
         try {
-          await handleCheckoutCompleted(body.data.object, null);
-          return NextResponse.json({ received: true, mock: true });
+          const result = await handleCheckoutCompleted(
+            body.data.object,
+            null,
+            { allowMock: true }
+          );
+          return NextResponse.json({
+            received: true,
+            mock: true,
+            path: result.grant.path,
+            uid: result.user.uid,
+          });
         } catch (err) {
-          console.error("[webhook] mock path grant failed", err);
+          console.error("[webhook] local mock path grant failed", err);
           return NextResponse.json(
             {
               error:

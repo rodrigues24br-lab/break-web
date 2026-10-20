@@ -1,0 +1,26 @@
+rules_version = '2';
+
+/**
+ * Firestore security rules for break-99b8e.
+ *
+ * IMPORTANT: The Stripe webhook Pro grant uses the Firebase Admin SDK
+ * (`firebase-admin` → `getFirestore().collection("users").doc(uid).set(...)`).
+ * Admin SDK writes BYPASS these rules entirely. If Vercel logs show a real
+ * Admin grant with verifiedPlan:"pro" and mock:false, missing docs are NOT
+ * caused by these rules — check projectId / Console project / resolved uid.
+ *
+ * These rules only govern client SDK access (web / iOS).
+ */
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      // Authenticated users may read/write only their own user document.
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Deny everything else by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

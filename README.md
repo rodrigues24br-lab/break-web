@@ -71,7 +71,8 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000) (dev binds `0.0.0.0:3000`).
 | `/success` → `/[locale]/success` | Payment approved + email + App Store CTA |
 | `POST /api/checkout/embedded` | Hosted Stripe Checkout session (annual); returns `url` |
 | `POST /api/checkout` | Redirect Checkout session |
-| `POST /api/webhook` | Stripe → Firestore Pro |
+| `POST /api/webhook` | Stripe → Firestore Pro (`checkout.session.completed`) |
+| `POST /api/webhook/stripe` | Alias of `/api/webhook` |
 | `POST /api/firstpromoter-webhook` | FirstPromoter `referral.created` / `referral.converted` |
 | `GET /api/pricing` | Localized display price (geo + Frankfurter FX; USD fallback) |
 | `POST /api/auth/session` | Mock/demo form POST auth |
@@ -90,9 +91,12 @@ On successful payment the webhook writes:
   "isPro": true,
   "plan": "pro",
   "subscriptionStatus": "active",
+  "status": "active",
   "stripeCustomerId": "cus_…",
   "stripeSubscriptionId": "sub_…",
+  "subscriptionId": "sub_…",
   "stripeCheckoutSessionId": "cs_…",
+  "currentPeriodEnd": "2027-10-17T12:00:00.000Z",
   "proUpdatedAt": "2026-10-17T12:00:00.000Z"
 }
 ```
@@ -120,8 +124,9 @@ See `.env.example` (names only). Never commit `.env.local`.
 
 1. Script loads with cid from `FIRSTPROMOTER_ACCOUNT_ID` (or NEXT_PUBLIC fallback / default).
 2. `?fpr=AFFILIATE_ID` sets a `fpr` cookie (90 days).
-3. Checkout passes that as Stripe `client_reference_id`.
-4. Webhook: `POST /api/firstpromoter-webhook` — set subscription custom header `X-API-KEY` to `FIRSTPROMOTER_API_KEY`. Handles `referral.created` / `referral.converted` by confirming the lead via `GET /api/v1/leads/show`.
+3. Checkout sets Stripe `client_reference_id` to the Firebase **uid**; FPR tid goes in `metadata.fpr` / `metadata.affiliateRef` only (never as uid).
+4. Stripe webhook resolves the user from `metadata.uid`, then session email — never from FPR `client_reference_id`.
+5. FirstPromoter webhook: `POST /api/firstpromoter-webhook` — set subscription custom header `X-API-KEY` to `FIRSTPROMOTER_API_KEY`. Handles `referral.created` / `referral.converted` by confirming the lead via `GET /api/v1/leads/show`.
 
 ## Scripts
 

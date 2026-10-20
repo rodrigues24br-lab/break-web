@@ -1,9 +1,131 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe";
-import { grantProStatus } from "@/lib/firebase/admin";
+import {
+  grantProStatus,
+  isFirebaseAdminConfigured,
+  resolveUserForCheckout,
+} from "@/lib/firebase/admin";
 import type Stripe from "stripe";
 
 export const runtime = "nodejs";
+
+async function currentPeriodEndFromSubscription(
+  stripe: Stripe,
+  subscriptionId: string | null | undefined
+): Promise<string | null> {
+  if (!subscriptionId) return null;
+  try {
+    const sub = await stripe.subscriptions.retrieve(subscriptionId);
+    // Stripe API 2025+: period end lives on subscription items (not the Subscription root).
+    const itemEnd = sub.items?.data?.[0]?.current_period_end;
+    const rootEnd =
+      "current_period_end" in sub &&
+      typeof (sub as { current_period_end?: unknown }).current_period_end ===
+        "number"
+        ? (sub as { current_period_end: number }).current_period_end
+        : null;
+    const end = itemEnd ?? rootEnd;
+    if (end) {
+      return new Date(end * 1000).toISOString();
+    }
+  } catch (err) {
+    console.error("[webhook] failed to retrieve subscription", subscriptionId, err);
+  }
+  return null;
+}
+
+async function handleCheckoutCompleted(
+  session: {
+    id?: string;
+    metadata?: { uid?: string; email?: string } | null;
+    customer?: string | { id?: string } | null;
+    subscription?: string | { id?: string } | null;
+    customer_email?: string | null;
+    customer_details?: { email?: string | null } | null;
+    client_reference_id?: string | null;
+  },
+  stripe: Stripe | null
+) {
+  // Never treat FirstPromoter tid (client_reference_id) as a Firebase uid.
+  const metadataUid = session.metadata?.uid?.trim() || null;
+  const email =
+    session.metadata?.email ||
+    session.customer_details?.email ||
+    session.customer_email ||
+    null;
+
+  if (session.client_reference_id && !metadataUid) {
+    console.warn(
+      "[webhook] ignoring client_reference_id as uid (likely FirstPromoter tid)",
+      {
+        sessionId: session.id,
+        client_reference_id: session.client_reference_id,
+      }
+    );
+  }
+
+  const user = await resolveUserForCheckout({
+    metadataUid,
+    email,
+  });
+
+  if (!user || !user.uid) {
+    console.error(
+      "[webhook] checkout.session.completed: user not found (no metadata.uid and no Firestore email match)",
+      {
+        sessionId: session.id,
+        metadataUid,
+        email,
+        client_reference_id: session.client_reference_id,
+      }
+    );
+    throw new Error("User not found for checkout session");
+  }
+
+  if (!user.email) {
+    console.error(
+      "[webhook] checkout.session.completed: resolved uid but missing email",
+      { sessionId: session.id, uid: user.uid, source: user.source }
+    );
+    throw new Error("Email missing for checkout session user");
+  }
+
+  const stripeCustomerId =
+    typeof session.customer === "string"
+      ? session.customer
+      : session.customer && typeof session.customer === "object"
+        ? session.customer.id
+        : undefined;
+
+  const stripeSubscriptionId =
+    typeof session.subscription === "string"
+      ? session.subscription
+      : session.subscription && typeof session.subscription === "object"
+        ? session.subscription.id
+        : undefined;
+
+  const currentPeriodEnd = stripe
+    ? await currentPeriodEndFromSubscription(stripe, stripeSubscriptionId)
+    : null;
+
+  await grantProStatus({
+    uid: user.uid,
+    email: user.email,
+    stripeCustomerId,
+    stripeSubscriptionId,
+    stripeCheckoutSessionId: session.id,
+    currentPeriodEnd,
+    allowMock: !isFirebaseAdminConfigured() && process.env.NEXT_PUBLIC_MOCK_MODE === "true",
+  });
+
+  console.info("[webhook] Pro grant ok", {
+    sessionId: session.id,
+    uid: user.uid,
+    source: user.source,
+    subscriptionId: stripeSubscriptionId,
+    currentPeriodEnd,
+  });
+}
 
 export async function POST(request: NextRequest) {
   const stripe = getStripe();
@@ -21,28 +143,25 @@ export async function POST(request: NextRequest) {
             subscription?: string;
             id?: string;
             customer_email?: string;
+            customer_details?: { email?: string | null };
             client_reference_id?: string;
           };
         };
       };
 
       if (body.type === "checkout.session.completed" && body.data?.object) {
-        const obj = body.data.object;
-        const uid = obj.metadata?.uid;
-        const email = obj.metadata?.email || obj.customer_email;
-        if (uid && email) {
-          await grantProStatus({
-            uid,
-            email,
-            stripeCustomerId:
-              typeof obj.customer === "string" ? obj.customer : undefined,
-            stripeSubscriptionId:
-              typeof obj.subscription === "string"
-                ? obj.subscription
-                : undefined,
-            stripeCheckoutSessionId: obj.id,
-          });
+        try {
+          await handleCheckoutCompleted(body.data.object, null);
           return NextResponse.json({ received: true, mock: true });
+        } catch (err) {
+          console.error("[webhook] mock path grant failed", err);
+          return NextResponse.json(
+            {
+              error:
+                err instanceof Error ? err.message : "Pro grant failed",
+            },
+            { status: 500 }
+          );
         }
       }
       return NextResponse.json(
@@ -74,28 +193,26 @@ export async function POST(request: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    const uid = session.metadata?.uid;
-    const email =
-      session.metadata?.email ||
-      session.customer_details?.email ||
-      session.customer_email;
 
-    if (uid && email) {
-      await grantProStatus({
-        uid,
-        email,
-        stripeCustomerId:
-          typeof session.customer === "string" ? session.customer : undefined,
-        stripeSubscriptionId:
-          typeof session.subscription === "string"
-            ? session.subscription
-            : undefined,
-        stripeCheckoutSessionId: session.id,
-      });
-    } else {
-      console.warn(
-        "[webhook] checkout.session.completed missing uid/email",
-        session.id
+    if (!isFirebaseAdminConfigured()) {
+      console.error(
+        "[webhook] Firebase Admin not configured — refusing to ACK so Stripe will retry. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY on Vercel."
+      );
+      return NextResponse.json(
+        { error: "Firebase Admin unavailable" },
+        { status: 500 }
+      );
+    }
+
+    try {
+      await handleCheckoutCompleted(session, stripe);
+    } catch (err) {
+      console.error("[webhook] Pro grant failed — returning 500 for Stripe retry", err);
+      return NextResponse.json(
+        {
+          error: err instanceof Error ? err.message : "Pro grant failed",
+        },
+        { status: 500 }
       );
     }
   }

@@ -4,7 +4,7 @@ import { appConfig } from "@/lib/config";
 /**
  * FirstPromoter tracking — loads in document head (beforeInteractive).
  * CID from FIRSTPROMOTER_ACCOUNT_ID (Vercel) or NEXT_PUBLIC_* / default.
- * `?fpr=` cookie (proxy) still feeds Stripe `client_reference_id`.
+ * `?fpr=` cookie (proxy) is stored in Checkout metadata.fpr — not client_reference_id.
  */
 export function FirstPromoterScript() {
   // Prefer exact Vercel name at render time (server component)

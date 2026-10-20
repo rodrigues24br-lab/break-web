@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
       email,
       uid,
       locale,
+      // Passed through as metadata.fpr only; Stripe client_reference_id is uid.
       clientReferenceId: affiliateRef,
       successUrl: buildCheckoutSuccessUrl(email),
       cancelUrl: `${origin}/${locale}/plans`,
@@ -55,14 +56,15 @@ export async function POST(request: NextRequest) {
           { status: 503 }
         );
       }
-      await grantProStatus({ uid, email });
+      await grantProStatus({ uid, email, allowMock: true });
     }
 
     return NextResponse.json({
       url: session.url,
       mock: session.mock,
       plan: "year",
-      client_reference_id: affiliateRef,
+      client_reference_id: uid,
+      fpr: affiliateRef,
     });
   } catch (error) {
     console.error("[checkout]", error);

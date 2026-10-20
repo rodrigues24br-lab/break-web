@@ -124,10 +124,13 @@ export const firebaseClientConfig: {
  *   isPro: true
  *   plan: "pro"
  *   subscriptionStatus: "active"
+ *   status: "active" (alias)
  *   email: string
  *   stripeCustomerId?: string
  *   stripeSubscriptionId?: string
+ *   subscriptionId?: string (alias)
  *   stripeCheckoutSessionId?: string
+ *   currentPeriodEnd?: ISO string
  *   proUpdatedAt: ISO string
  */
 export const firestoreProFields = {

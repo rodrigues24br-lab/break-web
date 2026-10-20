@@ -69,23 +69,33 @@ export async function createAnnualCheckoutSession(
     );
   }
 
+  // client_reference_id = Firebase uid (never FirstPromoter tid).
+  // Affiliate / FPR tid stays in metadata only for Stripe + FirstPromoter.
+  const affiliateTid = params.clientReferenceId?.trim() || undefined;
+
   const session = await client.checkout.sessions.create({
     mode: "subscription",
     customer_email: params.email,
     success_url: params.successUrl,
     cancel_url: params.cancelUrl,
-    client_reference_id: params.clientReferenceId || undefined,
+    client_reference_id: params.uid,
     metadata: {
       uid: params.uid,
       email: params.email,
       locale: params.locale,
       plan: "year",
+      ...(affiliateTid
+        ? { fpr: affiliateTid, affiliateRef: affiliateTid }
+        : {}),
     },
     subscription_data: {
       metadata: {
         uid: params.uid,
         email: params.email,
         plan: "year",
+        ...(affiliateTid
+          ? { fpr: affiliateTid, affiliateRef: affiliateTid }
+          : {}),
       },
     },
     line_items: lineItemsAnnual(),

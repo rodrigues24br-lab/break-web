@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (appConfig.mockMode) {
-    await grantProStatus({ uid, email });
+      await grantProStatus({ uid, email, allowMock: true });
   }
 
   const url = new URL(`/${locale}/success`, origin);

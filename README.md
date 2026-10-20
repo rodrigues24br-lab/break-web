@@ -79,6 +79,10 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000) (dev binds `0.0.0.0:3000`).
 
 Unauthenticated visits to `/plans` redirect to `/[locale]#account`.
 
+## Firestore rules
+
+See `firestore.rules` / `firebase.json`. Client SDK: `users/{uid}` read/write only for the signed-in uid. **Admin SDK (Stripe webhook) bypasses rules** — deploy rules with `firebase deploy --only firestore:rules` when logged into project `break-99b8e`.
+
 ## Firestore Pro schema (iOS-compatible)
 
 On successful payment the webhook writes:

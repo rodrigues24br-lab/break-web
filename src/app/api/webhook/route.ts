@@ -148,10 +148,13 @@ async function handleCheckoutCompleted(
     path: grant.path,
     projectId: grant.projectId ?? getAdminProjectId(),
     uid: user.uid,
+    email: user.email,
     source: user.source,
     subscriptionId: stripeSubscriptionId,
     currentPeriodEnd,
     mock: false,
+    verifiedPlan: grant.verified?.plan,
+    verifiedIsPro: grant.verified?.isPro,
   });
   return { mock: false as const, grant, user };
 }

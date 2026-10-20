@@ -195,10 +195,6 @@ function parseServiceAccountKey(
     }
   }
 
-  // Before any JSON.parse: turn literal \n sequences into real newlines.
-  // (Vercel / pasted JSON often stores private_key escapes this way.)
-  jsonText = jsonText.replace(/\\n/g, "\n");
-
   const tryParse = (text: string): ServiceAccountCert | null => {
     try {
       const parsed = JSON.parse(text) as Record<string, unknown>;
@@ -208,13 +204,25 @@ function parseServiceAccountKey(
     }
   };
 
-  // 1) After \n → newline conversion
+  // 1) Valid JSON as-is (private_key already uses \n escapes)
   let certFields = tryParse(jsonText);
   if (certFields) return certFields;
 
-  // 2) Repair literal newlines inside private_key PEM (invalid JSON strings)
-  const repaired = repairPrivateKeyLiteralNewlines(jsonText);
-  if (repaired !== jsonText) {
+  // 2) User-requested: replace literal \n sequences with real newlines, then parse.
+  //    Often needed when the whole JSON blob was stored single-line with \n markers.
+  //    If this breaks private_key strings, step 3 repairs them.
+  const withRealNewlines = jsonText.replace(/\\n/g, "\n");
+  certFields = tryParse(withRealNewlines);
+  if (certFields) {
+    console.info(
+      `[firebase-admin] Parsed ${envName} after \\n → newline pre-parse`
+    );
+    return certFields;
+  }
+
+  // 3) Repair literal newlines inside private_key PEM (invalid JSON strings)
+  const repaired = repairPrivateKeyLiteralNewlines(withRealNewlines);
+  if (repaired !== withRealNewlines) {
     certFields = tryParse(repaired);
     if (certFields) {
       console.info(
@@ -224,8 +232,9 @@ function parseServiceAccountKey(
     }
   }
 
-  // 3) Regex extract project_id / client_email / PEM block
-  certFields = extractCertViaRegex(jsonText);
+  // 4) Regex extract project_id / client_email / PEM block
+  certFields =
+    extractCertViaRegex(withRealNewlines) || extractCertViaRegex(jsonText);
   if (certFields) {
     console.info(
       `[firebase-admin] Parsed ${envName} via regex extract (invalid JSON shape)`
@@ -305,17 +314,31 @@ export async function getAdminFirestore(): Promise<AdminFirestore | null> {
   }
 
   try {
-    const { getApps, initializeApp, cert, getFirestore } = await import(
-      "firebase-admin/app"
-    ).then(async (appMod) => {
-      const fsMod = await import("firebase-admin/firestore");
-      return {
-        getApps: appMod.getApps,
-        initializeApp: appMod.initializeApp,
-        cert: appMod.cert,
-        getFirestore: fsMod.getFirestore,
-      };
-    });
+    const { getApps, getApp, initializeApp, deleteApp, cert, getFirestore } =
+      await import("firebase-admin/app").then(async (appMod) => {
+        const fsMod = await import("firebase-admin/firestore");
+        return {
+          getApps: appMod.getApps,
+          getApp: appMod.getApp,
+          initializeApp: appMod.initializeApp,
+          deleteApp: appMod.deleteApp,
+          cert: appMod.cert,
+          getFirestore: fsMod.getFirestore,
+        };
+      });
+
+    // Never reuse a warm app bound to a different projectId.
+    const existing = getApps()[0];
+    if (existing) {
+      const existingProject =
+        (existing.options.projectId as string | undefined) || null;
+      if (existingProject && existingProject !== certFields.projectId) {
+        console.warn(
+          `[firebase-admin] Deleting warm app projectId=${existingProject} to re-init as ${certFields.projectId}`
+        );
+        await deleteApp(existing);
+      }
+    }
 
     if (!getApps().length) {
       initializeApp({
@@ -328,12 +351,32 @@ export async function getAdminFirestore(): Promise<AdminFirestore | null> {
       });
     }
 
-    activeProjectId = certFields.projectId;
-    firestore = getFirestore() as unknown as AdminFirestore;
+    const app = getApp();
+    const appProjectId =
+      (app.options.projectId as string | undefined) || certFields.projectId;
+    if (appProjectId !== certFields.projectId) {
+      throw new Error(
+        `Admin app projectId=${appProjectId} != cert projectId=${certFields.projectId}`
+      );
+    }
+
+    activeProjectId = appProjectId;
+
+    // Optional named DB (default "(default)"). Set FIRESTORE_DATABASE_ID if iOS uses one.
+    const databaseId =
+      process.env.FIRESTORE_DATABASE_ID?.trim() || "(default)";
+    firestore = (
+      databaseId === "(default)"
+        ? getFirestore(app)
+        : getFirestore(app, databaseId)
+    ) as unknown as AdminFirestore;
+
     initAttempted = true;
     console.info("[firebase-admin] Firestore ready", {
       projectId: activeProjectId,
+      databaseId,
       expectedClientProjectId: expected,
+      clientEmail: certFields.clientEmail,
     });
     return firestore;
   } catch (err) {
@@ -520,12 +563,20 @@ export async function grantProStatus(input: ProGrantInput) {
     subscriptionId,
     currentPeriodEnd,
     verifiedIsPro: verified?.isPro === true,
+    verifiedPlan: verified?.plan,
+    verifiedSubscriptionStatus: verified?.subscriptionStatus,
   });
 
   return {
     mock: false as const,
     path: docPath,
     projectId,
+    verified: {
+      isPro: verified?.isPro === true,
+      plan: verified?.plan,
+      subscriptionStatus: verified?.subscriptionStatus,
+      subscriptionId: verified?.subscriptionId,
+    },
     ...payload,
   };
 }

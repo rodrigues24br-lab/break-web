@@ -196,7 +196,7 @@ export async function POST(request: NextRequest) {
 
     if (!isFirebaseAdminConfigured()) {
       console.error(
-        "[webhook] Firebase Admin not configured — refusing to ACK so Stripe will retry. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY on Vercel."
+        "[webhook] Firebase Admin not configured — refusing to ACK so Stripe will retry. Set FIREBASE_SERVICE_ACCOUNT_KEY (JSON) or FIREBASE_PROJECT_ID + FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY on Vercel."
       );
       return NextResponse.json(
         { error: "Firebase Admin unavailable" },

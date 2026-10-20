@@ -37,16 +37,98 @@ type AdminFirestore = {
   collection: (name: string) => AdminCollection;
 };
 
+type ServiceAccountCert = {
+  projectId: string;
+  clientEmail: string;
+  privateKey: string;
+};
+
 let firestore: AdminFirestore | null = null;
 let initAttempted = false;
 const mockStore: Map<string, Record<string, unknown>> = new Map();
 
+const ADMIN_ENV_HINT =
+  "FIREBASE_SERVICE_ACCOUNT_KEY (JSON) or FIREBASE_PROJECT_ID + FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY";
+
+/**
+ * Prefer FIREBASE_SERVICE_ACCOUNT_KEY (full service-account JSON on Vercel).
+ * Fall back to discrete FIREBASE_PROJECT_ID / CLIENT_EMAIL / PRIVATE_KEY.
+ */
+function parseServiceAccountKey(raw: string): ServiceAccountCert | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+
+  let jsonText = trimmed;
+
+  // Base64-encoded JSON (common when pasting into env UIs)
+  if (!trimmed.startsWith("{")) {
+    try {
+      const decoded = Buffer.from(trimmed, "base64").toString("utf8").trim();
+      if (decoded.startsWith("{")) {
+        jsonText = decoded;
+      }
+    } catch {
+      // keep original
+    }
+  }
+
+  // Some dashboards store JSON with literal \n in private_key already escaped
+  try {
+    const parsed = JSON.parse(jsonText) as Record<string, unknown>;
+    const projectId =
+      (typeof parsed.project_id === "string" && parsed.project_id) ||
+      (typeof parsed.projectId === "string" && parsed.projectId) ||
+      "";
+    const clientEmail =
+      (typeof parsed.client_email === "string" && parsed.client_email) ||
+      (typeof parsed.clientEmail === "string" && parsed.clientEmail) ||
+      "";
+    let privateKey =
+      (typeof parsed.private_key === "string" && parsed.private_key) ||
+      (typeof parsed.privateKey === "string" && parsed.privateKey) ||
+      "";
+
+    if (!projectId || !clientEmail || !privateKey) {
+      console.error(
+        "[firebase-admin] FIREBASE_SERVICE_ACCOUNT_KEY JSON missing project_id / client_email / private_key"
+      );
+      return null;
+    }
+
+    privateKey = privateKey.replace(/\\n/g, "\n");
+    return { projectId, clientEmail, privateKey };
+  } catch (err) {
+    console.error(
+      "[firebase-admin] Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY as JSON",
+      err instanceof Error ? err.message : err
+    );
+    return null;
+  }
+}
+
+function resolveServiceAccountCert(): ServiceAccountCert | null {
+  const bundled = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+  if (bundled) {
+    const fromJson = parseServiceAccountKey(bundled);
+    if (fromJson) return fromJson;
+  }
+
+  const projectId = process.env.FIREBASE_PROJECT_ID?.trim();
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.trim();
+  const privateKeyRaw = process.env.FIREBASE_PRIVATE_KEY;
+  if (projectId && clientEmail && privateKeyRaw) {
+    return {
+      projectId,
+      clientEmail,
+      privateKey: privateKeyRaw.replace(/\\n/g, "\n"),
+    };
+  }
+
+  return null;
+}
+
 function hasAdminCredentials() {
-  return Boolean(
-    process.env.FIREBASE_PROJECT_ID &&
-      process.env.FIREBASE_CLIENT_EMAIL &&
-      process.env.FIREBASE_PRIVATE_KEY
-  );
+  return resolveServiceAccountCert() !== null;
 }
 
 export function isFirebaseAdminConfigured() {
@@ -58,9 +140,10 @@ export async function getAdminFirestore(): Promise<AdminFirestore | null> {
   if (initAttempted) return firestore;
   initAttempted = true;
 
-  if (!hasAdminCredentials()) {
+  const certFields = resolveServiceAccountCert();
+  if (!certFields) {
     console.warn(
-      "[firebase-admin] Missing FIREBASE_PROJECT_ID / FIREBASE_CLIENT_EMAIL / FIREBASE_PRIVATE_KEY — Admin unavailable"
+      `[firebase-admin] Missing credentials — set ${ADMIN_ENV_HINT}. Admin unavailable.`
     );
     return null;
   }
@@ -80,9 +163,9 @@ export async function getAdminFirestore(): Promise<AdminFirestore | null> {
   if (!getApps().length) {
     initializeApp({
       credential: cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+        projectId: certFields.projectId,
+        clientEmail: certFields.clientEmail,
+        privateKey: certFields.privateKey,
       }),
     });
   }
@@ -203,7 +286,7 @@ export async function grantProStatus(input: ProGrantInput) {
       { uid: input.uid, email: input.email }
     );
     throw new Error(
-      "Firebase Admin unavailable — set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY"
+      `Firebase Admin unavailable — set ${ADMIN_ENV_HINT}`
     );
   }
 

@@ -5,6 +5,7 @@
  *
  * Requires env:
  *   STRIPE_SECRET_KEY
+ *   FIREBASE_SERVICE_ACCOUNT_KEY (JSON) OR
  *   FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
  *
  * Usage:
@@ -26,15 +27,36 @@ function requireEnv(name) {
   return v;
 }
 
+function resolveCert() {
+  const bundled = process.env.FIREBASE_SERVICE_ACCOUNT_KEY?.trim();
+  if (bundled) {
+    let jsonText = bundled;
+    if (!bundled.startsWith("{")) {
+      const decoded = Buffer.from(bundled, "base64").toString("utf8").trim();
+      if (decoded.startsWith("{")) jsonText = decoded;
+    }
+    const parsed = JSON.parse(jsonText);
+    return {
+      projectId: parsed.project_id || parsed.projectId,
+      clientEmail: parsed.client_email || parsed.clientEmail,
+      privateKey: String(parsed.private_key || parsed.privateKey).replace(
+        /\\n/g,
+        "\n"
+      ),
+    };
+  }
+  return {
+    projectId: requireEnv("FIREBASE_PROJECT_ID"),
+    clientEmail: requireEnv("FIREBASE_CLIENT_EMAIL"),
+    privateKey: requireEnv("FIREBASE_PRIVATE_KEY").replace(/\\n/g, "\n"),
+  };
+}
+
 async function getAdminDb() {
   const admin = require("firebase-admin");
   if (!admin.apps.length) {
     admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId: requireEnv("FIREBASE_PROJECT_ID"),
-        clientEmail: requireEnv("FIREBASE_CLIENT_EMAIL"),
-        privateKey: requireEnv("FIREBASE_PRIVATE_KEY").replace(/\\n/g, "\n"),
-      }),
+      credential: admin.credential.cert(resolveCert()),
     });
   }
   return admin.firestore();
@@ -116,7 +138,7 @@ async function main() {
   if (!key) {
     console.error(
       "STRIPE_SECRET_KEY missing. Set it (and Firebase Admin vars) then re-run.\n" +
-        "On Vercel: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY"
+        "On Vercel: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, FIREBASE_SERVICE_ACCOUNT_KEY (or discrete FIREBASE_* Admin vars)"
     );
     process.exit(1);
   }

@@ -53,7 +53,7 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000) (dev binds `0.0.0.0:3000`).
 | Optional Analytics | `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` |
 | Checkout | `STRIPE_SECRET_KEY` |
 | Checkout price | `STRIPE_PRICE_ID_ANNUAL` (or default `price_1UQFdLBMIFugty3a7b54OLdG`) |
-| Webhook Pro grant | `STRIPE_WEBHOOK_SECRET` + Firebase Admin (`FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`) |
+| Webhook Pro grant | `STRIPE_WEBHOOK_SECRET` + Firebase Admin (`FIREBASE_SERVICE_ACCOUNT_KEY` JSON, or discrete `FIREBASE_PROJECT_ID` / `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY`) |
 | Affiliates | `FIRSTPROMOTER_ACCOUNT_ID`, `FIRSTPROMOTER_API_KEY` |
 | Optional | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (hosted Checkout does not need it) |
 | Optional | `NEXT_PUBLIC_SITE_URL` = `https://breakapplimit.com` |
@@ -113,7 +113,8 @@ See `.env.example` (names only). Never commit `.env.local`.
 | `STRIPE_WEBHOOK_SECRET` | Stripe → Firestore Pro (Vercel name) |
 | `STRIPE_PRICE_ID` / `STRIPE_PRICE_ID_ANNUAL` | Default `price_1UQFdLBMIFugty3a7b54OLdG` |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Optional (hosted Checkout) |
-| `FIREBASE_PROJECT_ID` / `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY` | Admin Pro grants |
+| `FIREBASE_SERVICE_ACCOUNT_KEY` | Preferred Admin creds (full service-account JSON; base64 OK) |
+| `FIREBASE_PROJECT_ID` / `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY` | Admin Pro grants (local/dev fallback) |
 | `FIRSTPROMOTER_ACCOUNT_ID` | Affiliates cid (Vercel name) |
 | `FIRSTPROMOTER_API_KEY` | FirstPromoter API (Vercel name) |
 | `NEXT_PUBLIC_FIRSTPROMOTER_ACCOUNT_ID` | Local cid fallback |

@@ -8,7 +8,11 @@ const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1", "localhost"],
-  serverExternalPackages: ["firebase-admin"],
+  // firebase-admin/auth → jwks-rsa does require("jose"). jose 6 is ESM-only and
+  // throws ERR_REQUIRE_ESM on Vercel. The override pins jwks-rsa to jose 5
+  // (CJS). Keep all three external so the server require() uses that CJS build
+  // instead of a bundled browser/ESM entry.
+  serverExternalPackages: ["firebase-admin", "jwks-rsa", "jose"],
   turbopack: {
     resolveAlias: {
       "@firebase/app": "./node_modules/@firebase/app",

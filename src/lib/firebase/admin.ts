@@ -438,16 +438,29 @@ export type ProGrantInput = {
   allowMock?: boolean;
 };
 
+export type ResolveFallbackReason =
+  | "doc_missing"
+  | "email_mismatch"
+  | "invalid_uid_shape";
+
 export type ResolvedUser = {
   uid: string;
   email: string;
-  source: "metadata.uid" | "email";
+  source: "metadata.uid" | "email-fallback" | "email";
+  reason?: ResolveFallbackReason;
+  metadataUid?: string | null;
 };
+
+/** Firebase Auth uids are long opaque ids — reject commit SHAs / FPR tids / junk. */
+export function isLikelyFirebaseUid(uid: string): boolean {
+  return uid.length >= 20 && uid.length <= 128 && /^[A-Za-z0-9]+$/.test(uid);
+}
 
 /**
  * Resolve Firestore user for a Stripe Checkout session.
- * Prefer metadata.uid (Firebase Auth), then email lookup.
+ * Prefer a verified metadata.uid; otherwise email lookup.
  * Never treat FirstPromoter client_reference_id as a uid.
+ * Never create orphan grants for garbage uids (e.g. 7-char hex like a git SHA).
  */
 export async function resolveUserForCheckout(params: {
   metadataUid?: string | null;
@@ -458,16 +471,14 @@ export async function resolveUserForCheckout(params: {
 
   const db = await getAdminFirestore();
   if (!db) {
-    // Without Admin we can still resolve from metadata for callers that
-    // will fail later if grant requires Admin — surface identity when known.
-    if (metadataUid && email) {
-      return { uid: metadataUid, email, source: "metadata.uid" };
-    }
-    if (metadataUid) {
+    // Production webhook refuses grant without Admin. Only allow a
+    // shape-valid metadata uid through for local mock paths.
+    if (metadataUid && isLikelyFirebaseUid(metadataUid)) {
       return {
         uid: metadataUid,
         email: email || "",
         source: "metadata.uid",
+        metadataUid,
       };
     }
     return null;
@@ -475,38 +486,121 @@ export async function resolveUserForCheckout(params: {
 
   const users = db.collection(firestoreProFields.collection);
 
-  if (metadataUid) {
-    const snap = await users.doc(metadataUid).get();
-    const data = snap.exists ? snap.data() : undefined;
-    const resolvedEmail =
-      (typeof data?.email === "string" && data.email) || email || "";
-    console.info("[firebase-admin] resolveUserForCheckout metadata.uid", {
-      path: `${firestoreProFields.collection}/${metadataUid}`,
-      projectId: getAdminProjectId(),
-      docExists: snap.exists,
-      // Grant will create/merge even when doc does not exist yet.
-    });
-    return {
-      uid: metadataUid,
-      email: resolvedEmail.toLowerCase().trim(),
-      source: "metadata.uid",
+  const findByEmail = async (
+    source: "email-fallback" | "email",
+    reason?: ResolveFallbackReason
+  ): Promise<ResolvedUser | null> => {
+    if (!email) return null;
+    const query = await users.where("email", "==", email).limit(1).get();
+    if (query.empty || !query.docs[0]) return null;
+    const doc = query.docs[0];
+    const data = doc.data();
+    const resolved: ResolvedUser = {
+      uid: doc.id,
+      email:
+        (typeof data?.email === "string" && data.email.toLowerCase().trim()) ||
+        email,
+      source,
+      reason,
+      metadataUid,
     };
+    console.info("[firebase-admin] resolveUserForCheckout", {
+      metadataUid,
+      resolvedUid: resolved.uid,
+      email: resolved.email,
+      source: resolved.source,
+      reason: resolved.reason ?? null,
+      projectId: getAdminProjectId(),
+      path: `${firestoreProFields.collection}/${resolved.uid}`,
+    });
+    return resolved;
+  };
+
+  if (metadataUid) {
+    const validShape = isLikelyFirebaseUid(metadataUid);
+    let reason: ResolveFallbackReason | null = null;
+
+    if (!validShape) {
+      reason = "invalid_uid_shape";
+    } else {
+      const snap = await users.doc(metadataUid).get();
+      const data = snap.exists ? snap.data() : undefined;
+      const docEmail =
+        typeof data?.email === "string"
+          ? data.email.toLowerCase().trim()
+          : null;
+
+      if (!snap.exists) {
+        reason = "doc_missing";
+      } else if (email && docEmail && docEmail !== email) {
+        reason = "email_mismatch";
+      } else {
+        const resolvedEmail = docEmail || email || "";
+        console.info("[firebase-admin] resolveUserForCheckout", {
+          metadataUid,
+          resolvedUid: metadataUid,
+          email: resolvedEmail,
+          source: "metadata.uid",
+          reason: null,
+          docExists: true,
+          projectId: getAdminProjectId(),
+          path: `${firestoreProFields.collection}/${metadataUid}`,
+        });
+        return {
+          uid: metadataUid,
+          email: resolvedEmail,
+          source: "metadata.uid",
+          metadataUid,
+        };
+      }
+    }
+
+    // Fallback: grant to the Firestore user matched by session email.
+    const byEmail = await findByEmail("email-fallback", reason);
+    if (byEmail) {
+      console.warn(
+        "[firebase-admin] metadata.uid rejected — using email-fallback",
+        {
+          metadataUid,
+          resolvedUid: byEmail.uid,
+          reason,
+          email,
+        }
+      );
+      return byEmail;
+    }
+
+    // New Auth user: valid Firebase uid, no Firestore doc yet, no email hit.
+    if (validShape && reason === "doc_missing") {
+      console.info("[firebase-admin] resolveUserForCheckout", {
+        metadataUid,
+        resolvedUid: metadataUid,
+        email: email || "",
+        source: "metadata.uid",
+        reason: "doc_missing",
+        docExists: false,
+        projectId: getAdminProjectId(),
+        path: `${firestoreProFields.collection}/${metadataUid}`,
+        note: "will create users/{uid} on grant",
+      });
+      return {
+        uid: metadataUid,
+        email: email || "",
+        source: "metadata.uid",
+        reason: "doc_missing",
+        metadataUid,
+      };
+    }
+
+    console.error(
+      "[firebase-admin] resolveUserForCheckout failed — bad metadata.uid and no email match",
+      { metadataUid, email, reason, validShape }
+    );
+    return null;
   }
 
   if (!email) return null;
-
-  const query = await users.where("email", "==", email).limit(1).get();
-  if (query.empty || !query.docs[0]) return null;
-
-  const doc = query.docs[0];
-  const data = doc.data();
-  return {
-    uid: doc.id,
-    email:
-      (typeof data?.email === "string" && data.email.toLowerCase().trim()) ||
-      email,
-    source: "email",
-  };
+  return findByEmail("email");
 }
 
 /**

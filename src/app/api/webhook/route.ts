@@ -4,6 +4,7 @@ import {
   getAdminWriteTarget,
   grantProStatus,
   isFirebaseAdminConfigured,
+  isLikelyFirebaseUid,
   resolveUserForCheckout,
 } from "@/lib/firebase/admin";
 import type Stripe from "stripe";
@@ -71,9 +72,9 @@ async function handleCheckoutCompleted(
     metadataUid,
     email,
     client_reference_id: session.client_reference_id,
-    expectedUidHint: "1PrC18HWGRVQLSGp24AGSvPHiP2",
-    metadataUidMatchesExpected:
-      metadataUid === "1PrC18HWGRVQLSGp24AGSvPHiP2",
+    metadataUidLooksLikeFirebaseUid: metadataUid
+      ? isLikelyFirebaseUid(metadataUid)
+      : false,
   });
 
   const user = await resolveUserForCheckout({
@@ -149,9 +150,12 @@ async function handleCheckoutCompleted(
   console.info("[webhook] Pro grant ok (Firestore)", {
     sessionId: session.id,
     path: grant.path,
+    metadataUid,
+    resolvedUid: user.uid,
     uid: user.uid,
     email: user.email,
     source: user.source,
+    reason: user.reason ?? null,
     subscriptionId: stripeSubscriptionId,
     currentPeriodEnd,
     mock: false,
@@ -164,7 +168,6 @@ async function handleCheckoutCompleted(
     clientEmail: writeTarget.clientEmail,
     expectedClientProjectId: writeTarget.expectedClientProjectId,
     projectMismatch: writeTarget.projectMismatch,
-    uidMatchesExpectedUser: user.uid === "1PrC18HWGRVQLSGp24AGSvPHiP2",
   });
   return { mock: false as const, grant, user };
 }

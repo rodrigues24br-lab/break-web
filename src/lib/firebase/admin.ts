@@ -48,82 +48,211 @@ let initAttempted = false;
 const mockStore: Map<string, Record<string, unknown>> = new Map();
 
 const ADMIN_ENV_HINT =
-  "FIREBASE_SERVICE_ACCOUNT_KEY (JSON) or FIREBASE_PROJECT_ID + FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY";
+  "FIREBASE_SERVICE_ACCOUNT_KEY (JSON; private_key may use real newlines) or FIREBASE_PROJECT_ID + FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY";
+
+/** Env names checked for a full service-account JSON blob (first match wins). */
+const SERVICE_ACCOUNT_ENV_NAMES = [
+  "FIREBASE_SERVICE_ACCOUNT_KEY",
+  "FIREBASE_ADMIN_SDK",
+  "FIREBASE_ADMIN_CREDENTIALS",
+  "GOOGLE_SERVICE_ACCOUNT_JSON",
+  "FIREBASE_ADMIN_KEY",
+] as const;
+
+function normalizePrivateKey(key: string): string {
+  return key.replace(/\\n/g, "\n").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+}
+
+function stripServiceAccountJunk(raw: string): string {
+  let s = raw.replace(/^\uFEFF/, "").trim();
+  // Wrapping quotes from some env UIs
+  if (
+    (s.startsWith('"') && s.endsWith('"')) ||
+    (s.startsWith("'") && s.endsWith("'"))
+  ) {
+    s = s.slice(1, -1).trim();
+  }
+  // Prefix junk e.g. serviceAccount={...}
+  s = s.replace(/^serviceAccount\s*=\s*/i, "").trim();
+  return s;
+}
+
+function certFromParsedObject(
+  parsed: Record<string, unknown>,
+  envName: string
+): ServiceAccountCert | null {
+  const projectId =
+    (typeof parsed.project_id === "string" && parsed.project_id) ||
+    (typeof parsed.projectId === "string" && parsed.projectId) ||
+    "";
+  const clientEmail =
+    (typeof parsed.client_email === "string" && parsed.client_email) ||
+    (typeof parsed.clientEmail === "string" && parsed.clientEmail) ||
+    "";
+  const privateKeyRaw =
+    (typeof parsed.private_key === "string" && parsed.private_key) ||
+    (typeof parsed.privateKey === "string" && parsed.privateKey) ||
+    "";
+
+  if (!projectId || !clientEmail || !privateKeyRaw) {
+    console.error(
+      `[firebase-admin] ${envName} JSON missing project_id / client_email / private_key`
+    );
+    return null;
+  }
+
+  return {
+    projectId,
+    clientEmail,
+    privateKey: normalizePrivateKey(privateKeyRaw),
+  };
+}
+
+/**
+ * Escape literal newlines inside "private_key" / "privateKey" string values so
+ * JSON.parse can succeed when the PEM was pasted with real line breaks (invalid JSON).
+ */
+function repairPrivateKeyLiteralNewlines(jsonText: string): string {
+  return jsonText.replace(
+    /("private_key"|"privateKey")\s*:\s*"([\s\S]*?)"(\s*[,}])/g,
+    (match, key: string, body: string, tail: string) => {
+      if (!/[\r\n]/.test(body)) return match;
+      const escaped = body
+        .replace(/\\/g, "\\\\")
+        .replace(/"/g, '\\"')
+        .replace(/\r\n/g, "\\n")
+        .replace(/\n/g, "\\n")
+        .replace(/\r/g, "\\n");
+      return `${key}: "${escaped}"${tail}`;
+    }
+  );
+}
+
+/** Last-resort: regex-extract fields when JSON remains unparsable. */
+function extractCertViaRegex(text: string): ServiceAccountCert | null {
+  const projectId =
+    text.match(/"project_id"\s*:\s*"([^"]+)"/)?.[1] ||
+    text.match(/"projectId"\s*:\s*"([^"]+)"/)?.[1] ||
+    "";
+  const clientEmail =
+    text.match(/"client_email"\s*:\s*"([^"]+)"/)?.[1] ||
+    text.match(/"clientEmail"\s*:\s*"([^"]+)"/)?.[1] ||
+    "";
+  const pem = text.match(
+    /-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z0-9 ]*PRIVATE KEY-----/
+  )?.[0];
+
+  if (!projectId || !clientEmail || !pem) return null;
+
+  return {
+    projectId,
+    clientEmail,
+    privateKey: normalizePrivateKey(pem),
+  };
+}
 
 /**
  * Prefer FIREBASE_SERVICE_ACCOUNT_KEY (full service-account JSON on Vercel).
- * Fall back to discrete FIREBASE_PROJECT_ID / CLIENT_EMAIL / PRIVATE_KEY.
+ * Hardened for private_key pasted with real newlines (invalid JSON).
  */
-function parseServiceAccountKey(raw: string): ServiceAccountCert | null {
-  const trimmed = raw.trim();
-  if (!trimmed) return null;
-
-  let jsonText = trimmed;
+function parseServiceAccountKey(
+  raw: string,
+  envName: string
+): ServiceAccountCert | null {
+  let jsonText = stripServiceAccountJunk(raw);
+  if (!jsonText) return null;
 
   // Base64-encoded JSON (common when pasting into env UIs)
-  if (!trimmed.startsWith("{")) {
+  if (!jsonText.startsWith("{")) {
     try {
-      const decoded = Buffer.from(trimmed, "base64").toString("utf8").trim();
-      if (decoded.startsWith("{")) {
-        jsonText = decoded;
+      const decoded = Buffer.from(jsonText, "base64").toString("utf8");
+      const stripped = stripServiceAccountJunk(decoded);
+      if (stripped.startsWith("{")) {
+        jsonText = stripped;
       }
     } catch {
       // keep original
     }
   }
 
-  // Some dashboards store JSON with literal \n in private_key already escaped
-  try {
-    const parsed = JSON.parse(jsonText) as Record<string, unknown>;
-    const projectId =
-      (typeof parsed.project_id === "string" && parsed.project_id) ||
-      (typeof parsed.projectId === "string" && parsed.projectId) ||
-      "";
-    const clientEmail =
-      (typeof parsed.client_email === "string" && parsed.client_email) ||
-      (typeof parsed.clientEmail === "string" && parsed.clientEmail) ||
-      "";
-    let privateKey =
-      (typeof parsed.private_key === "string" && parsed.private_key) ||
-      (typeof parsed.privateKey === "string" && parsed.privateKey) ||
-      "";
-
-    if (!projectId || !clientEmail || !privateKey) {
-      console.error(
-        "[firebase-admin] FIREBASE_SERVICE_ACCOUNT_KEY JSON missing project_id / client_email / private_key"
-      );
+  const tryParse = (text: string): ServiceAccountCert | null => {
+    try {
+      const parsed = JSON.parse(text) as Record<string, unknown>;
+      return certFromParsedObject(parsed, envName);
+    } catch {
       return null;
     }
+  };
 
-    privateKey = privateKey.replace(/\\n/g, "\n");
-    return { projectId, clientEmail, privateKey };
-  } catch (err) {
-    console.error(
-      "[firebase-admin] Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY as JSON",
-      err instanceof Error ? err.message : err
-    );
-    return null;
+  // 1) As-is
+  let certFields = tryParse(jsonText);
+  if (certFields) return certFields;
+
+  // 2) Repair literal newlines inside private_key PEM
+  const repaired = repairPrivateKeyLiteralNewlines(jsonText);
+  if (repaired !== jsonText) {
+    certFields = tryParse(repaired);
+    if (certFields) {
+      console.info(
+        `[firebase-admin] Parsed ${envName} after repairing private_key newlines`
+      );
+      return certFields;
+    }
   }
+
+  // 3) Regex extract project_id / client_email / PEM block
+  certFields = extractCertViaRegex(jsonText);
+  if (certFields) {
+    console.info(
+      `[firebase-admin] Parsed ${envName} via regex extract (invalid JSON shape)`
+    );
+    return certFields;
+  }
+
+  return null;
 }
 
+let cachedCert: ServiceAccountCert | null | undefined;
+let cachedCertSource: string | null = null;
+
 function resolveServiceAccountCert(): ServiceAccountCert | null {
-  const bundled = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-  if (bundled) {
-    const fromJson = parseServiceAccountKey(bundled);
-    if (fromJson) return fromJson;
+  if (cachedCert !== undefined) return cachedCert;
+
+  for (const envName of SERVICE_ACCOUNT_ENV_NAMES) {
+    const bundled = process.env[envName];
+    if (!bundled?.trim()) continue;
+
+    const fromJson = parseServiceAccountKey(bundled, envName);
+    if (fromJson) {
+      cachedCert = fromJson;
+      cachedCertSource = envName;
+      console.info(`[firebase-admin] Using credentials from env ${envName}`);
+      return fromJson;
+    }
+
+    console.error(
+      `[firebase-admin] ${envName} present but invalid JSON (check private_key newlines)`
+    );
   }
 
   const projectId = process.env.FIREBASE_PROJECT_ID?.trim();
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.trim();
   const privateKeyRaw = process.env.FIREBASE_PRIVATE_KEY;
   if (projectId && clientEmail && privateKeyRaw) {
-    return {
+    cachedCert = {
       projectId,
       clientEmail,
-      privateKey: privateKeyRaw.replace(/\\n/g, "\n"),
+      privateKey: normalizePrivateKey(privateKeyRaw),
     };
+    cachedCertSource = "FIREBASE_PROJECT_ID+CLIENT_EMAIL+PRIVATE_KEY";
+    console.info(
+      "[firebase-admin] Using credentials from discrete FIREBASE_PROJECT_ID / CLIENT_EMAIL / PRIVATE_KEY"
+    );
+    return cachedCert;
   }
 
+  cachedCert = null;
+  cachedCertSource = null;
   return null;
 }
 

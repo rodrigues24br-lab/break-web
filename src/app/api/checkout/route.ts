@@ -4,7 +4,11 @@ import {
   createAnnualCheckoutSession,
 } from "@/lib/stripe";
 import { FPR_COOKIE, parseAffiliateRef } from "@/lib/firstpromoter";
-import { grantProStatus } from "@/lib/firebase/admin";
+import {
+  CheckoutIdentityError,
+  grantProStatus,
+  resolveCheckoutBuyer,
+} from "@/lib/firebase/admin";
 import { appConfig } from "@/lib/config";
 import { getRequestOrigin } from "@/lib/request-origin";
 
@@ -19,19 +23,17 @@ export async function POST(request: NextRequest) {
       idToken?: string;
     };
 
-    const email = body.email?.trim().toLowerCase();
-    const uid = body.uid?.trim();
     const locale =
       body.locale === "pt" || body.locale === "es" || body.locale === "en"
         ? body.locale
         : "en";
 
-    if (!email || !uid) {
-      return NextResponse.json(
-        { error: "email and uid are required" },
-        { status: 400 }
-      );
-    }
+    const buyer = await resolveCheckoutBuyer({
+      idToken: body.idToken,
+      claimedUid: body.uid,
+      claimedEmail: body.email,
+    });
+    const { email, uid } = buyer;
 
     const affiliateRef =
       parseAffiliateRef(request.cookies.get(FPR_COOKIE)?.value) ||
@@ -56,7 +58,12 @@ export async function POST(request: NextRequest) {
           { status: 503 }
         );
       }
-      await grantProStatus({ uid, email, allowMock: true });
+      await grantProStatus({
+        uid,
+        email,
+        uidSource: "idToken",
+        allowMock: true,
+      });
     }
 
     return NextResponse.json({
@@ -67,6 +74,9 @@ export async function POST(request: NextRequest) {
       fpr: affiliateRef,
     });
   } catch (error) {
+    if (error instanceof CheckoutIdentityError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     console.error("[checkout]", error);
     const message =
       error instanceof Error ? error.message : "Failed to create checkout session";

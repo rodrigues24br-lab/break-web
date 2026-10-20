@@ -49,7 +49,8 @@ async function handleCheckoutCompleted(
   stripe: Stripe | null,
   options?: { allowMock?: boolean }
 ) {
-  // Never treat FirstPromoter tid (client_reference_id) as a Firebase uid.
+  // metadata.uid and client_reference_id are candidates. Short FirstPromoter
+  // tids fail the uid shape check inside resolveUserForCheckout.
   const metadataUid = session.metadata?.uid?.trim() || null;
   const email =
     session.metadata?.email ||
@@ -57,34 +58,28 @@ async function handleCheckoutCompleted(
     session.customer_email ||
     null;
 
-  if (session.client_reference_id && !metadataUid) {
-    console.warn(
-      "[webhook] ignoring client_reference_id as uid (likely FirstPromoter tid)",
-      {
-        sessionId: session.id,
-        client_reference_id: session.client_reference_id,
-      }
-    );
-  }
-
   console.info("[webhook] resolving user for checkout", {
     sessionId: session.id,
     metadataUid,
     email,
-    client_reference_id: session.client_reference_id,
+    client_reference_id: session.client_reference_id ?? null,
     metadataUidLooksLikeFirebaseUid: metadataUid
       ? isLikelyFirebaseUid(metadataUid)
+      : false,
+    clientReferenceLooksLikeFirebaseUid: session.client_reference_id
+      ? isLikelyFirebaseUid(session.client_reference_id)
       : false,
   });
 
   const user = await resolveUserForCheckout({
     metadataUid,
+    clientReferenceId: session.client_reference_id,
     email,
   });
 
   if (!user || !user.uid) {
     console.error(
-      "[webhook] checkout.session.completed: user not found (no metadata.uid and no Firestore email match)",
+      "[webhook] checkout.session.completed: refused — no confirmed Auth user or existing users doc (will not create an orphan)",
       {
         sessionId: session.id,
         metadataUid,
@@ -123,6 +118,7 @@ async function handleCheckoutCompleted(
 
   const grant = await grantProStatus({
     uid: user.uid,
+    uidSource: user.source,
     email: user.email,
     stripeCustomerId,
     stripeSubscriptionId,
@@ -156,6 +152,11 @@ async function handleCheckoutCompleted(
     email: user.email,
     source: user.source,
     reason: user.reason ?? null,
+    authUid: user.authUid ?? null,
+    docExisted: user.docExisted ?? null,
+    grantStub: user.grantStub ?? null,
+    existedBefore: grant.existedBefore,
+    docRefPath: grant.path,
     subscriptionId: stripeSubscriptionId,
     currentPeriodEnd,
     mock: false,

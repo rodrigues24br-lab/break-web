@@ -55,6 +55,7 @@ export function PlansPage() {
     setLoading(true);
     try {
       const fpr = getCookie("fpr");
+      const idToken = await user.getIdToken();
       const res = await fetch("/api/checkout/embedded", {
         method: "POST",
         headers: {
@@ -66,6 +67,7 @@ export function PlansPage() {
           uid: user.uid,
           locale,
           plan: "year",
+          idToken,
         }),
       });
       const data = (await res.json()) as {

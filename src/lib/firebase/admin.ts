@@ -46,6 +46,9 @@ type ServiceAccountCert = {
 let firestore: AdminFirestore | null = null;
 let initAttempted = false;
 let activeProjectId: string | null = null;
+let activeAppName: string | null = null;
+let activeDatabaseId: string | null = null;
+let activeClientEmail: string | null = null;
 const mockStore: Map<string, Record<string, unknown>> = new Map();
 
 function expectedClientProjectId(): string {
@@ -65,6 +68,27 @@ function isProductionRuntime(): boolean {
 
 export function getAdminProjectId(): string | null {
   return activeProjectId ?? resolveServiceAccountCert()?.projectId ?? null;
+}
+
+/** Real Admin binding used for writes (not an env guess). */
+export function getAdminWriteTarget(): {
+  projectId: string | null;
+  appName: string | null;
+  databaseId: string | null;
+  clientEmail: string | null;
+  expectedClientProjectId: string;
+  projectMismatch: boolean;
+} {
+  const projectId = getAdminProjectId();
+  const expected = expectedClientProjectId();
+  return {
+    projectId,
+    appName: activeAppName,
+    databaseId: activeDatabaseId,
+    clientEmail: activeClientEmail,
+    expectedClientProjectId: expected,
+    projectMismatch: Boolean(projectId && projectId !== expected),
+  };
 }
 
 const ADMIN_ENV_HINT =
@@ -327,14 +351,14 @@ export async function getAdminFirestore(): Promise<AdminFirestore | null> {
         };
       });
 
-    // Never reuse a warm app bound to a different projectId.
-    const existing = getApps()[0];
-    if (existing) {
+    // Never reuse a warm app unless it is already bound to this cert's projectId.
+    // Missing projectId on a warm app is treated as unsafe → delete + re-init.
+    for (const existing of getApps()) {
       const existingProject =
         (existing.options.projectId as string | undefined) || null;
-      if (existingProject && existingProject !== certFields.projectId) {
+      if (existingProject !== certFields.projectId) {
         console.warn(
-          `[firebase-admin] Deleting warm app projectId=${existingProject} to re-init as ${certFields.projectId}`
+          `[firebase-admin] Deleting warm app name=${existing.name} projectId=${existingProject ?? "(missing)"} to re-init as ${certFields.projectId}`
         );
         await deleteApp(existing);
       }
@@ -352,8 +376,13 @@ export async function getAdminFirestore(): Promise<AdminFirestore | null> {
     }
 
     const app = getApp();
-    const appProjectId =
-      (app.options.projectId as string | undefined) || certFields.projectId;
+    // Prefer the initialized app's own options — this is the project writes hit.
+    const appProjectId = app.options.projectId as string | undefined;
+    if (!appProjectId) {
+      throw new Error(
+        "Admin app.options.projectId is missing after initializeApp — refusing to write"
+      );
+    }
     if (appProjectId !== certFields.projectId) {
       throw new Error(
         `Admin app projectId=${appProjectId} != cert projectId=${certFields.projectId}`
@@ -361,10 +390,13 @@ export async function getAdminFirestore(): Promise<AdminFirestore | null> {
     }
 
     activeProjectId = appProjectId;
+    activeAppName = app.name;
+    activeClientEmail = certFields.clientEmail;
 
     // Optional named DB (default "(default)"). Set FIRESTORE_DATABASE_ID if iOS uses one.
     const databaseId =
       process.env.FIRESTORE_DATABASE_ID?.trim() || "(default)";
+    activeDatabaseId = databaseId;
     firestore = (
       databaseId === "(default)"
         ? getFirestore(app)
@@ -374,9 +406,12 @@ export async function getAdminFirestore(): Promise<AdminFirestore | null> {
     initAttempted = true;
     console.info("[firebase-admin] Firestore ready", {
       projectId: activeProjectId,
-      databaseId,
+      appName: activeAppName,
+      databaseId: activeDatabaseId,
+      certProjectId: certFields.projectId,
       expectedClientProjectId: expected,
       clientEmail: certFields.clientEmail,
+      projectMismatch: activeProjectId !== expected,
     });
     return firestore;
   } catch (err) {
@@ -384,6 +419,9 @@ export async function getAdminFirestore(): Promise<AdminFirestore | null> {
     initAttempted = false;
     firestore = null;
     activeProjectId = null;
+    activeAppName = null;
+    activeDatabaseId = null;
+    activeClientEmail = null;
     console.error("[firebase-admin] Failed to initialize Admin SDK", err);
     throw err;
   }
@@ -527,8 +565,26 @@ export async function grantProStatus(input: ProGrantInput) {
     );
   }
 
-  const projectId = getAdminProjectId();
+  const writeTarget = getAdminWriteTarget();
+  if (!writeTarget.projectId) {
+    throw new Error("Admin write target projectId is null — refusing to write");
+  }
+  if (writeTarget.projectMismatch) {
+    console.error(
+      "[firebase-admin] WRITE TARGET PROJECT MISMATCH — Console break-99b8e will NOT show this doc",
+      writeTarget
+    );
+  }
+
   const docRef = db.collection(collection).doc(input.uid);
+
+  console.info("[firebase-admin] Pro grant WRITE starting", {
+    mock: false,
+    path: docPath,
+    uid: input.uid,
+    email: payload.email,
+    ...writeTarget,
+  });
 
   await docRef.set(payload, { merge: true });
 
@@ -539,8 +595,10 @@ export async function grantProStatus(input: ProGrantInput) {
     console.error("[firebase-admin] Pro grant write verification FAILED", {
       mock: false,
       path: docPath,
-      projectId,
+      uid: input.uid,
+      email: payload.email,
       exists: verify.exists,
+      ...writeTarget,
       readBack: verified
         ? {
             isPro: verified.isPro,
@@ -550,14 +608,13 @@ export async function grantProStatus(input: ProGrantInput) {
         : null,
     });
     throw new Error(
-      `Firestore write verification failed for ${docPath} in project ${projectId}`
+      `Firestore write verification failed for ${docPath} in project ${writeTarget.projectId}`
     );
   }
 
   console.info("[firebase-admin] Pro granted", {
     mock: false,
     path: docPath,
-    projectId,
     uid: input.uid,
     email: payload.email,
     subscriptionId,
@@ -565,12 +622,14 @@ export async function grantProStatus(input: ProGrantInput) {
     verifiedIsPro: verified?.isPro === true,
     verifiedPlan: verified?.plan,
     verifiedSubscriptionStatus: verified?.subscriptionStatus,
+    ...writeTarget,
   });
 
   return {
     mock: false as const,
     path: docPath,
-    projectId,
+    projectId: writeTarget.projectId,
+    writeTarget,
     verified: {
       isPro: verified?.isPro === true,
       plan: verified?.plan,

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe";
 import {
-  getAdminProjectId,
+  getAdminWriteTarget,
   grantProStatus,
   isFirebaseAdminConfigured,
   resolveUserForCheckout,
@@ -71,7 +71,9 @@ async function handleCheckoutCompleted(
     metadataUid,
     email,
     client_reference_id: session.client_reference_id,
-    adminProjectId: getAdminProjectId(),
+    expectedUidHint: "1PrC18HWGRVQLSGp24AGSvPHiP2",
+    metadataUidMatchesExpected:
+      metadataUid === "1PrC18HWGRVQLSGp24AGSvPHiP2",
   });
 
   const user = await resolveUserForCheckout({
@@ -143,10 +145,10 @@ async function handleCheckoutCompleted(
     return { mock: true as const, grant, user };
   }
 
+  const writeTarget = grant.writeTarget ?? getAdminWriteTarget();
   console.info("[webhook] Pro grant ok (Firestore)", {
     sessionId: session.id,
     path: grant.path,
-    projectId: grant.projectId ?? getAdminProjectId(),
     uid: user.uid,
     email: user.email,
     source: user.source,
@@ -155,6 +157,14 @@ async function handleCheckoutCompleted(
     mock: false,
     verifiedPlan: grant.verified?.plan,
     verifiedIsPro: grant.verified?.isPro,
+    // Real Admin binding — compare projectId to Console (must be break-99b8e)
+    projectId: writeTarget.projectId,
+    appName: writeTarget.appName,
+    databaseId: writeTarget.databaseId,
+    clientEmail: writeTarget.clientEmail,
+    expectedClientProjectId: writeTarget.expectedClientProjectId,
+    projectMismatch: writeTarget.projectMismatch,
+    uidMatchesExpectedUser: user.uid === "1PrC18HWGRVQLSGp24AGSvPHiP2",
   });
   return { mock: false as const, grant, user };
 }

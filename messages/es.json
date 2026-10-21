@@ -199,8 +199,35 @@
   },
   "legal": {
     "privacy": {
-      "title": "Privacidad",
-      "body": "Break Web recoge el email que usas para crear la cuenta y los metadatos de pago necesarios para Break Pro. No vendemos tus datos personales. El pago lo procesa Stripe."
+      "title": "Política de Privacidad",
+      "updated": "Última actualización: octubre de 2026",
+      "intro": "Esta política explica qué datos recoge Break, por qué los recoge y cómo se tratan. Solo recogemos lo mínimo necesario para ofrecer el servicio.",
+      "sections": {
+        "collection": {
+          "title": "Datos que recogemos",
+          "body": "Recogemos el email que usas para crear la cuenta y la información necesaria para activar y mantener tu suscripción a Break Pro. No vendemos ni alquilamos tus datos personales."
+        },
+        "payments": {
+          "title": "Pagos",
+          "body": "Los pagos realizados en el sitio web los procesa Stripe. Las compras realizadas dentro de la app de iOS las procesa Apple mediante In-App Purchase. Los datos de pago los gestionan directamente estos proveedores y Break nunca los almacena. Solo recibimos el estado de la suscripción e información básica de la transacción."
+        },
+        "affiliates": {
+          "title": "Programa de afiliados",
+          "body": "Usamos FirstPromoter para rastrear las recomendaciones de afiliados. Cuando llegas por un enlace de afiliado, una cookie identifica el origen y, al suscribirte, tu email se comparte con FirstPromoter únicamente para atribuir la comisión."
+        },
+        "retention": {
+          "title": "Conservación",
+          "body": "Conservamos tus datos mientras tu cuenta esté activa o durante el tiempo que exijan las obligaciones legales, fiscales y contables. Después, se eliminan o se anonimizan."
+        },
+        "security": {
+          "title": "Seguridad",
+          "body": "Los datos se transmiten mediante conexiones cifradas y se almacenan en proveedores con controles de acceso. El acceso interno se limita a lo estrictamente necesario."
+        },
+        "rights": {
+          "title": "Tus derechos",
+          "body": "Puedes solicitar el acceso, la rectificación, la portabilidad o la eliminación de tus datos, así como retirar tu consentimiento, conforme al RGPD y demás leyes aplicables. Para ejercer estos derechos, escribe a support@break.app."
+        }
+      }
     },
     "terms": {
       "title": "Términos",

@@ -199,8 +199,35 @@
   },
   "legal": {
     "privacy": {
-      "title": "Privacy",
-      "body": "Break Web collects the email you use to create an account and payment metadata required to fulfill Break Pro. We do not sell your personal data. Payment is processed by Stripe. For questions, contact support."
+      "title": "Privacy Policy",
+      "updated": "Last updated: October 2026",
+      "intro": "This policy explains what data Break collects, why we collect it, and how it is handled. We only collect the minimum needed to provide the service.",
+      "sections": {
+        "collection": {
+          "title": "Data we collect",
+          "body": "We collect the email you use to create your account and the information needed to activate and maintain your Break Pro subscription. We do not sell or rent your personal data."
+        },
+        "payments": {
+          "title": "Payments",
+          "body": "Payments made on the website are processed by Stripe. Purchases made inside the iOS app are processed by Apple through In-App Purchase. Card details are handled directly by these providers and are never stored by Break. We only receive your subscription status and basic transaction details."
+        },
+        "affiliates": {
+          "title": "Affiliate program",
+          "body": "We use FirstPromoter to track affiliate referrals. When you arrive through an affiliate link, a cookie records the referral source, and when you subscribe your email is shared with FirstPromoter solely to attribute the commission."
+        },
+        "retention": {
+          "title": "Retention",
+          "body": "We keep your data while your account is active, or for as long as legal, tax, and accounting obligations require. After that, it is deleted or anonymized."
+        },
+        "security": {
+          "title": "Security",
+          "body": "Data is transmitted over encrypted connections and stored with providers that enforce access controls. Internal access is limited to what is strictly necessary."
+        },
+        "rights": {
+          "title": "Your rights",
+          "body": "You may request access to, correction, portability, or deletion of your data, and withdraw consent, under the GDPR, CCPA, and other applicable laws. To exercise these rights, email support@break.app."
+        }
+      }
     },
     "terms": {
       "title": "Terms",

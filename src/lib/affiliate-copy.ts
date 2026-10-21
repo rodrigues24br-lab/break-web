@@ -1,6 +1,6 @@
 import { LOCALES, type Locale } from "@/lib/i18n"
 
-export const AFFILIATE_SIGNUP_URL = "https://break-app-limit.getrewardful.com/signup"
+export const AFFILIATE_SIGNUP_URL = "https://breakapplimit.firstpromoter.com/signup"
 
 export const AFFILIATE_LOCALES = LOCALES
 export type AffiliateLocale = Locale

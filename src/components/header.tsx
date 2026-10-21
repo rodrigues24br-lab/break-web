@@ -12,7 +12,7 @@ export default function Header() {
     { href: "#features", label: t.nav.features },
     { href: "#pricing", label: t.nav.pricing },
     { href: "#manifesto", label: t.nav.manifesto },
-    { href: `/${locale}/affiliate-program`, label: t.nav.affiliate },
+    { href: `/${locale}/affiliate`, label: t.nav.affiliate },
   ]
 
   return (

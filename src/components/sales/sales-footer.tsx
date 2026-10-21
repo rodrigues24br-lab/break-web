@@ -19,7 +19,7 @@ export async function SalesFooter({ locale }: { locale: string }) {
           <Link href={`/${locale}/support`} className="hover:text-foreground">
             {t("support")}
           </Link>
-          <Link href={`/${locale}/affiliate-program`} className="hover:text-foreground">
+          <Link href={`/${locale}/affiliate`} className="hover:text-foreground">
             {t("affiliate")}
           </Link>
         </nav>

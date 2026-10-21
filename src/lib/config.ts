@@ -128,9 +128,9 @@ export const firebaseClientConfig: {
  *   email: string
  *   stripeCustomerId?: string
  *   stripeSubscriptionId?: string
- *   subscriptionId?: string (alias)
+ *   subscriptionId?: string | null (alias of the Stripe subscription id)
  *   stripeCheckoutSessionId?: string
- *   currentPeriodEnd?: ISO string
+ *   currentPeriodEnd?: Firestore Timestamp | null (ms logged alongside)
  *   proUpdatedAt: ISO string
  */
 export const firestoreProFields = {

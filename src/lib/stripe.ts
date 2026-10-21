@@ -28,10 +28,13 @@ export function isStripeConfigured() {
 }
 
 export type CheckoutSessionParams = {
+  /** Auth email. Stored as customer_email unless an existing customer matches it. */
   email: string;
   uid: string;
   locale: string;
   clientReferenceId?: string | null;
+  /** Existing Stripe customer. Used only when that customer's email matches `email`. */
+  customerId?: string | null;
   successUrl: string;
   cancelUrl: string;
 };
@@ -72,16 +75,43 @@ export async function createAnnualCheckoutSession(
   // client_reference_id = Firebase uid (never FirstPromoter tid).
   // Affiliate / FPR tid stays in metadata only for Stripe + FirstPromoter.
   const affiliateTid = params.clientReferenceId?.trim() || undefined;
+  const authEmail = params.email.trim().toLowerCase();
+
+  // Stripe rejects customer + customer_email together. Prefer customer_email
+  // unless the given customer id already belongs to this Auth email.
+  let stripeCustomerId: string | undefined;
+  const requestedCustomerId = params.customerId?.trim() || "";
+  if (requestedCustomerId) {
+    const customer = await client.customers.retrieve(requestedCustomerId);
+    const customerEmail =
+      !customer.deleted && typeof customer.email === "string"
+        ? customer.email.trim().toLowerCase()
+        : null;
+    if (customerEmail && customerEmail === authEmail) {
+      stripeCustomerId = requestedCustomerId;
+    } else {
+      console.warn(
+        "[checkout] Stripe customer email does not match Auth email; using customer_email",
+        {
+          customerId: requestedCustomerId,
+          customerEmail,
+          authEmail,
+        }
+      );
+    }
+  }
 
   const session = await client.checkout.sessions.create({
     mode: "subscription",
-    customer_email: params.email,
+    ...(stripeCustomerId
+      ? { customer: stripeCustomerId }
+      : { customer_email: authEmail }),
     success_url: params.successUrl,
     cancel_url: params.cancelUrl,
     client_reference_id: params.uid,
     metadata: {
       uid: params.uid,
-      email: params.email,
+      email: authEmail,
       locale: params.locale,
       plan: "year",
       ...(affiliateTid
@@ -91,7 +121,7 @@ export async function createAnnualCheckoutSession(
     subscription_data: {
       metadata: {
         uid: params.uid,
-        email: params.email,
+        email: authEmail,
         plan: "year",
         ...(affiliateTid
           ? { fpr: affiliateTid, affiliateRef: affiliateTid }

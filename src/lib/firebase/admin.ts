@@ -556,18 +556,36 @@ export async function resolveCheckoutBuyer(input: {
     });
   }
 
-  if (tokenEmail && claimedEmail && tokenEmail !== claimedEmail) {
-    console.error("[checkout] email does not match idToken", {
-      claimedEmail,
-      tokenEmail,
-      uid,
-    });
-    throw new CheckoutIdentityError("email does not match Firebase idToken", 403);
+  // Stripe customer_email must be the Auth user's email, never the request body.
+  let email = tokenEmail;
+  if (!email) {
+    try {
+      const record = await auth.getUser(uid);
+      email = record.email?.trim().toLowerCase() || null;
+    } catch (err) {
+      if (authErrorCode(err) !== "auth/user-not-found") {
+        console.error("[checkout] getUser failed while resolving Auth email", {
+          uid,
+          code: authErrorCode(err),
+        });
+        throw new CheckoutIdentityError("Could not load Auth user email", 503);
+      }
+    }
   }
 
-  const email = tokenEmail || claimedEmail;
+  if (claimedEmail && email && claimedEmail !== email) {
+    console.warn("[checkout] ignoring request email; using Auth email", {
+      claimedEmail,
+      authEmail: email,
+      uid,
+    });
+  }
+
   if (!email) {
-    throw new CheckoutIdentityError("email is required", 400);
+    throw new CheckoutIdentityError(
+      "Firebase Auth user has no email for checkout",
+      400
+    );
   }
 
   return { uid, email };
@@ -581,9 +599,17 @@ export type ProGrantInput = {
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
   stripeCheckoutSessionId?: string;
-  currentPeriodEnd?: string | null;
+  /** Unix ms, unix seconds, or ISO. Stored as a Firestore Timestamp. */
+  currentPeriodEnd?: string | number | null;
   /** When true, allow in-memory mock if Admin credentials are missing. */
   allowMock?: boolean;
+  /** True when getUser / getUserByEmail confirmed this uid. */
+  authConfirmed?: boolean;
+  /**
+   * When set, a missing users/{uid} doc is created only if authConfirmed.
+   * Webhook sets this so a new orphan cannot be reported as a successful grant.
+   */
+  requireAuthForCreate?: boolean;
 };
 
 export type ResolveFallbackReason =
@@ -604,11 +630,49 @@ export type ResolvedUser = {
   authUid?: string | null;
   docExisted?: boolean;
   grantStub?: boolean;
+  /** True when getUser or getUserByEmail confirmed `uid`. */
+  authConfirmed?: boolean;
 };
 
 /** Firebase Auth uids are long opaque ids — reject commit SHAs / FPR tids / junk. */
 export function isLikelyFirebaseUid(uid: string): boolean {
   return uid.length >= 20 && uid.length <= 128 && /^[A-Za-z0-9]+$/.test(uid);
+}
+
+/** Unix ms from an ISO string, unix seconds, unix ms, or a Firestore Timestamp. */
+export function periodEndToMillis(value: unknown): number | null {
+  if (value == null || value === "") return null;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value < 1e12 ? Math.round(value * 1000) : Math.round(value);
+  }
+  if (typeof value === "string") {
+    const parsed = Date.parse(value);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+  if (typeof value === "object") {
+    const record = value as {
+      toMillis?: () => number;
+      toDate?: () => Date;
+      seconds?: number;
+      _seconds?: number;
+      nanoseconds?: number;
+      _nanoseconds?: number;
+    };
+    if (typeof record.toMillis === "function") {
+      const ms = record.toMillis();
+      return Number.isFinite(ms) ? ms : null;
+    }
+    if (typeof record.toDate === "function") {
+      const ms = record.toDate().getTime();
+      return Number.isFinite(ms) ? ms : null;
+    }
+    const seconds = record._seconds ?? record.seconds;
+    if (typeof seconds === "number" && Number.isFinite(seconds)) {
+      const nanos = record._nanoseconds ?? record.nanoseconds ?? 0;
+      return Math.round(seconds * 1000 + nanos / 1e6);
+    }
+  }
+  return null;
 }
 
 function normalizeEmail(value: string | null | undefined): string | null {
@@ -669,6 +733,7 @@ export async function resolveUserForCheckout(params: {
       metadataUid,
       clientReferenceId,
       docExisted: false,
+      authConfirmed: false,
     };
   }
 
@@ -859,6 +924,9 @@ export async function resolveUserForCheckout(params: {
     authUid: authByEmail?.uid ?? null,
     docExisted: choice.docExisted,
     grantStub: choice.grantStub,
+    authConfirmed:
+      authByEmail?.uid === choice.uid ||
+      candidates.some((item) => item.uid === choice.uid && item.authExists),
   };
 }
 
@@ -869,9 +937,16 @@ export async function resolveUserForCheckout(params: {
  */
 export async function grantProStatus(input: ProGrantInput) {
   const subscriptionId = input.stripeSubscriptionId ?? null;
-  const currentPeriodEnd = input.currentPeriodEnd ?? null;
+  const currentPeriodEndMs = periodEndToMillis(input.currentPeriodEnd ?? null);
   const collection = firestoreProFields.collection;
   const docPath = `${collection}/${input.uid}`;
+  const proUpdatedAt = new Date().toISOString();
+
+  let currentPeriodEnd: unknown = null;
+  if (currentPeriodEndMs != null) {
+    const { Timestamp } = await import("firebase-admin/firestore");
+    currentPeriodEnd = Timestamp.fromMillis(currentPeriodEndMs);
+  }
 
   const payload = {
     email: input.email.toLowerCase().trim(),
@@ -885,7 +960,7 @@ export async function grantProStatus(input: ProGrantInput) {
     subscriptionId,
     stripeCheckoutSessionId: input.stripeCheckoutSessionId ?? null,
     currentPeriodEnd,
-    proUpdatedAt: new Date().toISOString(),
+    proUpdatedAt,
   };
 
   const db = await getAdminFirestore();
@@ -912,7 +987,14 @@ export async function grantProStatus(input: ProGrantInput) {
         projectId: null,
         existedBefore: false,
         writeTime: null,
+        readBackMatches: false,
+        authConfirmed: input.authConfirmed === true,
+        currentPeriodEndMs,
         ...payload,
+        currentPeriodEnd:
+          currentPeriodEndMs == null
+            ? null
+            : new Date(currentPeriodEndMs).toISOString(),
       };
     }
 
@@ -988,60 +1070,130 @@ export async function grantProStatus(input: ProGrantInput) {
     expectedClientProjectId: writeTarget.expectedClientProjectId,
     projectMismatch: writeTarget.projectMismatch,
   };
-  console.info("[firebase-admin] Pro grant WRITE target", writeTargetLog);
+  if (
+    !existedBefore &&
+    input.requireAuthForCreate === true &&
+    input.authConfirmed !== true
+  ) {
+    console.error(
+      "[firebase-admin] refusing to create users doc without Auth confirmation",
+      writeTargetLog
+    );
+    throw new Error(
+      `Refusing to create ${docRefPath} without Auth confirmation`
+    );
+  }
+
+  console.info("[firebase-admin] Pro grant WRITE target", {
+    ...writeTargetLog,
+    projectId: liveAppProjectId,
+    subscriptionId,
+    status: payload.status,
+    currentPeriodEndMs,
+    currentPeriodEndStoredAs:
+      currentPeriodEndMs == null ? null : "firestore-timestamp",
+  });
 
   const writeResult = (await docRef.set(payload, { merge: true })) as
     | AdminWriteResult
     | undefined;
-  const writeTime = writeResult?.writeTime?.toDate?.()?.toISOString() ?? null;
+  const writeTimeDate = writeResult?.writeTime?.toDate?.() ?? null;
+  const writeTime =
+    writeTimeDate && !Number.isNaN(writeTimeDate.getTime())
+      ? writeTimeDate.toISOString()
+      : null;
 
-  // Same docRef as the write. This confirms the write landed; it does not
-  // prove this uid is the profile the iOS app reads.
+  // Same docRef as the write. Success requires this read-back to match the
+  // plan, status, and subscriptionId that were just written.
   const verify = await docRef.get();
   const verified = verify.exists ? verify.data() : undefined;
-  const readBack = verified
-    ? {
-        email: verified.email,
-        isPro: verified.isPro,
-        plan: verified.plan,
-        subscriptionStatus: verified.subscriptionStatus,
-        stripeCustomerId: verified.stripeCustomerId,
-        stripeCheckoutSessionId: verified.stripeCheckoutSessionId,
-        proUpdatedAt: verified.proUpdatedAt,
-      }
-    : null;
+  const readBackPeriodEndMs = periodEndToMillis(verified?.currentPeriodEnd);
+  const expected = {
+    plan: firestoreProFields.plan,
+    isPro: true as const,
+    status: firestoreProFields.subscriptionStatus,
+    subscriptionId,
+    currentPeriodEndMs,
+  };
+  const actual = {
+    plan: verified?.plan ?? null,
+    isPro: verified?.isPro ?? null,
+    status: verified?.status ?? null,
+    subscriptionId:
+      typeof verified?.subscriptionId === "string"
+        ? verified.subscriptionId
+        : verified?.subscriptionId ?? null,
+    currentPeriodEndMs: readBackPeriodEndMs,
+  };
+  const readBackMatches =
+    verify.exists &&
+    actual.plan === expected.plan &&
+    actual.isPro === true &&
+    actual.status === expected.status &&
+    (actual.subscriptionId ?? null) === (expected.subscriptionId ?? null) &&
+    actual.currentPeriodEndMs === expected.currentPeriodEndMs;
 
   console.info("[firebase-admin] Pro grant READ-BACK", {
     ...writeTargetLog,
+    projectId: liveAppProjectId,
+    docRef: { path: docRefPath },
     writeTime,
     exists: verify.exists,
     readBackSamePath: true,
-    readBack,
+    expected,
+    actual,
+    readBackMatches,
   });
 
-  if (!verify.exists || verified?.isPro !== true || verified?.plan !== "pro") {
+  if (!writeTime) {
+    console.error(
+      "[firebase-admin] Pro grant write verification FAILED — set() returned no WriteResult.writeTime",
+      {
+        mock: false,
+        ...writeTargetLog,
+        projectId: liveAppProjectId,
+        expected,
+        actual,
+      }
+    );
+    throw new Error(
+      `Firestore set() did not return WriteResult.writeTime for ${docRefPath} in project ${liveAppProjectId}`
+    );
+  }
+
+  if (!readBackMatches) {
     console.error("[firebase-admin] Pro grant write verification FAILED", {
       mock: false,
       ...writeTargetLog,
+      projectId: liveAppProjectId,
       writeTime,
       exists: verify.exists,
-      readBack,
+      expected,
+      actual,
     });
     throw new Error(
       `Firestore write verification failed for ${docRefPath} in project ${liveAppProjectId}`
     );
   }
 
+  const authConfirmed = input.authConfirmed === true;
+
   console.info("[firebase-admin] Pro granted", {
     mock: false,
     ...writeTargetLog,
+    projectId: liveAppProjectId,
+    docRef: { path: docRefPath },
     writeTime,
     email: payload.email,
     subscriptionId,
-    currentPeriodEnd,
-    verifiedIsPro: verified?.isPro === true,
-    verifiedPlan: verified?.plan,
-    verifiedSubscriptionStatus: verified?.subscriptionStatus,
+    status: payload.status,
+    currentPeriodEndMs,
+    readBackMatches: true,
+    authConfirmed,
+    verifiedIsPro: actual.isPro === true,
+    verifiedPlan: actual.plan,
+    verifiedStatus: actual.status,
+    verifiedSubscriptionId: actual.subscriptionId,
   });
 
   return {
@@ -1056,13 +1208,22 @@ export async function grantProStatus(input: ProGrantInput) {
     },
     existedBefore,
     writeTime,
+    readBackMatches: true as const,
+    authConfirmed,
+    currentPeriodEndMs,
     verified: {
-      isPro: verified?.isPro === true,
-      plan: verified?.plan,
+      isPro: actual.isPro === true,
+      plan: actual.plan,
+      status: actual.status,
       subscriptionStatus: verified?.subscriptionStatus,
-      subscriptionId: verified?.subscriptionId,
+      subscriptionId: actual.subscriptionId,
+      currentPeriodEndMs: actual.currentPeriodEndMs,
     },
     ...payload,
+    currentPeriodEnd:
+      currentPeriodEndMs == null
+        ? null
+        : new Date(currentPeriodEndMs).toISOString(),
   };
 }
 

@@ -13,25 +13,38 @@ export const runtime = "nodejs";
 
 async function currentPeriodEndFromSubscription(
   stripe: Stripe,
-  subscriptionId: string | null | undefined
-): Promise<string | null> {
-  if (!subscriptionId) return null;
+  subscriptionId: string
+): Promise<number | null> {
   try {
     const sub = await stripe.subscriptions.retrieve(subscriptionId);
-    // Stripe API 2025+: period end lives on subscription items (not the Subscription root).
-    const itemEnd = sub.items?.data?.[0]?.current_period_end;
     const rootEnd =
       "current_period_end" in sub &&
       typeof (sub as { current_period_end?: unknown }).current_period_end ===
         "number"
         ? (sub as { current_period_end: number }).current_period_end
         : null;
-    const end = itemEnd ?? rootEnd;
-    if (end) {
-      return new Date(end * 1000).toISOString();
+    // Stripe API 2025+ moved the period end onto subscription items.
+    const itemEnd = sub.items?.data?.[0]?.current_period_end;
+    const end = rootEnd ?? itemEnd ?? null;
+    if (typeof end === "number" && Number.isFinite(end) && end > 0) {
+      const currentPeriodEndMs = Math.round(end * 1000);
+      console.info("[webhook] subscription current_period_end", {
+        subscriptionId,
+        currentPeriodEndUnix: end,
+        currentPeriodEndMs,
+      });
+      return currentPeriodEndMs;
     }
+    console.warn(
+      "[webhook] subscription has no current_period_end; granting pro with null currentPeriodEnd",
+      { subscriptionId }
+    );
   } catch (err) {
-    console.error("[webhook] failed to retrieve subscription", subscriptionId, err);
+    console.error(
+      "[webhook] failed to retrieve subscription; granting pro with null currentPeriodEnd",
+      subscriptionId,
+      err
+    );
   }
   return null;
 }
@@ -52,16 +65,30 @@ async function handleCheckoutCompleted(
   // metadata.uid and client_reference_id are candidates. Short FirstPromoter
   // tids fail the uid shape check inside resolveUserForCheckout.
   const metadataUid = session.metadata?.uid?.trim() || null;
-  const email =
-    session.metadata?.email ||
-    session.customer_details?.email ||
-    session.customer_email ||
+  const metadataEmail = session.metadata?.email?.trim().toLowerCase() || null;
+  const customerEmail =
+    session.customer_details?.email?.trim().toLowerCase() ||
+    session.customer_email?.trim().toLowerCase() ||
     null;
+  // Auth email fallback uses the Stripe customer email, not a client-supplied body.
+  const email = customerEmail || metadataEmail;
+
+  if (customerEmail && metadataEmail && customerEmail !== metadataEmail) {
+    console.warn(
+      "[webhook] metadata.email differs from Stripe customer email; getUserByEmail uses the Stripe customer email",
+      { sessionId: session.id, customerEmail, metadataEmail }
+    );
+  }
 
   console.info("[webhook] resolving user for checkout", {
     sessionId: session.id,
     metadataUid,
     email,
+    emailSource: customerEmail
+      ? "customer_details.email|customer_email"
+      : metadataEmail
+        ? "metadata.email"
+        : null,
     client_reference_id: session.client_reference_id ?? null,
     metadataUidLooksLikeFirebaseUid: metadataUid
       ? isLikelyFirebaseUid(metadataUid)
@@ -112,9 +139,23 @@ async function handleCheckoutCompleted(
         ? session.subscription.id
         : undefined;
 
-  const currentPeriodEnd = stripe
-    ? await currentPeriodEndFromSubscription(stripe, stripeSubscriptionId)
-    : null;
+  let currentPeriodEndMs: number | null = null;
+  if (!stripeSubscriptionId) {
+    console.info(
+      "[webhook] subscription-less checkout session; granting pro with null subscriptionId and currentPeriodEnd",
+      { sessionId: session.id }
+    );
+  } else if (!stripe) {
+    console.info(
+      "[webhook] no Stripe client to retrieve subscription; granting pro with null currentPeriodEnd",
+      { sessionId: session.id, subscriptionId: stripeSubscriptionId }
+    );
+  } else {
+    currentPeriodEndMs = await currentPeriodEndFromSubscription(
+      stripe,
+      stripeSubscriptionId
+    );
+  }
 
   const grant = await grantProStatus({
     uid: user.uid,
@@ -123,7 +164,9 @@ async function handleCheckoutCompleted(
     stripeCustomerId,
     stripeSubscriptionId,
     stripeCheckoutSessionId: session.id,
-    currentPeriodEnd,
+    currentPeriodEnd: currentPeriodEndMs,
+    authConfirmed: user.authConfirmed === true,
+    requireAuthForCreate: true,
     // Signed Stripe webhooks never allow mock. Local unsigned mock may.
     allowMock: options?.allowMock === true,
   });
@@ -143,6 +186,44 @@ async function handleCheckoutCompleted(
   }
 
   const writeTarget = grant.writeTarget ?? getAdminWriteTarget();
+  const readBackMatches =
+    grant.readBackMatches === true &&
+    grant.verified?.plan === "pro" &&
+    grant.verified?.isPro === true &&
+    grant.verified?.status === "active" &&
+    (grant.verified?.subscriptionId ?? null) === (stripeSubscriptionId ?? null) &&
+    grant.verified?.currentPeriodEndMs === currentPeriodEndMs;
+  const grantOk =
+    readBackMatches &&
+    typeof grant.writeTime === "string" &&
+    grant.writeTime.length > 0 &&
+    (grant.existedBefore === true || grant.authConfirmed === true);
+
+  if (!grantOk) {
+    console.error(
+      "[webhook] Pro grant read-back did not match written plan/status/subscriptionId",
+      {
+        sessionId: session.id,
+        projectId: writeTarget.projectId,
+        databaseId: writeTarget.databaseId,
+        docRef: { path: grant.path },
+        existedBefore: grant.existedBefore,
+        writeTime: grant.writeTime,
+        authConfirmed: grant.authConfirmed,
+        expected: {
+          plan: "pro",
+          status: "active",
+          subscriptionId: stripeSubscriptionId ?? null,
+          currentPeriodEndMs,
+        },
+        verified: grant.verified ?? null,
+      }
+    );
+    throw new Error(
+      "Pro grant read-back did not match written plan/status/subscriptionId"
+    );
+  }
+
   console.info("[webhook] Pro grant ok (Firestore)", {
     sessionId: session.id,
     path: grant.path,
@@ -157,13 +238,20 @@ async function handleCheckoutCompleted(
     grantStub: user.grantStub ?? null,
     existedBefore: grant.existedBefore,
     docRefPath: grant.path,
-    subscriptionId: stripeSubscriptionId,
-    currentPeriodEnd,
+    docRef: { path: grant.path },
+    subscriptionId: stripeSubscriptionId ?? null,
+    status: grant.verified?.status,
+    currentPeriodEndMs,
     mock: false,
+    readBackMatches: true,
     verifiedPlan: grant.verified?.plan,
+    verifiedStatus: grant.verified?.status,
+    verifiedSubscriptionId: grant.verified?.subscriptionId,
     verifiedIsPro: grant.verified?.isPro,
+    writeTime: grant.writeTime,
     // Real Admin binding — compare projectId to Console (must be break-99b8e)
     projectId: writeTarget.projectId,
+    appProjectId: writeTarget.projectId,
     appName: writeTarget.appName,
     databaseId: writeTarget.databaseId,
     clientEmail: writeTarget.clientEmail,

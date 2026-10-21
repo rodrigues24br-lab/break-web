@@ -45,11 +45,16 @@ export async function POST(request: NextRequest) {
     const referral =
       typeof body.referral === "string" ? body.referral.trim() : "";
 
+    console.info("[checkout] referral for Stripe session", {
+      hasReferral: Boolean(referral),
+      uid,
+    });
+
     const session = await createAnnualCheckoutSession({
       email,
       uid,
       locale,
-      // Passed through as metadata.fpr only; Stripe client_reference_id is uid.
+      // FPR tid → metadata.fpr only. Rewardful referral → client_reference_id.
       clientReferenceId: affiliateRef,
       referral: referral || undefined,
       successUrl: buildCheckoutSuccessUrl(email),
@@ -75,7 +80,8 @@ export async function POST(request: NextRequest) {
       url: session.url,
       mock: session.mock,
       plan: "year",
-      client_reference_id: uid,
+      client_reference_id: referral || uid,
+      hasReferral: Boolean(referral),
       fpr: affiliateRef,
     });
   } catch (error) {

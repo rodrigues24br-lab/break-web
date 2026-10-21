@@ -35,7 +35,7 @@ export type CheckoutSessionParams = {
   clientReferenceId?: string | null;
   /** Existing Stripe customer. Used only when that customer's email matches `email`. */
   customerId?: string | null;
-  /** Rewardful referral UUID — stored in session/subscription metadata.referral only. */
+  /** Rewardful referral UUID — client_reference_id when set; also metadata.referral. */
   referral?: string | null;
   successUrl: string;
   cancelUrl: string;
@@ -74,8 +74,9 @@ export async function createAnnualCheckoutSession(
     );
   }
 
-  // client_reference_id = Firebase uid (never FirstPromoter tid).
-  // Affiliate / FPR tid stays in metadata only for Stripe + FirstPromoter.
+  // Rewardful Stripe Checkout: client_reference_id MUST be the referral UUID
+  // when present (see Rewardful server-side Checkout docs). Firebase uid stays
+  // in metadata.uid for the webhook Pro grant. FPR tid stays in metadata.fpr.
   const affiliateTid = params.clientReferenceId?.trim() || undefined;
   const referral = params.referral?.trim() || undefined;
   const authEmail = params.email.trim().toLowerCase();
@@ -104,6 +105,16 @@ export async function createAnnualCheckoutSession(
     }
   }
 
+  const clientReferenceId = referral || params.uid;
+
+  console.info("[checkout] creating Stripe Checkout session", {
+    uid: params.uid,
+    hasReferral: Boolean(referral),
+    client_reference_id: clientReferenceId,
+    clientReferenceIsRewardful: Boolean(referral),
+    hasFpr: Boolean(affiliateTid),
+  });
+
   const session = await client.checkout.sessions.create({
     mode: "subscription",
     ...(stripeCustomerId
@@ -111,7 +122,7 @@ export async function createAnnualCheckoutSession(
       : { customer_email: authEmail }),
     success_url: params.successUrl,
     cancel_url: params.cancelUrl,
-    client_reference_id: params.uid,
+    client_reference_id: clientReferenceId,
     metadata: {
       uid: params.uid,
       email: authEmail,
@@ -139,6 +150,13 @@ export async function createAnnualCheckoutSession(
   if (!session.url) {
     throw new Error("Stripe Checkout session missing url");
   }
+
+  console.info("[checkout] Stripe Checkout session created", {
+    sessionId: session.id,
+    client_reference_id: session.client_reference_id,
+    metadataUid: session.metadata?.uid,
+    metadataReferral: session.metadata?.referral ?? null,
+  });
 
   return {
     mock: false as const,

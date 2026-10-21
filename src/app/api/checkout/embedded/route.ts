@@ -50,11 +50,17 @@ export async function POST(request: NextRequest) {
     const referral =
       typeof body.referral === "string" ? body.referral.trim() : "";
 
+    console.info("[checkout/embedded] referral for Stripe session", {
+      hasReferral: Boolean(referral),
+      // uid stays in metadata; referral becomes client_reference_id when set
+      uid,
+    });
+
     const session = await createAnnualCheckoutSession({
       email,
       uid,
       locale,
-      // Passed through as metadata.fpr only; Stripe client_reference_id is uid.
+      // FPR tid → metadata.fpr only. Rewardful referral → client_reference_id.
       clientReferenceId: affiliateRef,
       referral: referral || undefined,
       successUrl: buildCheckoutSuccessUrl(email),
@@ -81,7 +87,9 @@ export async function POST(request: NextRequest) {
       plan: "year",
       url: session.url,
       sessionId: "sessionId" in session ? session.sessionId : undefined,
-      client_reference_id: uid,
+      // Echo what Stripe will use: Rewardful referral when present, else uid
+      client_reference_id: referral || uid,
+      hasReferral: Boolean(referral),
       fpr: affiliateRef,
     });
   } catch (error) {

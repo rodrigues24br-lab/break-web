@@ -30,6 +30,9 @@ export function PlansPage() {
   const [authReady, setAuthReady] = useState(appConfig.mockMode);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [rewardfulReferral, setRewardfulReferral] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     const unsub = subscribeToAuth((u) => {
@@ -37,6 +40,17 @@ export function PlansPage() {
       setAuthReady(true);
     });
     return unsub;
+  }, []);
+
+  // Capture Rewardful.referral on mount (official Step 2 pattern).
+  useEffect(() => {
+    if (typeof window.rewardful !== "function") return;
+    window.rewardful("ready", () => {
+      const id = window.Rewardful?.referral;
+      if (typeof id === "string" && id.trim()) {
+        setRewardfulReferral(id.trim());
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -56,24 +70,29 @@ export function PlansPage() {
     try {
       const fpr = getCookie("fpr");
       const idToken = await user.getIdToken();
-      const referral = await new Promise<string | null>((resolve) => {
-        if (typeof window.rewardful !== "function") {
-          resolve(null);
-          return;
+      let referral = rewardfulReferral;
+      if (!referral) {
+        const immediate = window.Rewardful?.referral;
+        if (typeof immediate === "string" && immediate.trim()) {
+          referral = immediate.trim();
         }
-        let settled = false;
-        const done = (id: string | null) => {
-          if (settled) return;
-          settled = true;
-          resolve(id);
-        };
-        const timer = window.setTimeout(() => done(null), 1500);
-        window.rewardful("ready", () => {
-          window.clearTimeout(timer);
-          const id = window.Rewardful?.referral;
-          done(typeof id === "string" && id.trim() ? id.trim() : null);
+      }
+      if (!referral && typeof window.rewardful === "function") {
+        referral = await new Promise<string | null>((resolve) => {
+          let settled = false;
+          const done = (id: string | null) => {
+            if (settled) return;
+            settled = true;
+            resolve(id);
+          };
+          const timer = window.setTimeout(() => done(null), 1500);
+          window.rewardful!("ready", () => {
+            window.clearTimeout(timer);
+            const id = window.Rewardful?.referral;
+            done(typeof id === "string" && id.trim() ? id.trim() : null);
+          });
         });
-      });
+      }
       const res = await fetch("/api/checkout/embedded", {
         method: "POST",
         headers: {
@@ -110,7 +129,7 @@ export function PlansPage() {
       setError(err instanceof Error ? err.message : t("error"));
       setLoading(false);
     }
-  }, [user, locale, router, t]);
+  }, [user, locale, router, t, rewardfulReferral]);
 
   if (!authReady || !user) {
     return (

@@ -56,6 +56,24 @@ export function PlansPage() {
     try {
       const fpr = getCookie("fpr");
       const idToken = await user.getIdToken();
+      const referral = await new Promise<string | null>((resolve) => {
+        if (typeof window.rewardful !== "function") {
+          resolve(null);
+          return;
+        }
+        let settled = false;
+        const done = (id: string | null) => {
+          if (settled) return;
+          settled = true;
+          resolve(id);
+        };
+        const timer = window.setTimeout(() => done(null), 1500);
+        window.rewardful("ready", () => {
+          window.clearTimeout(timer);
+          const id = window.Rewardful?.referral;
+          done(typeof id === "string" && id.trim() ? id.trim() : null);
+        });
+      });
       const res = await fetch("/api/checkout/embedded", {
         method: "POST",
         headers: {
@@ -68,6 +86,7 @@ export function PlansPage() {
           locale,
           plan: "year",
           idToken,
+          ...(referral ? { referral } : {}),
         }),
       });
       const data = (await res.json()) as {

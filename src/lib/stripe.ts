@@ -35,6 +35,8 @@ export type CheckoutSessionParams = {
   clientReferenceId?: string | null;
   /** Existing Stripe customer. Used only when that customer's email matches `email`. */
   customerId?: string | null;
+  /** Rewardful referral UUID — stored in session/subscription metadata.referral only. */
+  referral?: string | null;
   successUrl: string;
   cancelUrl: string;
 };
@@ -75,6 +77,7 @@ export async function createAnnualCheckoutSession(
   // client_reference_id = Firebase uid (never FirstPromoter tid).
   // Affiliate / FPR tid stays in metadata only for Stripe + FirstPromoter.
   const affiliateTid = params.clientReferenceId?.trim() || undefined;
+  const referral = params.referral?.trim() || undefined;
   const authEmail = params.email.trim().toLowerCase();
 
   // Stripe rejects customer + customer_email together. Prefer customer_email
@@ -117,6 +120,7 @@ export async function createAnnualCheckoutSession(
       ...(affiliateTid
         ? { fpr: affiliateTid, affiliateRef: affiliateTid }
         : {}),
+      ...(referral ? { referral } : {}),
     },
     subscription_data: {
       metadata: {
@@ -126,6 +130,7 @@ export async function createAnnualCheckoutSession(
         ...(affiliateTid
           ? { fpr: affiliateTid, affiliateRef: affiliateTid }
           : {}),
+        ...(referral ? { referral } : {}),
       },
     },
     line_items: lineItemsAnnual(),

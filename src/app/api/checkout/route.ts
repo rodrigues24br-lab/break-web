@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
       uid?: string;
       locale?: string;
       idToken?: string;
+      referral?: string;
     };
 
     const locale =
@@ -41,12 +42,16 @@ export async function POST(request: NextRequest) {
 
     const origin = getRequestOrigin(request);
 
+    const referral =
+      typeof body.referral === "string" ? body.referral.trim() : "";
+
     const session = await createAnnualCheckoutSession({
       email,
       uid,
       locale,
       // Passed through as metadata.fpr only; Stripe client_reference_id is uid.
       clientReferenceId: affiliateRef,
+      referral: referral || undefined,
       successUrl: buildCheckoutSuccessUrl(email),
       cancelUrl: `${origin}/${locale}/plans`,
     });

@@ -55,7 +55,7 @@ export default async function SuccessPage({ params, searchParams }: Props) {
         <section className="flex flex-col items-center text-center">
           <BreakIcon
             size={48}
-            alt="Break"
+            alt="Vemluz"
             className="shadow-[0_10px_24px_-12px_rgba(27,58,75,0.45)]"
           />
           <h1 className="mt-6 text-[32px] leading-tight font-bold tracking-tight text-balance">
@@ -123,7 +123,7 @@ export default async function SuccessPage({ params, searchParams }: Props) {
             href={`/${locale}`}
             className="text-sm text-[#8A9AAB] transition hover:text-[#5E7385]"
           >
-            Break
+            Vemluz
           </Link>
         </div>
       </main>

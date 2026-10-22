@@ -46,7 +46,7 @@ const pt = {
   hero: {
     badge: "Bloqueio de tela para iPhone",
     title: "Seu tempo, de volta pra você.",
-    subtitle: "Break bloqueia os apps que roubam sua atenção, protege seu sono e te devolve o controle do dia.",
+    subtitle: "Vemluz bloqueia os apps que roubam sua atenção, protege seu sono e te devolve o controle do dia.",
     cta: "Começar agora",
     trust: ["Plano anual", "Acesso imediato", "Pagamento seguro"],
     note: "Disponível para iPhone com iOS 16 ou superior",
@@ -55,7 +55,7 @@ const pt = {
       { value: "6", label: "ferramentas PRO contra o scroll" },
       { value: "US$4,17", label: "por mês no plano anual" },
     ],
-    checkoutSuccess: "Pagamento confirmado. Abra o Break e entre com o e-mail da sua assinatura.",
+    checkoutSuccess: "Pagamento confirmado. Abra o Vemluz e entre com o e-mail da sua assinatura.",
   },
   phone: {
     pauseTitle: "Hora de uma pausa",
@@ -84,7 +84,7 @@ const pt = {
   features: {
     eyebrow: "Features",
     title: "Tudo o que fica entre você e o scroll infinito",
-    subtitle: "Você escolhe os apps. O Break coloca atrito antes de cada abertura.",
+    subtitle: "Você escolhe os apps. O Vemluz coloca atrito antes de cada abertura.",
     mockups: ["Apps protegidos", "Hora de uma pausa", "Menu de ferramentas"],
     items: [
       {
@@ -124,7 +124,7 @@ const pt = {
   safe: {
     eyebrow: "Navegação segura",
     title: "Navegação segura: proteção contra conteúdo adulto",
-    subtitle: "Sabemos que parar é difícil. O Break não julga — ele protege.",
+    subtitle: "Sabemos que parar é difícil. O Vemluz não julga — ele protege.",
     body: [
       "Bloqueia sites de conteúdo adulto no navegador do iPhone",
       "Nada é exposto — fica só entre você e o app",
@@ -144,7 +144,7 @@ const pt = {
   pain: {
     eyebrow: "Sabemos que parar é difícil",
     title: "Troque a rolagem sem fim pela vida real.",
-    body: "A ciência comprova que o melhor método é substituir o hábito. O Break foi desenvolvido para devolver esse tempo para você viver o que realmente importa.",
+    body: "A ciência comprova que o melhor método é substituir o hábito. O Vemluz foi desenvolvido para devolver esse tempo para você viver o que realmente importa.",
     lines: [
       "Passe menos tempo rolando a tela e mais tempo vivendo.",
       "Saia do scroll. Esteja presente de novo.",
@@ -165,7 +165,7 @@ const pt = {
       { when: "Todo ano", what: "Renova todo ano por US$49,99." },
     ],
     badge: "Mais popular",
-    plan: "Break PRO",
+    plan: "Vemluz PRO",
     planLabel: "Anual",
     period: "/ano",
     trial: "US$49,99 por ano · Acesso completo",
@@ -176,7 +176,7 @@ const pt = {
       "navegação segura contra pornografia",
       "Limite diário: Em transição, Recomendado ou Modo Foco Extremo",
       "Liberar uma hora agora: 1h, 1.5h ou 2h, até 3 vezes por semana",
-      "Sincronizado com a conta Break",
+      "Sincronizado com a conta Vemluz",
       "Renova todo ano",
     ],
     cta: "Começar agora",
@@ -189,7 +189,7 @@ const pt = {
     title: "Quebre o ciclo da dopamina e recupere horas do seu dia.",
     paragraphs: [
       "Ninguém decide passar três horas no feed. Acontece no automático: na fila, no semáforo, na cama, no meio de uma conversa.",
-      "No Break, você retoma o controle antes de rolar a tela. Não é sobre força de vontade. É sobre colocar dez segundos de consciência entre o impulso e o app.",
+      "No Vemluz, você retoma o controle antes de rolar a tela. Não é sobre força de vontade. É sobre colocar dez segundos de consciência entre o impulso e o app.",
     ],
     phrases: ["Recupere o seu tempo.", "Ganhe uma hora de volta.", "Durma no horário.", "Seja dono do seu tempo.", "Esteja plenamente presente."],
     testimonialsTitle: "Quem já quebrou o ciclo",
@@ -273,28 +273,28 @@ const pt = {
     title: "Perguntas frequentes",
     items: [
       {
-        q: "O Break vê o que eu faço no celular?",
-        a: "Não. O Break usa o Tempo de Uso da Apple (Screen Time), que roda no seu iPhone. Não temos acesso ao conteúdo dos seus apps, mensagens ou histórico de navegação.",
+        q: "O Vemluz vê o que eu faço no celular?",
+        a: "Não. O Vemluz usa o Tempo de Uso da Apple (Screen Time), que roda no seu iPhone. Não temos acesso ao conteúdo dos seus apps, mensagens ou histórico de navegação.",
       },
       {
         q: "Quais dados vocês guardam?",
-        a: "Só o necessário para sua conta Break: e-mail e preferências de bloqueio, para sincronizar. Nunca vendemos nem compartilhamos seus dados.",
+        a: "Só o necessário para sua conta Vemluz: e-mail e preferências de bloqueio, para sincronizar. Nunca vendemos nem compartilhamos seus dados.",
       },
       {
         q: "Como funciona o bloqueio?",
-        a: "Você escolhe os apps no seletor da Apple. Quando tenta abrir um deles, aparece a tela do Break com um desafio curto. Ao terminar, o app abre por um tempo curto e depois volta a ficar bloqueado.",
+        a: "Você escolhe os apps no seletor da Apple. Quando tenta abrir um deles, aparece a tela do Vemluz com um desafio curto. Ao terminar, o app abre por um tempo curto e depois volta a ficar bloqueado.",
       },
       {
-        q: "Quanto custa o Break PRO?",
-        a: "O Break PRO custa US$49,99 por ano, o equivalente a US$4,17 por mês. A assinatura renova anualmente.",
+        q: "Quanto custa o Vemluz PRO?",
+        a: "O Vemluz PRO custa US$49,99 por ano, o equivalente a US$4,17 por mês. A assinatura renova anualmente.",
       },
       {
         q: "Já assinei. Como restauro minha assinatura?",
-        a: "Abra o Break e entre com o mesmo método que você usou para criar a conta: Google, Apple ou e-mail e senha. Se esqueceu a senha, toque em \"Esqueci a senha\" e redefina. Atenção: vale o e-mail da sua conta Break, não o e-mail usado no pagamento pela Stripe.",
+        a: "Abra o Vemluz e entre com o mesmo método que você usou para criar a conta: Google, Apple ou e-mail e senha. Se esqueceu a senha, toque em \"Esqueci a senha\" e redefina. Atenção: vale o e-mail da sua conta Vemluz, não o e-mail usado no pagamento pela Stripe.",
       },
       {
         q: "Funciona no meu iPhone?",
-        a: "O Break funciona em iPhones com iOS 16 ou superior.",
+        a: "O Vemluz funciona em iPhones com iOS 16 ou superior.",
       },
     ],
     closingTitle: "Você já deu o primeiro passo.",
@@ -302,7 +302,7 @@ const pt = {
   },
   footer: {
     tagline: "Bloqueio de tela e controle de tempo para iPhone.",
-    rights: "© 2026 Break. Todos os direitos reservados.",
+    rights: "© 2026 Vemluz. Todos os direitos reservados.",
   },
   mobileCta: { label: "US$49,99/ano", sub: "Equivale a US$4,17/mês" },
   errors: { checkout: "Não foi possível abrir o checkout agora. Tente novamente em instantes." },
@@ -344,22 +344,22 @@ const pt = {
   checkoutPage: {
     title: "Parabéns, sua conta foi criada",
     subtitle: "Crie sua conta para continuar",
-    plan: "Break Pro Anual",
+    plan: "Vemluz Pro Anual",
     price: "US$49,99",
     includes: ["Apps protegidos ilimitados · Modo sono · Navegação segura", "Limite diário · Liberar uma hora"],
     email: "E-mail da conta",
     cardNumber: "Número do cartão",
     expiry: "Validade",
     cvc: "CVV",
-    pay: "Continuar para o Break Pro",
+    pay: "Continuar para o Vemluz Pro",
     processing: "Processando...",
     paymentFailed: "Não foi possível concluir o pagamento. Confira os dados do cartão.",
     secure: "Pagamento seguro pela Stripe.",
   },
   downloadPage: {
-    metaTitle: "Baixe o Break Pro",
-    metaDescription: "Sua assinatura está ativa. Baixe o Break na App Store e entre com o mesmo e-mail.",
-    title: "Baixe o Break Pro",
+    metaTitle: "Baixe o Vemluz Pro",
+    metaDescription: "Sua assinatura está ativa. Baixe o Vemluz na App Store e entre com o mesmo e-mail.",
+    title: "Baixe o Vemluz Pro",
     subtitle: "Sua assinatura está ativa",
       socialProof: "+1.000 pessoas já recuperaram horas do dia",
       instruction: "Clique em download e baixe o app no seu telefone",
@@ -367,7 +367,7 @@ const pt = {
     steps: ["Instala o app", "Entra com o mesmo e-mail", "O Pro ativa na hora"],
     screensLabel: "Telas do app",
     screens: ["Apps bloqueados", "Desafio", "Menu Pro"],
-    closing: "O Break não te pune. Ele te dá um motivo pra parar.",
+    closing: "O Vemluz não te pune. Ele te dá um motivo pra parar.",
   },
 }
 
@@ -385,7 +385,7 @@ const es: Dictionary = {
   hero: {
     badge: "Bloqueo de pantalla para iPhone",
     title: "Tu tiempo, de vuelta para ti.",
-    subtitle: "Break bloquea las apps que roban tu atención, protege tu sueño y te devuelve el control del día.",
+    subtitle: "Vemluz bloquea las apps que roban tu atención, protege tu sueño y te devuelve el control del día.",
     cta: "Empezar ahora",
     trust: ["Plan anual", "Acceso inmediato", "Pago seguro"],
     note: "Disponible para iPhone con iOS 16 o superior",
@@ -394,7 +394,7 @@ const es: Dictionary = {
       { value: "6", label: "herramientas PRO contra el scroll" },
       { value: "US$4,17", label: "al mes en el plan anual" },
     ],
-    checkoutSuccess: "Pago confirmado. Abre Break e inicia sesión con el email de tu suscripción.",
+    checkoutSuccess: "Pago confirmado. Abre Vemluz e inicia sesión con el email de tu suscripción.",
   },
   phone: {
     pauseTitle: "Hora de una pausa",
@@ -423,7 +423,7 @@ const es: Dictionary = {
   features: {
     eyebrow: "Features",
     title: "Todo lo que se interpone entre tú y el scroll infinito",
-    subtitle: "Tú eliges las apps. Break pone fricción antes de cada apertura.",
+    subtitle: "Tú eliges las apps. Vemluz pone fricción antes de cada apertura.",
     mockups: ["Apps protegidas", "Hora de una pausa", "Menú de herramientas"],
     items: [
       {
@@ -463,7 +463,7 @@ const es: Dictionary = {
   safe: {
     eyebrow: "Navegación segura",
     title: "Navegación segura: protección contra contenido adulto",
-    subtitle: "Sabemos que parar es difícil. Break no juzga — protege.",
+    subtitle: "Sabemos que parar es difícil. Vemluz no juzga — protege.",
     body: [
       "Bloquea sitios de contenido adulto en el navegador del iPhone",
       "Nada queda expuesto — solo entre tú y la app",
@@ -483,7 +483,7 @@ const es: Dictionary = {
   pain: {
     eyebrow: "Sabemos que parar es difícil",
     title: "Cambia el scroll infinito por la vida real.",
-    body: "La ciencia demuestra que el mejor método es sustituir el hábito. Break fue creado para devolverte ese tiempo y que vivas lo que realmente importa.",
+    body: "La ciencia demuestra que el mejor método es sustituir el hábito. Vemluz fue creado para devolverte ese tiempo y que vivas lo que realmente importa.",
     lines: [
       "Pasa menos tiempo deslizando la pantalla y más tiempo viviendo.",
       "Sal del scroll. Vuelve a estar presente.",
@@ -499,12 +499,12 @@ const es: Dictionary = {
     title: "Recupera tu tiempo",
     subtitle: "Un plan. Todas las herramientas. Sin complicaciones.",
     timeline: [
-      { when: "Hoy", what: "Acceso completo a Break PRO en cuanto te suscribes." },
+      { when: "Hoy", what: "Acceso completo a Vemluz PRO en cuanto te suscribes." },
       { when: "Siempre", what: "Todas las herramientas PRO activas en tu iPhone." },
       { when: "Cada año", what: "Renovación anual de US$49,99." },
     ],
     badge: "Más popular",
-    plan: "Break PRO",
+    plan: "Vemluz PRO",
     planLabel: "Anual",
     period: "/año",
     trial: "US$49,99 por año · Acceso completo",
@@ -515,7 +515,7 @@ const es: Dictionary = {
       "navegación segura contra pornografía",
       "Límite diario: En transición, Recomendado o Modo Foco Extremo",
       "Liberar una hora ahora: 1h, 1.5h o 2h, hasta 3 veces por semana",
-      "Sincronizado con la cuenta Break",
+      "Sincronizado con la cuenta Vemluz",
       "Renovación anual",
     ],
     cta: "Empezar ahora",
@@ -528,7 +528,7 @@ const es: Dictionary = {
     title: "Rompe el ciclo de la dopamina y recupera horas de tu día.",
     paragraphs: [
       "Nadie decide pasar tres horas en el feed. Pasa en automático: en la fila, en el semáforo, en la cama, en medio de una conversación.",
-      "Con Break, retomas el control antes de deslizar la pantalla. No es cuestión de fuerza de voluntad. Es poner diez segundos de conciencia entre el impulso y la app.",
+      "Con Vemluz, retomas el control antes de deslizar la pantalla. No es cuestión de fuerza de voluntad. Es poner diez segundos de conciencia entre el impulso y la app.",
     ],
     phrases: ["Recupera tu tiempo.", "Gana una hora de vuelta.", "Duerme a tu hora.", "Sé dueño de tu tiempo.", "Está plenamente presente."],
     testimonialsTitle: "Quienes ya rompieron el ciclo",
@@ -612,28 +612,28 @@ const es: Dictionary = {
     title: "Preguntas frecuentes",
     items: [
       {
-        q: "¿Break ve lo que hago en el móvil?",
-        a: "No. Break usa Tiempo de uso de Apple (Screen Time), que funciona en tu iPhone. No tenemos acceso al contenido de tus apps, mensajes ni historial de navegación.",
+        q: "¿Vemluz ve lo que hago en el móvil?",
+        a: "No. Vemluz usa Tiempo de uso de Apple (Screen Time), que funciona en tu iPhone. No tenemos acceso al contenido de tus apps, mensajes ni historial de navegación.",
       },
       {
         q: "¿Qué datos guardan?",
-        a: "Solo lo necesario para tu cuenta Break: email y preferencias de bloqueo, para sincronizar. Nunca vendemos ni compartimos tus datos.",
+        a: "Solo lo necesario para tu cuenta Vemluz: email y preferencias de bloqueo, para sincronizar. Nunca vendemos ni compartimos tus datos.",
       },
       {
         q: "¿Cómo funciona el bloqueo?",
-        a: "Eliges las apps en el selector de Apple. Cuando intentas abrir una, aparece la pantalla de Break con un desafío corto. Al terminar, la app se abre por poco tiempo y luego vuelve a bloquearse.",
+        a: "Eliges las apps en el selector de Apple. Cuando intentas abrir una, aparece la pantalla de Vemluz con un desafío corto. Al terminar, la app se abre por poco tiempo y luego vuelve a bloquearse.",
       },
       {
-        q: "¿Cuánto cuesta Break PRO?",
-        a: "Break PRO cuesta US$49,99 al año, el equivalente a US$4,17 al mes. La suscripción se renueva anualmente.",
+        q: "¿Cuánto cuesta Vemluz PRO?",
+        a: "Vemluz PRO cuesta US$49,99 al año, el equivalente a US$4,17 al mes. La suscripción se renueva anualmente.",
       },
       {
         q: "Ya me suscribí. ¿Cómo restauro mi suscripción?",
-        a: "Abre Break e inicia sesión con el mismo método que usaste para crear la cuenta: Google, Apple o email y contraseña. Si olvidaste la contraseña, toca \"Olvidé mi contraseña\" y restablécela. Importante: cuenta el email de tu cuenta Break, no el email usado en el pago con Stripe.",
+        a: "Abre Vemluz e inicia sesión con el mismo método que usaste para crear la cuenta: Google, Apple o email y contraseña. Si olvidaste la contraseña, toca \"Olvidé mi contraseña\" y restablécela. Importante: cuenta el email de tu cuenta Vemluz, no el email usado en el pago con Stripe.",
       },
       {
         q: "¿Funciona en mi iPhone?",
-        a: "Break funciona en iPhone con iOS 16 o superior.",
+        a: "Vemluz funciona en iPhone con iOS 16 o superior.",
       },
     ],
     closingTitle: "Ya diste el primer paso.",
@@ -641,7 +641,7 @@ const es: Dictionary = {
   },
   footer: {
     tagline: "Bloqueo de pantalla y control de tiempo para iPhone.",
-    rights: "© 2026 Break. Todos los derechos reservados.",
+    rights: "© 2026 Vemluz. Todos los derechos reservados.",
   },
   mobileCta: { label: "US$49,99/año", sub: "Equivale a US$4,17/mes" },
   errors: { checkout: "No pudimos abrir el checkout ahora. Inténtalo de nuevo en unos instantes." },
@@ -683,22 +683,22 @@ const es: Dictionary = {
   checkoutPage: {
     title: "Felicitaciones, tu cuenta fue creada",
     subtitle: "Crea tu cuenta para continuar",
-    plan: "Break Pro Anual",
+    plan: "Vemluz Pro Anual",
     price: "US$49,99",
     includes: ["Apps protegidas ilimitadas · Modo sueño · Navegación segura", "Límite diario · Liberar una hora"],
     email: "Correo de la cuenta",
     cardNumber: "Número de tarjeta",
     expiry: "Vencimiento",
     cvc: "CVV",
-    pay: "Continuar a Break Pro",
+    pay: "Continuar a Vemluz Pro",
     processing: "Procesando...",
     paymentFailed: "No se pudo completar el pago. Revisa los datos de la tarjeta.",
     secure: "Pago seguro con Stripe.",
   },
   downloadPage: {
-    metaTitle: "Descarga Break Pro",
-    metaDescription: "Tu suscripción está activa. Descarga Break en la App Store y entra con el mismo correo.",
-    title: "Descarga Break Pro",
+    metaTitle: "Descarga Vemluz Pro",
+    metaDescription: "Tu suscripción está activa. Descarga Vemluz en la App Store y entra con el mismo correo.",
+    title: "Descarga Vemluz Pro",
     subtitle: "Tu suscripción está activa",
       socialProof: "+1.000 personas ya recuperaron horas del día",
       instruction: "Haz clic en descargar y baja la app en tu teléfono",
@@ -706,7 +706,7 @@ const es: Dictionary = {
     steps: ["Instala la app", "Entra con el mismo correo", "Pro se activa al instante"],
     screensLabel: "Pantallas de la app",
     screens: ["Apps bloqueadas", "Desafío", "Menú Pro"],
-    closing: "Break no te castiga. Te da un motivo para parar.",
+    closing: "Vemluz no te castiga. Te da un motivo para parar.",
   },
 }
 
@@ -722,7 +722,7 @@ const en: Dictionary = {
   hero: {
     badge: "Screen blocking for iPhone",
     title: "Your time, back to you.",
-    subtitle: "Break blocks the apps that steal your attention, protects your sleep, and gives you back control of your day.",
+    subtitle: "Vemluz blocks the apps that steal your attention, protects your sleep, and gives you back control of your day.",
     cta: "Get started now",
     trust: ["Annual plan", "Instant access", "Secure payment"],
     note: "Available for iPhone on iOS 16 or later",
@@ -731,7 +731,7 @@ const en: Dictionary = {
       { value: "6", label: "PRO tools against scrolling" },
       { value: "$4.17", label: "per month on the annual plan" },
     ],
-    checkoutSuccess: "Payment confirmed. Open Break and sign in with your subscription email.",
+    checkoutSuccess: "Payment confirmed. Open Vemluz and sign in with your subscription email.",
   },
   phone: {
     pauseTitle: "Time for a break",
@@ -760,7 +760,7 @@ const en: Dictionary = {
   features: {
     eyebrow: "Features",
     title: "Everything that stands between you and the endless scroll",
-    subtitle: "You choose the apps. Break adds friction before every open.",
+    subtitle: "You choose the apps. Vemluz adds friction before every open.",
     mockups: ["Protected apps", "Time for a break", "Tools menu"],
     items: [
       {
@@ -800,7 +800,7 @@ const en: Dictionary = {
   safe: {
     eyebrow: "Safe browsing",
     title: "Safe browsing: protection from adult content",
-    subtitle: "We know stopping is hard. Break doesn't judge — it protects.",
+    subtitle: "We know stopping is hard. Vemluz doesn't judge — it protects.",
     body: [
       "Blocks adult content sites in your iPhone's browser",
       "Nothing is exposed — it stays between you and the app",
@@ -820,7 +820,7 @@ const en: Dictionary = {
   pain: {
     eyebrow: "We know stopping is hard",
     title: "Trade the endless scroll for real life.",
-    body: "Science shows the best method is replacing the habit. Break was built to give that time back so you can live what actually matters.",
+    body: "Science shows the best method is replacing the habit. Vemluz was built to give that time back so you can live what actually matters.",
     lines: [
       "Spend less time scrolling and more time living.",
       "Get out of the scroll. Be present again.",
@@ -836,12 +836,12 @@ const en: Dictionary = {
     title: "Take your time back",
     subtitle: "One plan. Every tool. No complications.",
     timeline: [
-      { when: "Today", what: "Full access to Break PRO as soon as you subscribe." },
+      { when: "Today", what: "Full access to Vemluz PRO as soon as you subscribe." },
       { when: "Always", what: "Every PRO tool unlocked on your iPhone." },
       { when: "Every year", what: "Annual renewal at $49.99." },
     ],
     badge: "Most popular",
-    plan: "Break PRO",
+    plan: "Vemluz PRO",
     planLabel: "Annual",
     period: "/year",
     trial: "$49.99 per year · Full access",
@@ -852,7 +852,7 @@ const en: Dictionary = {
       "Safe browsing against porn",
       "Daily limit: In transition, Recommended, or Extreme Focus Mode",
       "Unlock an hour now: 1h, 1.5h, or 2h, up to 3 times a week",
-      "Synced with your Break account",
+      "Synced with your Vemluz account",
       "Annual renewal",
     ],
     cta: "Get started now",
@@ -865,7 +865,7 @@ const en: Dictionary = {
     title: "Break the dopamine loop and win back hours of your day.",
     paragraphs: [
       "Nobody decides to spend three hours in the feed. It happens on autopilot: in line, at the red light, in bed, mid-conversation.",
-      "With Break, you take back control before you scroll. It's not about willpower. It's about putting ten seconds of awareness between the impulse and the app.",
+      "With Vemluz, you take back control before you scroll. It's not about willpower. It's about putting ten seconds of awareness between the impulse and the app.",
     ],
     phrases: ["Reclaim your time.", "Win an hour back.", "Sleep on time.", "Own your time.", "Be fully present."],
     testimonialsTitle: "People who broke the loop",
@@ -949,28 +949,28 @@ const en: Dictionary = {
     title: "Frequently asked questions",
     items: [
       {
-        q: "Can Break see what I do on my phone?",
-        a: "No. Break uses Apple's Screen Time, which runs on your iPhone. We have no access to the content of your apps, messages, or browsing history.",
+        q: "Can Vemluz see what I do on my phone?",
+        a: "No. Vemluz uses Apple's Screen Time, which runs on your iPhone. We have no access to the content of your apps, messages, or browsing history.",
       },
       {
         q: "What data do you store?",
-        a: "Only what your Break account needs: your email and blocking preferences, so they sync. We never sell or share your data.",
+        a: "Only what your Vemluz account needs: your email and blocking preferences, so they sync. We never sell or share your data.",
       },
       {
         q: "How does blocking work?",
-        a: "You pick apps in Apple's picker. When you try to open one, Break's screen appears with a short challenge. Once you finish, the app opens briefly and then goes back to blocked.",
+        a: "You pick apps in Apple's picker. When you try to open one, Vemluz's screen appears with a short challenge. Once you finish, the app opens briefly and then goes back to blocked.",
       },
       {
-        q: "How much does Break PRO cost?",
-        a: "Break PRO costs $49.99 per year, about $4.17 per month. The subscription renews annually.",
+        q: "How much does Vemluz PRO cost?",
+        a: "Vemluz PRO costs $49.99 per year, about $4.17 per month. The subscription renews annually.",
       },
       {
         q: "I already subscribed. How do I restore it?",
-        a: "Open Break and sign in with the same method you used to create your account: Google, Apple, or email and password. If you forgot your password, tap \"Forgot password\" and reset it. Note: it's the email on your Break account, not the email used for the Stripe payment.",
+        a: "Open Vemluz and sign in with the same method you used to create your account: Google, Apple, or email and password. If you forgot your password, tap \"Forgot password\" and reset it. Note: it's the email on your Vemluz account, not the email used for the Stripe payment.",
       },
       {
         q: "Does it work on my iPhone?",
-        a: "Break works on iPhones running iOS 16 or later.",
+        a: "Vemluz works on iPhones running iOS 16 or later.",
       },
     ],
     closingTitle: "You've already taken the first step.",
@@ -978,7 +978,7 @@ const en: Dictionary = {
   },
   footer: {
     tagline: "Screen blocking and time control for iPhone.",
-    rights: "© 2026 Break. All rights reserved.",
+    rights: "© 2026 Vemluz. All rights reserved.",
   },
   mobileCta: { label: "$49.99/year", sub: "About $4.17/month" },
   errors: { checkout: "We couldn't open checkout right now. Please try again in a moment." },
@@ -1020,22 +1020,22 @@ const en: Dictionary = {
   checkoutPage: {
     title: "Congratulations, your account was created",
     subtitle: "Create your account to continue",
-    plan: "Break Pro Annual",
+    plan: "Vemluz Pro Annual",
     price: "US$49.99",
     includes: ["Unlimited protected apps · Sleep mode · Safe browsing", "Daily limit · Unlock one hour"],
     email: "Account email",
     cardNumber: "Card number",
     expiry: "Expiry",
     cvc: "CVV",
-    pay: "Continue to Break Pro",
+    pay: "Continue to Vemluz Pro",
     processing: "Processing...",
     paymentFailed: "We couldn't complete the payment. Check your card details.",
     secure: "Secure payment by Stripe.",
   },
   downloadPage: {
-    metaTitle: "Download Break Pro",
-    metaDescription: "Your subscription is active. Download Break on the App Store and sign in with the same email.",
-    title: "Download Break Pro",
+    metaTitle: "Download Vemluz Pro",
+    metaDescription: "Your subscription is active. Download Vemluz on the App Store and sign in with the same email.",
+    title: "Download Vemluz Pro",
     subtitle: "Your subscription is active",
       socialProof: "1,000+ people have won back hours of their day",
       instruction: "Tap download and get the app on your phone",
@@ -1043,7 +1043,7 @@ const en: Dictionary = {
     steps: ["Install the app", "Sign in with the same email", "Pro activates instantly"],
     screensLabel: "App screens",
     screens: ["Blocked apps", "Challenge", "Pro menu"],
-    closing: "Break doesn't punish you. It gives you a reason to stop.",
+    closing: "Vemluz doesn't punish you. It gives you a reason to stop.",
   },
 }
 

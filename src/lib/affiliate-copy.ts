@@ -10,15 +10,15 @@ export function toAffiliateLocale(locale: Locale): AffiliateLocale {
 }
 
 const pt = {
-  metaTitle: "Programa de Afiliados Break",
-  metaDescription: "Indique o Break e ganhe 30% de comissão recorrente em cada assinatura anual.",
+  metaTitle: "Programa de Afiliados Vemluz",
+  metaDescription: "Indique o Vemluz e ganhe 30% de comissão recorrente em cada assinatura anual.",
   cta: "Quero ser afiliado",
   rights: "Todos os direitos reservados.",
   hero: {
-    logoAlt: "Logo do Break",
+    logoAlt: "Logo do Vemluz",
     eyebrow: "Programa de afiliados",
-    title: "Programa de Afiliados Break",
-    subtitleStart: "Indique o Break e ganhe ",
+    title: "Programa de Afiliados Vemluz",
+    subtitleStart: "Indique o Vemluz e ganhe ",
     subtitleHighlight: "30% de comissão recorrente",
     subtitleEnd: " em cada assinatura anual. Enquanto o cliente renovar, você continua recebendo.",
     note: "Cadastro gratuito. Leva menos de um minuto.",
@@ -39,18 +39,18 @@ const pt = {
   },
   product: {
     eyebrow: "O produto",
-    title: "O que é o Break",
+    title: "O que é o Vemluz",
     lead: "Troque a rolagem sem fim pela vida real.",
-    body: "O Break é um app para iPhone que coloca uma pausa entre você e os apps que mais roubam seu tempo. Veja tudo o que você vai indicar.",
+    body: "O Vemluz é um app para iPhone que coloca uma pausa entre você e os apps que mais roubam seu tempo. Veja tudo o que você vai indicar.",
     taglines: ["Quebre o ciclo da dopamina.", "Recupere o seu tempo.", "Saia do scroll, esteja presente de novo."],
     features: [
       {
         title: "Bloqueio de apps",
-        text: "O Break protege redes sociais como Instagram, TikTok e YouTube com um desafio de dez segundos antes de abrir. No plano gratuito, você protege um app; no Pro, vários.",
+        text: "O Vemluz protege redes sociais como Instagram, TikTok e YouTube com um desafio de dez segundos antes de abrir. No plano gratuito, você protege um app; no Pro, vários.",
       },
       {
         title: "Desafios",
-        text: "Quando você tenta abrir um app bloqueado, o Break não só bloqueia: ele propõe um mini-jogo. Ordenar bolas, respiração profunda, caça-palavras, combinar peças, mahjong, flow ou desafio bíblico.",
+        text: "Quando você tenta abrir um app bloqueado, o Vemluz não só bloqueia: ele propõe um mini-jogo. Ordenar bolas, respiração profunda, caça-palavras, combinar peças, mahjong, flow ou desafio bíblico.",
       },
       {
         title: "Modo Sono",
@@ -104,22 +104,22 @@ const pt = {
   },
   final: {
     title: "Pronto para começar a ganhar?",
-    body: "Crie sua conta de afiliado, pegue seu link e comece a indicar o Break hoje mesmo.",
+    body: "Crie sua conta de afiliado, pegue seu link e comece a indicar o Vemluz hoje mesmo.",
   },
 }
 
 type AffiliateCopy = typeof pt
 
 const es: AffiliateCopy = {
-  metaTitle: "Programa de Afiliados Break",
-  metaDescription: "Recomienda Break y gana un 30% de comisión recurrente en cada suscripción anual.",
+  metaTitle: "Programa de Afiliados Vemluz",
+  metaDescription: "Recomienda Vemluz y gana un 30% de comisión recurrente en cada suscripción anual.",
   cta: "Quiero ser afiliado",
   rights: "Todos los derechos reservados.",
   hero: {
-    logoAlt: "Logo de Break",
+    logoAlt: "Logo de Vemluz",
     eyebrow: "Programa de afiliados",
-    title: "Programa de Afiliados Break",
-    subtitleStart: "Recomienda Break y gana un ",
+    title: "Programa de Afiliados Vemluz",
+    subtitleStart: "Recomienda Vemluz y gana un ",
     subtitleHighlight: "30% de comisión recurrente",
     subtitleEnd: " en cada suscripción anual. Mientras el cliente renueve, sigues cobrando.",
     note: "Registro gratuito. Toma menos de un minuto.",
@@ -140,18 +140,18 @@ const es: AffiliateCopy = {
   },
   product: {
     eyebrow: "El producto",
-    title: "Qué es Break",
+    title: "Qué es Vemluz",
     lead: "Cambia el scroll infinito por la vida real.",
-    body: "Break es una app para iPhone que pone una pausa entre tú y las apps que más tiempo te roban. Mira todo lo que vas a recomendar.",
+    body: "Vemluz es una app para iPhone que pone una pausa entre tú y las apps que más tiempo te roban. Mira todo lo que vas a recomendar.",
     taglines: ["Rompe el ciclo de la dopamina.", "Recupera tu tiempo.", "Sal del scroll y vuelve a estar presente."],
     features: [
       {
         title: "Bloqueo de apps",
-        text: "Break protege redes sociales como Instagram, TikTok y YouTube con un desafío de diez segundos antes de abrirlas. En el plan gratuito proteges una app; en Pro, varias.",
+        text: "Vemluz protege redes sociales como Instagram, TikTok y YouTube con un desafío de diez segundos antes de abrirlas. En el plan gratuito proteges una app; en Pro, varias.",
       },
       {
         title: "Desafíos",
-        text: "Cuando intentas abrir una app bloqueada, Break no solo la bloquea: te propone un minijuego. Ordenar bolas, respiración profunda, sopa de letras, unir piezas, mahjong, flow o desafío bíblico.",
+        text: "Cuando intentas abrir una app bloqueada, Vemluz no solo la bloquea: te propone un minijuego. Ordenar bolas, respiración profunda, sopa de letras, unir piezas, mahjong, flow o desafío bíblico.",
       },
       {
         title: "Modo Sueño",
@@ -205,20 +205,20 @@ const es: AffiliateCopy = {
   },
   final: {
     title: "¿Listo para empezar a ganar?",
-    body: "Crea tu cuenta de afiliado, obtén tu enlace y empieza a recomendar Break hoy mismo.",
+    body: "Crea tu cuenta de afiliado, obtén tu enlace y empieza a recomendar Vemluz hoy mismo.",
   },
 }
 
 const en: AffiliateCopy = {
-  metaTitle: "Break Affiliate Program",
-  metaDescription: "Refer Break and earn a 30% recurring commission on every annual subscription.",
+  metaTitle: "Vemluz Affiliate Program",
+  metaDescription: "Refer Vemluz and earn a 30% recurring commission on every annual subscription.",
   cta: "Become an affiliate",
   rights: "All rights reserved.",
   hero: {
-    logoAlt: "Break logo",
+    logoAlt: "Vemluz logo",
     eyebrow: "Affiliate program",
-    title: "Break Affiliate Program",
-    subtitleStart: "Refer Break and earn a ",
+    title: "Vemluz Affiliate Program",
+    subtitleStart: "Refer Vemluz and earn a ",
     subtitleHighlight: "30% recurring commission",
     subtitleEnd: " on every annual subscription. As long as the customer renews, you keep getting paid.",
     note: "Free to join. Takes less than a minute.",
@@ -239,18 +239,18 @@ const en: AffiliateCopy = {
   },
   product: {
     eyebrow: "The product",
-    title: "What is Break",
+    title: "What is Vemluz",
     lead: "Trade endless scrolling for real life.",
-    body: "Break is an iPhone app that puts a pause between you and the apps that steal the most of your time. Here is everything you will be recommending.",
+    body: "Vemluz is an iPhone app that puts a pause between you and the apps that steal the most of your time. Here is everything you will be recommending.",
     taglines: ["Break the dopamine loop.", "Get your time back.", "Leave the scroll and be present again."],
     features: [
       {
         title: "App blocking",
-        text: "Break protects social apps like Instagram, TikTok and YouTube with a ten-second challenge before they open. On the free plan you protect one app; on Pro, as many as you want.",
+        text: "Vemluz protects social apps like Instagram, TikTok and YouTube with a ten-second challenge before they open. On the free plan you protect one app; on Pro, as many as you want.",
       },
       {
         title: "Challenges",
-        text: "When you try to open a blocked app, Break doesn't just block it: it offers a mini-game. Ball sort, deep breathing, word search, tile matching, mahjong, flow or a Bible challenge.",
+        text: "When you try to open a blocked app, Vemluz doesn't just block it: it offers a mini-game. Ball sort, deep breathing, word search, tile matching, mahjong, flow or a Bible challenge.",
       },
       {
         title: "Sleep Mode",
@@ -304,7 +304,7 @@ const en: AffiliateCopy = {
   },
   final: {
     title: "Ready to start earning?",
-    body: "Create your affiliate account, grab your link and start recommending Break today.",
+    body: "Create your affiliate account, grab your link and start recommending Vemluz today.",
   },
 }
 

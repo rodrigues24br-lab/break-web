@@ -157,7 +157,7 @@ export function PauseScreen() {
   const { t } = useLocale()
   return (
     <div className="flex-1 flex flex-col items-center px-6 pt-7 pb-6 text-center">
-      <BreakIcon size={52} alt="Break" className="shadow-[0_10px_24px_-6px_rgba(37,99,235,0.45)]" />
+      <BreakIcon size={52} alt="Vemluz" className="shadow-[0_10px_24px_-6px_rgba(37,99,235,0.45)]" />
       <p className="font-serif font-bold text-[24px] leading-tight text-heading mt-5 text-balance">{t.phone.pauseTitle}</p>
       <p className="text-[12px] text-muted-foreground mt-2 text-balance">{t.phone.pauseBody}</p>
 
@@ -193,7 +193,7 @@ export function ProtectedAppsScreen() {
     <div className="flex-1 flex flex-col px-4 pt-3 relative">
       <span className="self-start flex items-center gap-1.5 bg-card border border-border rounded-full pl-1 pr-3 py-1">
         <BreakIcon size={20} />
-        <span className="text-[14px] font-semibold text-heading">Break</span>
+        <span className="text-[14px] font-semibold text-heading">Vemluz</span>
       </span>
 
       <div className="mt-3 bg-card rounded-2xl border border-border p-3">

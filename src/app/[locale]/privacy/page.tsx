@@ -17,7 +17,7 @@ const SECTION_KEYS = [
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "legal.privacy" });
-  return { title: `${t("title")} — Break`, description: t("intro") };
+  return { title: `${t("title")} — Vemluz`, description: t("intro") };
 }
 
 export default async function PrivacyPage({ params }: Props) {
@@ -28,7 +28,7 @@ export default async function PrivacyPage({ params }: Props) {
   return (
     <main className="flex min-h-svh flex-1 flex-col items-center bg-background px-6 pb-16 pt-6 sm:pb-24">
       <div className="flex w-full max-w-2xl items-center justify-between">
-        <BreakIcon size={36} alt="Break" />
+        <BreakIcon size={36} alt="Vemluz" />
         <LanguageSwitcher />
       </div>
       <article className="mt-10 flex w-full max-w-2xl flex-col gap-10 sm:mt-16">

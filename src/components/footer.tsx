@@ -23,7 +23,7 @@ export default function Footer() {
         <div>
           <div className="flex items-center gap-2">
             <BreakIcon size={24} />
-            <span className="text-[17px] font-semibold text-heading">Break</span>
+            <span className="text-[17px] font-semibold text-heading">Vemluz</span>
           </div>
           <p className="text-[13px] text-muted-foreground mt-2">{t.footer.tagline}</p>
         </div>

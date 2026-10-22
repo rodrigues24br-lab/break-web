@@ -34,7 +34,7 @@ export default function AuthShell({
       <main className="relative z-10 flex-1 w-full max-w-sm mx-auto px-5 pt-4 pb-10 md:pt-12 flex flex-col items-center">
         <BreakIcon
           size={64}
-          alt="Break"
+          alt="Vemluz"
           className="shadow-[0_14px_32px_-12px_rgba(28,36,48,0.55)]"
         />
         {children}

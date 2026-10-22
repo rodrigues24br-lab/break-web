@@ -50,8 +50,8 @@ export function AffiliateHeader() {
     <header className="sticky top-0 z-50 bg-background/85 backdrop-blur-md border-b border-border">
       <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
         <Link href={`/${locale}`} className="flex items-center gap-2">
-          <BreakIcon size={30} alt="Break" />
-          <span className="text-xl font-semibold text-heading tracking-tight">Break</span>
+          <BreakIcon size={30} alt="Vemluz" />
+          <span className="text-xl font-semibold text-heading tracking-tight">Vemluz</span>
         </Link>
         <div className="flex items-center gap-3">
           <LanguageSwitcher locales={AFFILIATE_LOCALES} />
@@ -242,11 +242,11 @@ export function AffiliateFooter() {
       <div className="max-w-6xl mx-auto px-5 flex flex-col sm:flex-row items-center justify-between gap-4">
         <Link href={`/${locale}`} className="flex items-center gap-2">
           <BreakIcon size={24} />
-          <span className="text-[17px] font-semibold text-heading">Break</span>
+          <span className="text-[17px] font-semibold text-heading">Vemluz</span>
         </Link>
         <p className="text-[12px] text-muted-foreground">
           {"© "}
-          {new Date().getFullYear()} Break. {copy.rights}
+          {new Date().getFullYear()} Vemluz. {copy.rights}
         </p>
       </div>
     </footer>

@@ -7,7 +7,7 @@ export async function SalesFooter({ locale }: { locale: string }) {
     <footer className="mt-24 border-t border-border px-5 py-10 sm:px-8">
       <div className="mx-auto flex max-w-3xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="font-[family-name:var(--font-display)] text-lg font-bold tracking-tight">
-          Break
+          Vemluz
         </p>
         <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
           <Link href={`/${locale}/privacy`} className="hover:text-foreground">

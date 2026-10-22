@@ -7,9 +7,9 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Break — Seu tempo, de volta pra você",
+  title: "Vemluz — Seu tempo, de volta pra você",
   description:
-    "Break bloqueia os apps que roubam sua atenção, protege seu sono e te devolve o controle do dia. US$49,99 por ano.",
+    "Vemluz bloqueia os apps que roubam sua atenção, protege seu sono e te devolve o controle do dia. US$49,99 por ano.",
   icons: {
     icon: "/images/break-logo-keystone.jpg",
     apple: "/images/break-logo-keystone.jpg",

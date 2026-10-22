@@ -20,7 +20,7 @@ export default function Header() {
       <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
         <Link href={`/${locale}`} className="flex items-center gap-2">
           <BreakIcon size={30} />
-          <span className="text-xl font-semibold text-heading tracking-tight">Break</span>
+          <span className="text-xl font-semibold text-heading tracking-tight">Vemluz</span>
         </Link>
 
         <nav aria-label="Principal" className="hidden md:flex items-center gap-8">

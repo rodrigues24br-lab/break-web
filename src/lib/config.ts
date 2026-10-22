@@ -45,13 +45,13 @@ export const isMockMode = process.env.NEXT_PUBLIC_MOCK_MODE === "true";
 export const hasProductionSecrets = hasLiveServerSecrets();
 
 export const appConfig = {
-  name: "Break",
+  name: "Vemluz",
   /** Annual Pro — web price */
   priceAnnualUsd: 49.99,
   priceAnnualCents: 4999,
   /**
    * Annual Stripe Price ID: STRIPE_PRICE_ID_ANNUAL (or legacy STRIPE_PRICE_ID).
-   * Defaults to price_1UQFdLBMIFugty3a7b54OLdG (Break Pro annual).
+   * Defaults to price_1UQFdLBMIFugty3a7b54OLdG (Vemluz Pro annual).
    */
   currency: "usd",
   appStoreUrl:

@@ -1,10 +1,10 @@
 {
   "meta": {
-    "title": "Break — Trade endless scroll for real life",
+    "title": "Vemluz — Trade endless scroll for real life",
     "description": "Retake control before you scroll. Block apps with Screen Time, face a challenge to open them, and stick to daily limits."
   },
   "brand": {
-    "name": "Break",
+    "name": "Vemluz",
     "tagline": "Trade endless scroll for real life."
   },
   "nav": {
@@ -21,7 +21,7 @@
   },
   "signup": {
     "title": "Create your account",
-    "subtitle": "Use the same email as in the Break app.",
+    "subtitle": "Use the same email as in the Vemluz app.",
     "email": "Email",
     "password": "Password",
     "submit": "Continue",
@@ -40,7 +40,7 @@
     "error": "Incorrect email or password."
   },
   "checkout": {
-    "title": "Break Pro",
+    "title": "Vemluz Pro",
     "subtitle": "Annual subscription. One payment. All year.",
     "price": "$49.99",
     "period": "/ year",
@@ -58,7 +58,7 @@
     "approved": "Payment approved",
     "proSeal": "PRO",
     "title": "Congratulations, you're Pro.",
-    "subtitle": "Your Break Pro subscription is active.",
+    "subtitle": "Your Vemluz Pro subscription is active.",
     "emailLabel": "Account email",
     "emailHint": "Use this email to sign in on iOS.",
     "download": "Download on the App Store",
@@ -71,7 +71,7 @@
   "sales": {
     "hero": {
       "title": "Trade endless scroll for real life.",
-      "subtitle": "With Break, you retake control before you scroll — a Screen Time barrier between you and the feed.",
+      "subtitle": "With Vemluz, you retake control before you scroll — a Screen Time barrier between you and the feed.",
       "cta": "Continue"
     },
     "problem": {
@@ -95,8 +95,8 @@
       ]
     },
     "solution": {
-      "title": "The solution: Break",
-      "lead": "Authorize Screen Time, pick apps, Break blocks them. A challenge to open. A short session. Then it locks again. Your home screen shows real usage.",
+      "title": "The solution: Vemluz",
+      "lead": "Authorize Screen Time, pick apps, Vemluz blocks them. A challenge to open. A short session. Then it locks again. Your home screen shows real usage.",
       "items": [
         {
           "title": "App blocking",
@@ -108,7 +108,7 @@
         },
         {
           "title": "Short session + reblock",
-          "text": "A limited unlock. When time is up, Break locks the app again."
+          "text": "A limited unlock. When time is up, Vemluz locks the app again."
         },
         {
           "title": "Sleep Mode",
@@ -116,7 +116,7 @@
         },
         {
           "title": "Daily limit",
-          "text": "A ceiling on openings. Hit it, and Break stops releasing apps for the day."
+          "text": "A ceiling on openings. Hit it, and Vemluz stops releasing apps for the day."
         }
       ]
     },
@@ -154,7 +154,7 @@
         },
         {
           "n": "3",
-          "title": "Download Break",
+          "title": "Download Vemluz",
           "text": "Get the app on the App Store and allow Screen Time."
         },
         {
@@ -165,7 +165,7 @@
       ]
     },
     "offer": {
-      "title": "Break Pro",
+      "title": "Vemluz Pro",
       "price": "$49.99",
       "period": "per year",
       "monthlyApprox": "≈ {price}/mo",
@@ -177,11 +177,11 @@
       "terms": "Terms",
       "support": "Support",
       "affiliate": "Affiliate Program",
-      "tagline": "Break — trade endless scroll for real life."
+      "tagline": "Vemluz — trade endless scroll for real life."
     },
     "account": {
       "title": "Create your account",
-      "subtitle": "Then unlock Break Pro (annual) on the next page.",
+      "subtitle": "Then unlock Vemluz Pro (annual) on the next page.",
       "email": "Email",
       "password": "Password",
       "create": "Create account",
@@ -191,7 +191,7 @@
       "google": "Continue with Google",
       "loading": "Working…",
       "redirecting": "Taking you to plans…",
-      "continuePlans": "Continue to Break Pro",
+      "continuePlans": "Continue to Vemluz Pro",
       "error": "Something went wrong. Try again.",
       "haveAccount": "Already have an account?",
       "needAccount": "Need an account?"
@@ -201,15 +201,15 @@
     "privacy": {
       "title": "Privacy Policy",
       "updated": "Last updated: October 2026",
-      "intro": "This policy explains what data Break collects, why we collect it, and how it is handled. We only collect the minimum needed to provide the service.",
+      "intro": "This policy explains what data Vemluz collects, why we collect it, and how it is handled. We only collect the minimum needed to provide the service.",
       "sections": {
         "collection": {
           "title": "Data we collect",
-          "body": "We collect the email you use to create your account and the information needed to activate and maintain your Break Pro subscription. We do not sell or rent your personal data."
+          "body": "We collect the email you use to create your account and the information needed to activate and maintain your Vemluz Pro subscription. We do not sell or rent your personal data."
         },
         "payments": {
           "title": "Payments",
-          "body": "Payments made on the website are processed by Stripe. Purchases made inside the iOS app are processed by Apple through In-App Purchase. Card details are handled directly by these providers and are never stored by Break. We only receive your subscription status and basic transaction details."
+          "body": "Payments made on the website are processed by Stripe. Purchases made inside the iOS app are processed by Apple through In-App Purchase. Card details are handled directly by these providers and are never stored by Vemluz. We only receive your subscription status and basic transaction details."
         },
         "affiliates": {
           "title": "Affiliate program",
@@ -231,7 +231,7 @@
     },
     "terms": {
       "title": "Terms",
-      "body": "Break Pro is an annual subscription billed at $49.99 USD unless otherwise stated at checkout. Pro status syncs to the Break iOS app when you sign in with the same email. Refunds follow the payment provider policies applicable to your purchase."
+      "body": "Vemluz Pro is an annual subscription billed at $49.99 USD unless otherwise stated at checkout. Pro status syncs to the Vemluz iOS app when you sign in with the same email. Refunds follow the payment provider policies applicable to your purchase."
     },
     "support": {
       "title": "Support",
@@ -244,7 +244,7 @@
     "google": "Continue with Google"
   },
   "plans": {
-    "title": "Break Pro — annual",
+    "title": "Vemluz Pro — annual",
     "subtitle": "Several apps, Sleep Mode, daily limit, live hour, and safe browsing.",
     "checkingAuth": "Checking your account…",
     "annual": {
@@ -253,14 +253,14 @@
       "period": "per year",
       "monthlyApprox": "≈ {price}/mo",
       "badge": "Pro",
-      "blurb": "One payment. All year. Synced to your Break account."
+      "blurb": "One payment. All year. Synced to your Vemluz account."
     },
     "includes": [
       "Block several apps",
       "Sleep Mode & daily limit",
       "Live hour & safe browsing",
       "All five anti-scroll functions",
-      "Synced to your Break account"
+      "Synced to your Vemluz account"
     ],
     "cta": "Continue to payment",
     "mockPay": "Simulate payment (demo)",

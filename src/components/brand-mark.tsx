@@ -15,7 +15,7 @@ export function BrandMark({ className, size = "hero" }: BrandMarkProps) {
           size === "nav" && "text-2xl"
         )}
       >
-        Break
+        Vemluz
       </p>
     </div>
   );

@@ -9,8 +9,8 @@ export interface Product {
 export const PRODUCTS: Product[] = [
   {
     id: "break-annual",
-    name: "Break PRO — Annual",
-    description: "Full access to Break PRO for iOS, renewed yearly.",
+    name: "Vemluz PRO — Annual",
+    description: "Full access to Vemluz PRO for iOS, renewed yearly.",
     priceInCents: 4999,
     interval: "year",
   },

@@ -11,8 +11,8 @@ export const metadata: Metadata = {
   description:
     "Vemluz bloqueia os apps que roubam sua atenção, protege seu sono e te devolve o controle do dia. US$49,99 por ano.",
   icons: {
-    icon: "/images/break-logo-keystone.jpg",
-    apple: "/images/break-logo-keystone.jpg",
+    icon: "/images/vemluz-icon.png",
+    apple: "/apple-icon.png",
   },
 };
 
